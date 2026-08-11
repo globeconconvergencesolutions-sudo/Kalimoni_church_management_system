@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+@theme inline {
+  --color-burgundy: #6B1A2A;
+  --color-burgundy-dark: #4A1019;
+  --color-gold: #C8922A;
+  --color-gold-light: #E8B84B;
+  --color-cream: #FAF6F0;
+  --color-parchment: #F0E8D8;
+  --color-charcoal: #1C1A18;
+  --color-muted: #6B6259;
+}
+
+:root {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Lora', Georgia, serif;
+  letter-spacing: -0.022em;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(200, 146, 42, 0.22);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(200, 146, 42, 0.5); }
+
+*, *::before, *::after { box-sizing: border-box; }
+img { max-width: 100%; display: block; }
+
+.h-safe-bottom { height: 0px; }
+
+@media (pointer: coarse) {
+  button, a[href], select, input[type="submit"] {
+    min-height: 44px;
+  }
+}
+
+
+.hero-section {
+  box-shadow:
+    0 0 0 1px rgba(200, 146, 42, 0.12),
+    0 20px 56px -12px rgba(74, 16, 25, 0.18);
+}

@@ -1,0 +1,10 @@
+{
+  "description": "Provides a modern platform to help users correct text errors efficiently, enhancing writing accuracy and clarity for all skill levels.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
