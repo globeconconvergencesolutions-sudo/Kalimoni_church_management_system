@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, type TouchEvent as RTouchEvent, type FormEvent } from 'react'
 import { Link } from 'react-router'
-import { POSTS } from '../data/blog'
 import { useSEO } from '../hooks/useSEO'
 import officialLogo from '../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
-
-const BLOG_PREVIEW = POSTS.slice(0, 3)
+import { usePublishedPosts } from '../hooks/usePublishedPosts'
+import { usePublishedEvents } from '../hooks/usePublishedEvents'
+import { useMassSchedule } from '../hooks/useMassSchedule'
+import { computeNextMass } from '../data/massSchedule'
 
 const HERO_STATS = [
   { value: '1927', label: 'Year Established' },
@@ -66,15 +67,6 @@ const TESTIMONIALS = [
   { quote: "The Grotto built by our men's association has become the most visited corner of the parish grounds. It reminds us that prayer is the foundation of every good work.", name: 'Peter K.', role: 'Catholic Men Association, Kalimoni', initial: 'P' },
 ]
 
-const EVENTS = [
-  { date: 'Oct 1, 2025', title: 'Parish Feast Day', desc: "Solemnity of St. Theresa of Lisieux — the parish's patronal feast. Mass & celebration.", color: '#6B1A2A', icon: '✦' },
-  { date: 'Oct 7, 2025', title: 'Our Lady of the Rosary', desc: 'Special Rosary procession and Mass in honour of Our Lady. All parishioners invited.', color: '#4A3A10', icon: '◎' },
-  { date: 'Nov 2, 2025', title: 'All Souls Day', desc: 'Mass for the faithful departed. Jumuiyas invited to join the special commemorative liturgy.', color: '#2A1A4A', icon: '✝' },
-  { date: 'Nov 21, 2025', title: 'Christ the King', desc: 'Solemnity of Our Lord Jesus Christ, King of the Universe. Parish celebrations and procession.', color: '#1A3A4A', icon: '❧' },
-  { date: 'Dec 8, 2025', title: 'Immaculate Conception', desc: 'Holy Day of Obligation. Masses at 7:00 AM, 9:00 AM and 11:00 AM. Grotto devotions at noon.', color: '#3A1A2A', icon: '♦' },
-  { date: 'Dec 25, 2025', title: 'Christmas Day', desc: 'Midnight Mass, 7:00 AM and 9:00 AM. Celebrate the birth of our Lord with the whole community.', color: '#4A1019', icon: '★' },
-]
-
 const AFFILIATIONS = [
   { title: 'Catholic Archdiocese of Nairobi', sub: 'Under His Grace, the Archbishop of Nairobi', icon: '✝' },
   { title: 'Ruiru Deanery', sub: 'Serving the broader Ruiru community', icon: '◈' },
@@ -84,45 +76,16 @@ const AFFILIATIONS = [
   { title: 'Est. 1927', sub: 'Nearly 100 years of faithful service', icon: '◆' },
 ]
 
-// Kenya = UTC+3. Compute next mass from current time.
-function computeNextMass(): { displayDay: string; time: string; isImminent: boolean } {
-  const now = new Date()
-  const kenyaDate = new Date(now.getTime() + 3 * 60 * 60 * 1000)
-  const dow = kenyaDate.getUTCDay()
-  const currentMin = kenyaDate.getUTCHours() * 60 + kenyaDate.getUTCMinutes()
-
-  // [dayOfWeek, minutesFromMidnight, displayTime]
-  const MASSES: [number, number, string][] = [
-    [0, 450, '7:30 AM'], [0, 570, '9:30 AM'],  // Sunday
-    [1, 1080, '6:00 PM'],                        // Monday evening
-    [2, 420, '7:00 AM'],                         // Tuesday morning
-    [3, 1080, '6:00 PM'],                        // Wednesday evening
-    [4, 420, '7:00 AM'],                         // Thursday morning
-    [5, 420, '7:00 AM'],                         // Friday morning
-    [6, 420, '7:00 AM'],                         // Saturday morning
-  ]
-
-  for (let offset = 0; offset < 8; offset++) {
-    const targetDay = (dow + offset) % 7
-    for (const [massDay, massMin, time] of MASSES) {
-      if (massDay !== targetDay) continue
-      if (offset === 0 && massMin <= currentMin) continue
-      const diffMin = offset * 24 * 60 + massMin - currentMin
-      const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-      const displayDay = offset === 0 ? 'Today' : offset === 1 ? 'Tomorrow' : DAY_NAMES[targetDay]
-      return { displayDay, time, isImminent: diffMin <= 90 }
-    }
-  }
-  return { displayDay: 'Sunday', time: '7:00 AM', isImminent: false }
-}
-
+// Kenya = UTC+3. Next Mass is derived from published mass_slots (or prototype defaults).
 function NextMassStrip() {
-  const [massInfo, setMassInfo] = useState(computeNextMass)
+  const { slots } = useMassSchedule()
+  const [massInfo, setMassInfo] = useState(() => computeNextMass(slots))
 
   useEffect(() => {
-    const id = setInterval(() => setMassInfo(computeNextMass()), 60000)
+    setMassInfo(computeNextMass(slots))
+    const id = setInterval(() => setMassInfo(computeNextMass(slots)), 60000)
     return () => clearInterval(id)
-  }, [])
+  }, [slots])
 
   return (
     <div
@@ -160,6 +123,8 @@ function NextMassStrip() {
 
 function EventsStrip() {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const { events } = usePublishedEvents()
+  const upcoming = events.slice(0, 6)
 
   const scroll = (dir: 'left' | 'right') => {
     if (!scrollRef.current) return
@@ -189,9 +154,9 @@ function EventsStrip() {
           className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory"
           style={{ scrollbarWidth: 'none' }}
         >
-          {EVENTS.map((ev, i) => (
+          {upcoming.map(ev => (
             <div
-              key={i}
+              key={ev.id}
               className="shrink-0 snap-start p-4 sm:p-5 flex flex-col gap-2 transition-transform hover:-translate-y-0.5 duration-200"
               style={{ width: 'clamp(220px, 36vw, 280px)', backgroundColor: ev.color, minHeight: 150 }}
             >
@@ -532,11 +497,23 @@ export default function Home() {
   })
 
   const [activeTab, setActiveTab] = useState(0)
+  const { posts } = usePublishedPosts()
+  const blogPreview = posts.slice(0, 3)
+  const newsItems = posts.length
+    ? posts.slice(0, 3).map(p => ({
+        date: p.date,
+        category: p.category,
+        headline: p.title,
+        excerpt: p.excerpt,
+        img: p.coverImg,
+      }))
+    : NEWS
 
   useEffect(() => {
-    const id = setInterval(() => setActiveTab(t => (t + 1) % NEWS.length), 4000)
+    const len = newsItems.length || 1
+    const id = setInterval(() => setActiveTab(t => (t + 1) % len), 4000)
     return () => clearInterval(id)
-  }, [])
+  }, [newsItems.length])
 
   return (
     <div>
@@ -751,20 +728,20 @@ export default function Home() {
             <div className="w-full lg:w-1/2 mb-6 lg:mb-0">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-5 sm:mb-6 text-white" style={{ fontFamily: "'Lora', serif" }}>Recent Highlights</h2>
               <div className="flex gap-2 mb-5 sm:mb-6 flex-wrap">
-                {NEWS.map((n, i) => (
+                {newsItems.map((n, i) => (
                   <button key={i} onClick={() => setActiveTab(i)} className="px-3 py-2 text-xs tracking-wide transition-all duration-200 min-h-[40px]" style={{ fontFamily: "'DM Mono', monospace", backgroundColor: activeTab === i ? '#C8922A' : 'rgba(255,255,255,0.07)', color: activeTab === i ? '#FAF6F0' : '#8A7A70', border: activeTab === i ? 'none' : '1px solid rgba(200,146,42,0.2)' }}>
                     {n.category}
                   </button>
                 ))}
               </div>
               <div className="p-5 sm:p-6" style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderLeft: '2px solid #C8922A', borderTop: '1px solid rgba(200,146,42,0.1)' }}>
-                <div className="text-xs tracking-widest uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>{NEWS[activeTab].date}</div>
-                <h3 className="text-lg sm:text-xl font-bold mb-3 text-white" style={{ fontFamily: "'Lora', serif" }}>{NEWS[activeTab].headline}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: '#F0E8D8AA' }}>{NEWS[activeTab].excerpt}</p>
+                <div className="text-xs tracking-widest uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>{newsItems[activeTab]?.date}</div>
+                <h3 className="text-lg sm:text-xl font-bold mb-3 text-white" style={{ fontFamily: "'Lora', serif" }}>{newsItems[activeTab]?.headline}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#F0E8D8AA' }}>{newsItems[activeTab]?.excerpt}</p>
               </div>
             </div>
             <div className="w-full lg:w-1/2 relative overflow-hidden" style={{ height: 260, backgroundColor: '#D0C4B0' }}>
-              {NEWS.map((n, i) => (
+              {newsItems.map((n, i) => (
                 <img key={i} src={`https://images.unsplash.com/${n.img}?w=700&h=480&fit=crop&auto=format`} alt={n.headline} className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700" style={{ opacity: activeTab === i ? 1 : 0 }} />
               ))}
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(74,16,25,0.5) 0%, transparent 60%)' }} />
@@ -822,7 +799,7 @@ export default function Home() {
             <Link to="/blog" className="text-sm font-semibold tracking-wide flex items-center gap-2 transition-opacity hover:opacity-70 whitespace-nowrap" style={{ color: '#C8922A', fontFamily: "'Inter', sans-serif" }}>All Posts →</Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {BLOG_PREVIEW.map(post => (
+            {blogPreview.map(post => (
               <Link
                 key={post.slug}
                 to={`/blog/${post.slug}`}

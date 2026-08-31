@@ -1,6 +1,12 @@
 import { Link } from 'react-router'
+import { useSEO } from '../hooks/useSEO'
 
 export default function NotFound() {
+  useSEO({
+    title: 'Page Not Found',
+    description: 'This page could not be found on the St. Theresa Parish, Kalimoni website.',
+    path: '/404',
+  })
   return (
     <div
       className="min-h-screen flex items-center justify-center px-6 text-center"

@@ -1,19 +1,17 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { POSTS } from '../data/blog'
 import { useSEO } from '../hooks/useSEO'
-
-const ALL_CATS = ['All', ...Array.from(new Set(POSTS.map(p => p.category)))]
-
-const FEATURED = POSTS[0]
-const REST = POSTS.slice(1)
+import { usePublishedPosts } from '../hooks/usePublishedPosts'
 
 export default function Blog() {
   useSEO({ title: 'Blog & News', description: 'Stories, reflections, and news from St. Theresa Parish, Kalimoni — parish life, community celebrations, faith formation, and more.', path: '/blog' })
+  const { posts } = usePublishedPosts()
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
+  const allCats = ['All', ...Array.from(new Set(posts.map(p => p.category)))]
+  const featured = posts[0]
 
-  const filtered = POSTS.filter(p => {
+  const filtered = posts.filter(p => {
     const matchesCat = activeCategory === 'All' || p.category === activeCategory
     const q = search.toLowerCase()
     const matchesSearch = !q || p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q) || p.tags.some(t => t.toLowerCase().includes(q))
@@ -66,19 +64,19 @@ export default function Blog() {
       </section>
       </div>
 
-      {/* FEATURED POST */}
-      {!search && activeCategory === 'All' && (
+      {/* featured POST */}
+      {!search && activeCategory === 'All' && featured && (
         <section className="px-4 sm:px-6 md:px-10 lg:px-16 -mt-1" style={{ backgroundColor: '#FAF6F0' }}>
           <div className="max-w-6xl mx-auto">
             <Link
-              to={`/blog/${FEATURED.slug}`}
+              to={`/blog/${featured.slug}`}
               className="group flex flex-col lg:flex-row overflow-hidden transition-transform hover:-translate-y-0.5 duration-300"
               style={{ marginTop: '2.5rem', backgroundColor: '#F0E8D8' }}
             >
               <div className="w-full lg:w-1/2 overflow-hidden" style={{ minHeight: 260 }}>
                 <img
-                  src={`https://images.unsplash.com/${FEATURED.coverImg}?w=800&h=500&fit=crop&auto=format`}
-                  alt={FEATURED.title}
+                  src={`https://images.unsplash.com/${featured.coverImg}?w=800&h=500&fit=crop&auto=format`}
+                  alt={featured.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   style={{ minHeight: 260 }}
                 />
@@ -93,22 +91,22 @@ export default function Blog() {
                       Featured
                     </span>
                     <span className="text-xs tracking-wide" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
-                      {FEATURED.category}
+                      {featured.category}
                     </span>
                   </div>
                   <h2
                     className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 group-hover:text-burgundy transition-colors leading-tight"
                     style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}
                   >
-                    {FEATURED.title}
+                    {featured.title}
                   </h2>
                   <p className="text-sm leading-relaxed mb-6" style={{ color: '#4A3A30' }}>
-                    {FEATURED.excerpt}
+                    {featured.excerpt}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="text-xs" style={{ color: '#6B6259', fontFamily: "'DM Mono', monospace" }}>
-                    {FEATURED.date} · {FEATURED.readTime}
+                    {featured.date} · {featured.readTime}
                   </div>
                   <span
                     className="text-xs font-semibold tracking-wide flex items-center gap-1.5 transition-colors group-hover:text-gold"
@@ -129,7 +127,7 @@ export default function Blog() {
           {/* Filters row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8 sm:mb-10">
             <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap flex-shrink-0">
-              {ALL_CATS.map(cat => (
+              {allCats.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}

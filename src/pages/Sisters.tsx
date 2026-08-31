@@ -1,3 +1,5 @@
+import { useSEO } from '../hooks/useSEO'
+
 const APOSTOLATE = [
   { num: '01', title: 'Health Ministry', detail: 'Kalimoni Mission Hospital — a fully-fledged Level 4 hospital. What began as a modest dispensary under Sr. Juliana Mose now serves the entire wider community.', img: 'photo-1517120026326-d87759a7b63b', color: '#1A3A4A' },
   { num: '02', title: 'Education Ministry', detail: 'Kalimoni Comprehensive School, nurturing the next generation with quality education grounded in Catholic values and care.', img: 'flagged/photo-1555251255-e9a095d6eb9d', color: '#4A3A10' },
@@ -12,6 +14,11 @@ const IMPACT = [
 ]
 
 export default function Sisters() {
+  useSEO({
+    title: 'HHCJ Sisters',
+    description: 'The Sisters of the Handmaids of the Holy Child Jesus serve Kalimoni through the mission hospital, school, pastoral ministry, and charity.',
+    path: '/sisters',
+  })
   return (
     <div>
       {/* HERO */}

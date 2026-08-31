@@ -1,19 +1,11 @@
 import { useState } from 'react'
 import { useSEO } from '../hooks/useSEO'
+import { useMassSchedule } from '../hooks/useMassSchedule'
 
 const OFFICE_HOURS = [
   { day: 'Monday – Friday', hours: '8:00 AM – 5:00 PM EAT' },
   { day: 'Saturday', hours: '8:00 AM – 1:00 PM EAT' },
   { day: 'Sunday', hours: 'After Masses' },
-]
-
-const MASS_SCHEDULE = [
-  { day: 'Sunday', times: '7:30 AM · 9:30 AM' },
-  { day: 'Tue · Thu · Fri · Sat', times: '7:00 AM' },
-  { day: 'Mon · Wed (Evening)', times: '6:00 PM' },
-  { day: 'Adoration (Thu)', times: '6:00 – 7:00 PM' },
-  { day: '1st Friday Night Vigil', times: '8:00 PM' },
-  { day: 'Confession', times: '30 min before each Mass' },
 ]
 
 const inputStyle = {
@@ -26,6 +18,7 @@ const inputStyle = {
 
 export default function Contact() {
   useSEO({ title: 'Contact Us', description: 'Get in touch with St. Theresa Parish, Kalimoni. We welcome messages from parishioners, Kenyan diaspora, and international partners worldwide.', path: '/contact' })
+  const { list: massSchedule } = useMassSchedule()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [country, setCountry] = useState('')
@@ -169,9 +162,9 @@ export default function Contact() {
 
             <div className="p-5 sm:p-6" style={{ backgroundColor: '#6B1A2A' }}>
               <div className="text-xs tracking-widest uppercase mb-4" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>Mass Schedule</div>
-              {MASS_SCHEDULE.map(m => (
-                <div key={m.day} className="flex flex-col sm:flex-row sm:justify-between py-2.5 border-b gap-1 text-sm" style={{ borderColor: 'rgba(240,232,216,0.15)' }}>
-                  <span style={{ color: '#F0E8D8BB' }}>{m.day}</span>
+              {massSchedule.map(m => (
+                <div key={m.label} className="flex flex-col sm:flex-row sm:justify-between py-2.5 border-b gap-1 text-sm" style={{ borderColor: 'rgba(240,232,216,0.15)' }}>
+                  <span style={{ color: '#F0E8D8BB' }}>{m.label}</span>
                   <span style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace", fontSize: '0.7rem' }}>{m.times}</span>
                 </div>
               ))}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSEO } from '../hooks/useSEO'
 
 const GROWTH_DATA = [
   { year: 2002, count: 15 },
@@ -26,6 +27,11 @@ const OUTSTATIONS = [
 ]
 
 export default function Community() {
+  useSEO({
+    title: 'Our Community',
+    description: '72 Jumuiyas, ministries, outstations, and parish celebrations that make St. Theresa Parish, Kalimoni a living community of faith.',
+    path: '/community',
+  })
   const maxCount = Math.max(...GROWTH_DATA.map(d => d.count))
   const [hoveredBar, setHoveredBar] = useState<number | null>(null)
 

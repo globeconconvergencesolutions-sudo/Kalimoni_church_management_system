@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSEO } from '../hooks/useSEO'
 
 const PILLARS = [
   {
@@ -24,6 +25,11 @@ const PILLARS = [
 ]
 
 export default function Vincentians() {
+  useSEO({
+    title: 'Vincentian Fathers',
+    description: 'The Vincentian Congregation has served St. Theresa Parish, Kalimoni since 2000 through evangelisation, celebration, charity, and leadership.',
+    path: '/vincentians',
+  })
   const [activePillar, setActivePillar] = useState('evangelisation')
   const pillar = PILLARS.find(p => p.id === activePillar)!
 

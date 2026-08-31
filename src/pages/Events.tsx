@@ -1,152 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useSEO } from '../hooks/useSEO'
-
-const MONTHS = ['All', 'Aug 2026', 'Sep 2026', 'Oct 2026', 'Nov 2026', 'Dec 2026']
-
-const EVENTS = [
-  {
-    id: 1,
-    date: 'Aug 15, 2026',
-    month: 'Aug 2026',
-    title: 'Assumption of Mary',
-    category: 'Holy Day of Obligation',
-    time: '7:30 AM · 9:30 AM',
-    desc: 'Solemnity of the Assumption of the Blessed Virgin Mary. Holy Day of Obligation — all Catholics are called to participate in Mass.',
-    color: '#6B1A2A',
-    icon: '✦',
-  },
-  {
-    id: 2,
-    date: 'Sep 5, 2026',
-    month: 'Sep 2026',
-    title: 'CWA Monthly Meeting',
-    category: 'Ministry',
-    time: '9:00 AM – 12:00 PM',
-    desc: 'Monthly gathering of the Catholic Women Association. All CWA members are invited. Agenda includes charity reports and Marian devotions.',
-    color: '#4A3A10',
-    icon: '♡',
-  },
-  {
-    id: 3,
-    date: 'Sep 14, 2026',
-    month: 'Sep 2026',
-    title: 'Triumph of the Holy Cross',
-    category: 'Feast Day',
-    time: '7:00 AM · 6:00 PM',
-    desc: 'Feast of the Exaltation of the Holy Cross. Special Mass and evening prayer service with cross veneration.',
-    color: '#6B1A2A',
-    icon: '✝',
-  },
-  {
-    id: 4,
-    date: 'Oct 1, 2026',
-    month: 'Oct 2026',
-    title: 'Parish Feast Day — St. Theresa',
-    category: 'Patronal Feast',
-    time: '7:30 AM · 9:30 AM · 6:00 PM',
-    desc: "Solemnity of St. Theresa of Lisieux — the parish's patronal feast. Solemn Mass, procession, cultural celebrations, and parish dinner.",
-    color: '#6B1A2A',
-    icon: '★',
-  },
-  {
-    id: 5,
-    date: 'Oct 7, 2026',
-    month: 'Oct 2026',
-    title: 'Our Lady of the Rosary',
-    category: 'Marian Feast',
-    time: '7:30 AM · Procession 5:00 PM',
-    desc: 'Special Rosary procession and Mass in honour of Our Lady of the Rosary. The CWA and Marian groups lead the procession.',
-    color: '#4A3A10',
-    icon: '◎',
-  },
-  {
-    id: 6,
-    date: 'Oct 17, 2026',
-    month: 'Oct 2026',
-    title: 'World Mission Sunday',
-    category: 'PMC / Mission',
-    time: '9:30 AM',
-    desc: 'Annual World Mission Sunday — the Pontifical Missionary Childhood (PMC) leads a special collection for the missions. Children invited to participate.',
-    color: '#3A1A2A',
-    icon: '◈',
-  },
-  {
-    id: 7,
-    date: 'Nov 1, 2026',
-    month: 'Nov 2026',
-    title: 'All Saints Day',
-    category: 'Holy Day of Obligation',
-    time: '7:30 AM · 9:30 AM',
-    desc: "Solemnity of All Saints. Holy Day of Obligation. We honour all the saints — known and unknown — who now enjoy God's presence.",
-    color: '#2A1A4A',
-    icon: '✦',
-  },
-  {
-    id: 8,
-    date: 'Nov 2, 2026',
-    month: 'Nov 2026',
-    title: 'All Souls Day',
-    category: 'Commemoration',
-    time: '7:30 AM · 6:00 PM',
-    desc: 'Commemoration of All the Faithful Departed. Mass for the faithful departed. Jumuiyas are invited to the special commemorative evening liturgy.',
-    color: '#1A3A4A',
-    icon: '✝',
-  },
-  {
-    id: 9,
-    date: 'Nov 22, 2026',
-    month: 'Nov 2026',
-    title: 'Christ the King',
-    category: 'Solemnity',
-    time: '7:30 AM · 9:30 AM · Procession',
-    desc: 'Solemnity of Our Lord Jesus Christ, King of the Universe — the final Sunday of the liturgical year. Grand procession and parish celebrations.',
-    color: '#4A1019',
-    icon: '❧',
-  },
-  {
-    id: 10,
-    date: 'Dec 8, 2026',
-    month: 'Dec 2026',
-    title: 'Immaculate Conception',
-    category: 'Holy Day of Obligation',
-    time: '7:30 AM · 9:30 AM · Grotto 12:00 PM',
-    desc: 'Solemnity of the Immaculate Conception — Holy Day of Obligation. Special Grotto devotions at noon, led by the CWA.',
-    color: '#3A1A2A',
-    icon: '♦',
-  },
-  {
-    id: 11,
-    date: 'Dec 13, 2026',
-    month: 'Dec 2026',
-    title: 'YSC Christmas Concert',
-    category: 'Youth / Music',
-    time: '4:00 PM',
-    desc: 'The Youths Serving Christ present the annual Christmas Music Concert. Free entry — all parishioners and guests warmly welcomed.',
-    color: '#2A1A4A',
-    icon: '♬',
-  },
-  {
-    id: 12,
-    date: 'Dec 25, 2026',
-    month: 'Dec 2026',
-    title: 'Christmas Day',
-    category: 'Solemnity',
-    time: 'Midnight · 7:30 AM · 9:30 AM',
-    desc: 'The Nativity of Our Lord Jesus Christ. Midnight Mass (Christmas Vigil), followed by morning Masses. Come celebrate the birth of our Saviour.',
-    color: '#4A1019',
-    icon: '★',
-  },
-]
-
-const MASS_REGULAR = [
-  { label: 'Sunday', times: '7:30 AM · 9:30 AM' },
-  { label: 'Tue · Thu · Fri · Sat', times: '7:00 AM' },
-  { label: 'Mon · Wed (Evening)', times: '6:00 PM' },
-  { label: 'Adoration (Thu)', times: '6:00 – 7:00 PM' },
-  { label: '1st Friday Vigil', times: '8:00 PM' },
-  { label: 'Confession', times: '30 min before Mass' },
-]
+import { usePublishedEvents } from '../hooks/usePublishedEvents'
+import { useMassSchedule } from '../hooks/useMassSchedule'
 
 export default function Events() {
   useSEO({
@@ -155,8 +11,11 @@ export default function Events() {
     path: '/events',
   })
   const [activeMonth, setActiveMonth] = useState('All')
+  const { events } = usePublishedEvents()
+  const { list: massRegular } = useMassSchedule()
+  const months = ['All', ...Array.from(new Set(events.map(e => e.month)))]
 
-  const filtered = activeMonth === 'All' ? EVENTS : EVENTS.filter(e => e.month === activeMonth)
+  const filtered = activeMonth === 'All' ? events : events.filter(e => e.month === activeMonth)
 
   return (
     <div>
@@ -191,7 +50,7 @@ export default function Events() {
           <div className="w-full lg:w-8/12">
             {/* Month filter */}
             <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap mb-8">
-              {MONTHS.map(m => (
+              {months.map(m => (
                 <button
                   key={m}
                   onClick={() => setActiveMonth(m)}
@@ -264,7 +123,7 @@ export default function Events() {
             {/* Mass schedule */}
             <div className="p-5 sm:p-6" style={{ backgroundColor: '#6B1A2A' }}>
               <div className="text-xs tracking-widest uppercase mb-4" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>Mass Schedule</div>
-              {MASS_REGULAR.map(m => (
+              {massRegular.map(m => (
                 <div key={m.label} className="flex flex-col sm:flex-row sm:justify-between py-2.5 border-b gap-1 text-sm" style={{ borderColor: 'rgba(240,232,216,0.15)' }}>
                   <span style={{ color: '#F0E8D8BB' }}>{m.label}</span>
                   <span style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace", fontSize: '0.7rem' }}>{m.times}</span>

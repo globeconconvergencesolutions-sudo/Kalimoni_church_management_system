@@ -14,8 +14,39 @@ import BlogPost from './pages/BlogPost'
 import Donation from './pages/Donation'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminLogin from './pages/admin/AdminLogin'
+import AdminNotices from './pages/admin/AdminNotices'
+import AdminNoticeForm from './pages/admin/AdminNoticeForm'
+import AdminContent from './pages/admin/AdminContent'
+import AdminEvents from './pages/admin/AdminEvents'
+import AdminEventForm from './pages/admin/AdminEventForm'
+import AdminPosts from './pages/admin/AdminPosts'
+import AdminPostForm from './pages/admin/AdminPostForm'
+import AdminMass from './pages/admin/AdminMass'
 
 export const router = createBrowserRouter([
+  {
+    path: '/admin/login',
+    Component: AdminLogin,
+  },
+  {
+    path: '/admin',
+    Component: AdminLayout,
+    children: [
+      { index: true, Component: AdminNotices },
+      { path: 'notices/new', Component: AdminNoticeForm },
+      { path: 'notices/:id', Component: AdminNoticeForm },
+      { path: 'content', Component: AdminContent },
+      { path: 'events', Component: AdminEvents },
+      { path: 'events/new', Component: AdminEventForm },
+      { path: 'events/:id', Component: AdminEventForm },
+      { path: 'posts', Component: AdminPosts },
+      { path: 'posts/new', Component: AdminPostForm },
+      { path: 'posts/:id', Component: AdminPostForm },
+      { path: 'mass', Component: AdminMass },
+    ],
+  },
   {
     path: '/',
     Component: Layout,

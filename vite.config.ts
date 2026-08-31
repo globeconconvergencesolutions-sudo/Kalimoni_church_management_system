@@ -11,6 +11,8 @@ export default defineConfig(({ mode }) => {
   const emitSourcemaps = mode === 'development'
 
   return {
+    // Parish .env.local uses Next-style names; Vite must expose them to the client.
+    envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
     base: process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : '/',
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,

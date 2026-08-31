@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useLocation, Link } from 'react-router'
 import officialLogo from '../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
+import NoticeRail from './NoticeRail'
+import NoticeSpotlight from './NoticeSpotlight'
+import { useLiveNotices } from '../hooks/useLiveNotices'
+import { NOTICE_RAIL_HEIGHT } from '../lib/noticeTypes'
 
 const NAV = [
   { label: 'Home', to: '/' },
@@ -44,6 +48,9 @@ export default function Layout() {
   const [showBackTop, setShowBackTop] = useState(false)
   const [lang, setLang] = useState<'en' | 'sw'>('en')
   const location = useLocation()
+  const { notices, ready } = useLiveNotices()
+  const railOn = notices.length > 0
+  const railPx = railOn ? NOTICE_RAIL_HEIGHT : 0
 
   useEffect(() => {
     setMenuOpen(false)
@@ -204,12 +211,17 @@ export default function Layout() {
           </div>
           <div className="h-safe-bottom" />
         </div>
+        {railOn ? <NoticeRail notices={notices} /> : null}
       </nav>
 
       {/* ── KISWAHILI WELCOME BANNER ─────────────────────────── */}
       {lang === 'sw' && (
         <div
-          className="fixed top-14 sm:top-16 left-0 right-0 z-40 text-center py-2 text-xs tracking-widest"
+          className={`fixed left-0 right-0 z-40 text-center py-2 text-xs tracking-widest ${
+            railOn
+              ? 'top-[calc(3.5rem+40px)] sm:top-[calc(4rem+40px)]'
+              : 'top-14 sm:top-16'
+          }`}
           style={{ backgroundColor: '#C8922A', color: '#1C1A18', fontFamily: "'DM Mono', monospace" }}
         >
           🙏 Karibu sana — {SWAHILI.tagline} &nbsp;·&nbsp;
@@ -220,7 +232,9 @@ export default function Layout() {
       )}
 
       {/* ── PAGE CONTENT ─────────────────────────────────────── */}
-      <main style={{ paddingTop: lang === 'sw' ? '2rem' : 0 }}><Outlet /></main>
+      <main style={{ paddingTop: `calc(${lang === 'sw' ? '2.25rem' : '0px'} + ${railPx}px)` }}><Outlet /></main>
+
+      <NoticeSpotlight notices={notices} ready={ready} />
 
       {/* ── FOOTER ──────────────────────────────────────────── */}
       <footer style={{ backgroundColor: '#0F0D0C' }}>

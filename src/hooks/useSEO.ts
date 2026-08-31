@@ -23,7 +23,7 @@ function setMetaTag(selector: string, attr: string, key: string, value: string) 
 
 export function useSEO({ title, description, image = DEFAULT_IMAGE, path = '' }: SEOProps) {
   useEffect(() => {
-    const fullTitle = `${title} | ${SITE_NAME}`
+    const fullTitle = title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`
     const url = `${BASE_URL}${path}`
 
     document.title = fullTitle

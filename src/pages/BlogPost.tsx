@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react'
 import { useParams, Link, Navigate } from 'react-router'
-import { getPost, POSTS, type Section } from '../data/blog'
+import { type Section, type BlogPost } from '../data/blog'
+import { useSEO } from '../hooks/useSEO'
+import { fetchPublishedPost, fetchPublishedPosts } from '../lib/cms'
 
 function renderSection(section: Section, i: number) {
   switch (section.type) {
@@ -72,12 +75,31 @@ function renderSection(section: Section, i: number) {
 
 export default function BlogPost() {
   const { slug } = useParams()
-  const post = getPost(slug ?? '')
+  const [post, setPost] = useState<BlogPost | null | undefined>(undefined)
+  const [all, setAll] = useState<BlogPost[]>([])
 
+  useEffect(() => {
+    void Promise.all([fetchPublishedPost(slug ?? ''), fetchPublishedPosts()]).then(([found, list]) => {
+      setPost(found ?? null)
+      setAll(list.posts)
+    })
+  }, [slug])
+
+  useSEO({
+    title: post?.title ?? 'Article',
+    description: post?.excerpt ?? 'Parish news from St. Theresa Parish, Kalimoni.',
+    path: `/blog/${slug ?? ''}`,
+  })
+
+  if (post === undefined) {
+    return (
+      <div className="px-6 py-32 text-center text-sm" style={{ color: '#6B6259' }}>Loading article…</div>
+    )
+  }
   if (!post) return <Navigate to="/blog" replace />
 
-  const related = POSTS.filter(p => p.slug !== post.slug && p.category === post.category).slice(0, 2)
-  const others = POSTS.filter(p => p.slug !== post.slug && !related.find(r => r.slug === p.slug)).slice(0, 2 - related.length)
+  const related = all.filter(p => p.slug !== post.slug && p.category === post.category).slice(0, 2)
+  const others = all.filter(p => p.slug !== post.slug && !related.find(r => r.slug === p.slug)).slice(0, 2 - related.length)
   const suggestions = [...related, ...others].slice(0, 2)
 
   return (

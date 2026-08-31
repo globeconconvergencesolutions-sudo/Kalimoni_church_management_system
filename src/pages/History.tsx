@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSEO } from '../hooks/useSEO'
 
 const ERAS = [
   {
@@ -42,6 +43,11 @@ const DAUGHTERS = [
 ]
 
 export default function History() {
+  useSEO({
+    title: 'Our History',
+    description: 'From a 1912 Holy Ghost Fathers mission to a thriving parish of 72 Jumuiyas — the story of St. Theresa Parish, Kalimoni.',
+    path: '/history',
+  })
   const [activeEra, setActiveEra] = useState('founding')
   const era = ERAS.find(e => e.id === activeEra)!
 

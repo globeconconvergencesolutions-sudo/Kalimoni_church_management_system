@@ -22,16 +22,16 @@ export default function About() {
           style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
         />
         <div className="relative max-w-4xl mx-auto">
-          <div className="text-xs uppercase mb-4" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace", letterSpacing: '4px', fontSize: '13px', marginLeft: '-88px' }}>
+          <div className="text-xs uppercase mb-4 tracking-[0.3em]" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
             About the Parish
           </div>
           <h1
             className="font-bold text-white mb-5"
-            style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(2rem, 6vw, 3.5rem)', lineHeight: 1.15, marginLeft: '-99px' }}
+            style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(2rem, 6vw, 3.5rem)', lineHeight: 1.15 }}
           >
             A Living Church<br />in the Heart of Juja
           </h1>
-          <p className="text-sm sm:text-base md:text-lg max-w-xl leading-relaxed" style={{ color: '#F0E8D8AA', marginLeft: '-97px' }}>
+          <p className="text-sm sm:text-base md:text-lg max-w-xl leading-relaxed" style={{ color: '#F0E8D8AA' }}>
             St. Theresa Parish, Kalimoni has been a beacon of faith, hope, and charity in
             Kiambu County, Kenya, since the Holy Ghost Fathers arrived in 1912.
           </p>
