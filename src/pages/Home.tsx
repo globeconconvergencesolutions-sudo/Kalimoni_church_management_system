@@ -6,6 +6,9 @@ import { usePublishedPosts } from '../hooks/usePublishedPosts'
 import { usePublishedEvents } from '../hooks/usePublishedEvents'
 import { useMassSchedule } from '../hooks/useMassSchedule'
 import { computeNextMass } from '../data/massSchedule'
+import { submitInbox } from '../lib/inbox'
+import { parishImage } from '../lib/media'
+import { useSiteMedia } from '../hooks/useSiteMedia'
 
 const HERO_STATS = [
   { value: '1927', label: 'Year Established' },
@@ -52,6 +55,13 @@ const PHOTO_SLIDES = [
   { img: 'photo-1759178124741-8d3a8aaab778', caption: 'St. Theresa Parish, Kalimoni', sub: 'A sacred home since 1912' },
   { img: 'photo-1494548162494-384bba4ab999', caption: 'Light at the End of Every Day', sub: 'Hope, faith, and community guide our way' },
 ]
+
+const MINISTRY_SLOT: Record<string, string> = {
+  CWA: 'ministries.cwa',
+  CMA: 'ministries.cma',
+  YCA: 'ministries.yca',
+  YSC: 'ministries.ysc',
+}
 
 const MINISTRIES = [
   { to: '/ministries', label: 'Catholic Women Association', desc: 'CWA — women of faith shaping parish life through service, devotion, and community care.', img: 'photo-1609234656388-0ff363383899', accent: '#C8922A', tag: 'CWA' },
@@ -175,18 +185,27 @@ function EventsStrip() {
 }
 
 function PhotoCarousel() {
+  const site = useSiteMedia()
+  const slides = PHOTO_SLIDES.map((slide, i) => {
+    const key = `home.parish-life.${String(i + 1).padStart(2, '0')}`
+    return {
+      img: site.src(key, slide.img, 1600, 700),
+      caption: site.caption(key) || slide.caption,
+      sub: site.subtitle(key) || slide.sub,
+    }
+  })
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
   const touchStartX = useRef<number | null>(null)
 
   useEffect(() => {
     if (paused) return
-    const id = setInterval(() => setActive(i => (i + 1) % PHOTO_SLIDES.length), 5500)
+    const id = setInterval(() => setActive(i => (i + 1) % slides.length), 5500)
     return () => clearInterval(id)
-  }, [paused])
+  }, [paused, slides.length])
 
-  const prev = () => setActive(i => (i - 1 + PHOTO_SLIDES.length) % PHOTO_SLIDES.length)
-  const next = () => setActive(i => (i + 1) % PHOTO_SLIDES.length)
+  const prev = () => setActive(i => (i - 1 + slides.length) % slides.length)
+  const next = () => setActive(i => (i + 1) % slides.length)
 
   const onTouchStart = (e: RTouchEvent) => { touchStartX.current = e.touches[0].clientX }
   const onTouchEnd = (e: RTouchEvent) => {
@@ -198,6 +217,7 @@ function PhotoCarousel() {
 
   return (
     <section
+      id="parish-life"
       className="relative overflow-hidden"
       style={{ height: 'clamp(280px, 52vw, 580px)', backgroundColor: '#1C1A18' }}
       onMouseEnter={() => setPaused(true)}
@@ -205,16 +225,16 @@ function PhotoCarousel() {
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {PHOTO_SLIDES.map((slide, i) => (
+      {slides.map((slide, i) => (
         <div key={i} className="absolute inset-0 transition-opacity duration-1000" style={{ opacity: active === i ? 1 : 0, pointerEvents: active === i ? 'auto' : 'none' }}>
-          <img src={`https://images.unsplash.com/${slide.img}?w=1600&h=700&fit=crop&auto=format`} alt={slide.caption} className="w-full h-full object-cover" />
+          <img src={slide.img} alt={slide.caption} className="w-full h-full object-cover" />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(28,10,15,0.85) 0%, rgba(28,10,15,0.2) 55%, transparent 100%)' }} />
         </div>
       ))}
       <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 md:px-14 pb-8 sm:pb-12">
         <div className="text-xs tracking-[0.25em] uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Parish Life</div>
-        <h3 className="font-bold text-white mb-1" style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(1.1rem, 3.5vw, 2rem)' }}>{PHOTO_SLIDES[active].caption}</h3>
-        <p className="text-xs sm:text-sm" style={{ color: '#F0E8D8BB' }}>{PHOTO_SLIDES[active].sub}</p>
+        <h3 className="font-bold text-white mb-1" style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(1.1rem, 3.5vw, 2rem)' }}>{slides[active].caption}</h3>
+        <p className="text-xs sm:text-sm" style={{ color: '#F0E8D8BB' }}>{slides[active].sub}</p>
       </div>
       <button onClick={prev} className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center transition-all hover:scale-110 active:scale-95" style={{ backgroundColor: 'rgba(28,26,24,0.65)', color: '#E8B84B', border: '1px solid rgba(200,146,42,0.3)' }} aria-label="Previous slide">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
@@ -223,7 +243,7 @@ function PhotoCarousel() {
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
       </button>
       <div className="absolute bottom-4 right-4 sm:right-8 md:right-14 flex gap-2 items-center">
-        {PHOTO_SLIDES.map((_, i) => (
+        {slides.map((_, i) => (
           <button key={i} onClick={() => setActive(i)} className="transition-all duration-300" style={{ width: active === i ? 24 : 8, height: 4, backgroundColor: active === i ? '#C8922A' : 'rgba(240,232,216,0.35)', border: 'none' }} aria-label={`Go to slide ${i + 1}`} />
         ))}
       </div>
@@ -232,6 +252,7 @@ function PhotoCarousel() {
 }
 
 function MinistriesSlider() {
+  const site = useSiteMedia()
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
   const touchStartX = useRef<number | null>(null)
@@ -254,6 +275,8 @@ function MinistriesSlider() {
   }
 
   const m = MINISTRIES[active]
+  const ministryImg = (item: typeof MINISTRIES[number], w: number, h: number) =>
+    site.src(MINISTRY_SLOT[item.tag] || '', item.img, w, h)
 
   return (
     <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-10 lg:px-16" style={{ backgroundColor: '#FAF6F0' }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
@@ -274,7 +297,7 @@ function MinistriesSlider() {
         </div>
         <div className="flex flex-col lg:flex-row gap-4" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           <Link to={m.to} className="relative overflow-hidden group flex-1" style={{ minHeight: 'clamp(220px, 40vw, 360px)', backgroundColor: '#1C1A18' }}>
-            <img src={`https://images.unsplash.com/${m.img}?w=900&h=500&fit=crop&auto=format`} alt={m.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" style={{ opacity: 0.55 }} />
+            <img src={ministryImg(m, 900, 500)} alt={m.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" style={{ opacity: 0.55 }} />
             <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(28,10,15,0.9) 0%, rgba(28,10,15,0.5) 60%, transparent 100%)' }} />
             <div className="relative p-5 sm:p-8 flex flex-col h-full justify-between" style={{ minHeight: 'clamp(220px, 40vw, 360px)' }}>
               <div className="inline-block text-[10px] tracking-[0.25em] uppercase px-2.5 py-1 self-start" style={{ backgroundColor: m.accent + '33', color: m.accent, border: `1px solid ${m.accent}55`, fontFamily: "'DM Mono', monospace" }}>{m.tag}</div>
@@ -288,7 +311,7 @@ function MinistriesSlider() {
           <div className="flex flex-row lg:flex-col gap-3 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0" style={{ flexShrink: 0 }}>
             {MINISTRIES.map((min, i) => (
               <button key={i} onClick={() => setActive(i)} className="relative overflow-hidden group transition-all duration-200 shrink-0" style={{ width: 'clamp(90px, 18vw, 120px)', height: 'clamp(60px, 10vw, 80px)', border: active === i ? `2px solid ${MINISTRIES[i].accent}` : '2px solid transparent', opacity: active === i ? 1 : 0.55 }}>
-                <img src={`https://images.unsplash.com/${min.img}?w=240&h=160&fit=crop&auto=format`} alt={min.label} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                <img src={ministryImg(min, 240, 160)} alt={min.label} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
                 <div className="absolute inset-0" style={{ backgroundColor: 'rgba(28,10,15,0.45)' }} />
                 <div className="absolute bottom-0 left-0 right-0 px-1.5 py-1 text-[9px] tracking-wide font-medium text-white truncate" style={{ fontFamily: "'DM Mono', monospace", backgroundColor: 'rgba(0,0,0,0.5)' }}>{min.label}</div>
               </button>
@@ -393,12 +416,33 @@ function TrustBand() {
 
 function NewsletterCTA() {
   const [email, setEmail] = useState('')
+  const [intention, setIntention] = useState('')
   const [type, setType] = useState<'newsletter' | 'prayer'>('newsletter')
   const [submitted, setSubmitted] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [website, setWebsite] = useState('')
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!email) return
+    if (type === 'prayer' && !intention.trim()) {
+      setError('Please share your prayer intention.')
+      return
+    }
+    setBusy(true)
+    setError(null)
+    const result = await submitInbox({
+      kind: type,
+      email,
+      body: type === 'prayer' ? intention : 'Please add this address to the parish news list.',
+      website,
+    })
+    setBusy(false)
+    if (!result.ok) {
+      setError(result.error)
+      return
+    }
     setSubmitted(true)
   }
 
@@ -447,7 +491,7 @@ function NewsletterCTA() {
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <form onSubmit={e => { void handleSubmit(e) }} className="flex flex-col gap-3">
               <div className="flex gap-2">
                 {(['newsletter', 'prayer'] as const).map(t => (
                   <button
@@ -472,14 +516,19 @@ function NewsletterCTA() {
               />
               {type === 'prayer' && (
                 <textarea
+                  required
                   rows={3}
+                  value={intention}
+                  onChange={e => setIntention(e.target.value)}
                   placeholder="Share your prayer intention..."
                   className="w-full px-4 py-3 text-sm resize-none"
                   style={{ backgroundColor: '#FAF6F0', border: '1px solid #D0C4B0', color: '#1C1A18', fontFamily: "'Inter', sans-serif", outline: 'none' }}
                 />
               )}
-              <button type="submit" className="py-3.5 font-semibold text-sm tracking-wide transition-all hover:brightness-110 active:scale-95 min-h-[48px]" style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Inter', sans-serif" }}>
-                {type === 'newsletter' ? 'Subscribe to Parish News' : 'Submit Prayer Request'}
+              <input tabIndex={-1} autoComplete="off" value={website} onChange={e => setWebsite(e.target.value)} className="hidden" aria-hidden="true" />
+              {error ? <p className="text-sm" style={{ color: '#6B1A2A' }}>{error}</p> : null}
+              <button type="submit" disabled={busy} className="py-3.5 font-semibold text-sm tracking-wide transition-all hover:brightness-110 active:scale-95 min-h-[48px]" style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Inter', sans-serif" }}>
+                {busy ? 'Sending…' : type === 'newsletter' ? 'Subscribe to Parish News' : 'Submit Prayer Request'}
               </button>
             </form>
           )}
@@ -497,6 +546,7 @@ export default function Home() {
   })
 
   const [activeTab, setActiveTab] = useState(0)
+  const site = useSiteMedia()
   const { posts } = usePublishedPosts()
   const blogPreview = posts.slice(0, 3)
   const newsItems = posts.length
@@ -526,7 +576,7 @@ export default function Home() {
         {/* Background: candle photo, very subtle texture */}
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1476873282730-9018f17bdf4e?w=800&h=600&fit=crop&auto=format"
+            src={site.src('home.hero.background', 'photo-1476873282730-9018f17bdf4e', 800, 600)}
             alt=""
             aria-hidden="true"
             className="w-full h-full object-cover"
@@ -742,7 +792,7 @@ export default function Home() {
             </div>
             <div className="w-full lg:w-1/2 relative overflow-hidden" style={{ height: 260, backgroundColor: '#D0C4B0' }}>
               {newsItems.map((n, i) => (
-                <img key={i} src={`https://images.unsplash.com/${n.img}?w=700&h=480&fit=crop&auto=format`} alt={n.headline} className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700" style={{ opacity: activeTab === i ? 1 : 0 }} />
+                <img key={i} src={parishImage(n.img, 700, 480)} alt={n.headline} className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700" style={{ opacity: activeTab === i ? 1 : 0 }} />
               ))}
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(74,16,25,0.5) 0%, transparent 60%)' }} />
             </div>
@@ -752,8 +802,9 @@ export default function Home() {
 
       {/* Mission banner */}
       <section
+        id="mission"
         className="py-20 sm:py-24 md:py-28 px-4 sm:px-6 md:px-10 lg:px-16 relative overflow-hidden"
-        style={{ backgroundImage: `url(https://images.unsplash.com/photo-1609234656388-0ff363383899?w=1600&h=600&fit=crop&auto=format)`, backgroundSize: 'cover', backgroundPosition: 'center 30%' }}
+        style={{ backgroundImage: site.bg('home.mission-banner', 'photo-1609234656388-0ff363383899', 1600, 600), backgroundSize: 'cover', backgroundPosition: 'center 30%' }}
       >
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(28,8,15,0.82) 0%, rgba(74,16,25,0.88) 100%)' }} />
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
@@ -808,7 +859,7 @@ export default function Home() {
               >
                 <div style={{ height: 190, overflow: 'hidden', backgroundColor: '#D0C4B0' }}>
                   <img
-                    src={`https://images.unsplash.com/${post.coverImg}?w=500&h=300&fit=crop&auto=format`}
+                    src={parishImage(post.coverImg, 500, 300)}
                     alt={post.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />

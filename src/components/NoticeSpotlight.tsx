@@ -38,8 +38,12 @@ export default function NoticeSpotlight({ notices, ready }: NoticeSpotlightProps
       aria-labelledby="notice-spotlight-title"
     >
       <div
-        className="w-full max-w-lg p-6 sm:p-8"
-        style={{ backgroundColor: '#FAF6F0', borderTop: '4px solid #C8922A' }}
+        className="w-full max-w-lg p-6 sm:p-8 relative"
+        style={{
+          backgroundColor: '#FAF6F0',
+          borderTop: '4px solid #C8922A',
+          boxShadow: '0 24px 80px rgba(28,8,14,0.35)',
+        }}
       >
         <div
           className="text-[10px] tracking-[0.22em] uppercase mb-3"

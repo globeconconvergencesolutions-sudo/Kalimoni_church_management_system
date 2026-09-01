@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSEO } from '../hooks/useSEO'
+import { useSiteMedia } from '../hooks/useSiteMedia'
 
 const GROWTH_DATA = [
   { year: 2002, count: 15 },
@@ -34,6 +35,7 @@ export default function Community() {
   })
   const maxCount = Math.max(...GROWTH_DATA.map(d => d.count))
   const [hoveredBar, setHoveredBar] = useState<number | null>(null)
+  const site = useSiteMedia()
 
   return (
     <div>
@@ -41,7 +43,7 @@ export default function Community() {
       <section
         className="relative pt-24 sm:pt-28 md:pt-32 pb-14 sm:pb-18 md:pb-20 px-4 sm:px-6 md:px-10 lg:px-16 overflow-hidden"
         style={{
-          backgroundImage: `url(https://images.unsplash.com/photo-1780847614316-c9e933e9a9e0?w=1600&h=700&fit=crop&auto=format)`,
+          backgroundImage: site.bg('community.hero', 'photo-1780847614316-c9e933e9a9e0', 1600, 700),
           backgroundSize: 'cover',
           backgroundPosition: 'center 20%',
         }}
@@ -176,13 +178,13 @@ export default function Community() {
           </div>
           <div className="w-full lg:w-1/2 flex flex-col gap-3">
             <img
-              src="https://images.unsplash.com/photo-1781263378223-1e09658a7567?w=700&h=500&fit=crop&auto=format"
+              src={site.src('community.gallery-a', 'photo-1781263378223-1e09658a7567', 700, 500)}
               alt="Community celebration at St. Theresa Parish"
               className="w-full object-cover"
               style={{ height: 'clamp(200px, 40vw, 280px)', backgroundColor: '#D0C4B0' }}
             />
             <img
-              src="https://images.unsplash.com/photo-1779357807569-18d3df9df645?w=700&h=300&fit=crop&auto=format"
+              src={site.src('community.gallery-b', 'photo-1779357807569-18d3df9df645', 700, 300)}
               alt="Women of the parish in colourful attire"
               className="w-full object-cover"
               style={{ height: 'clamp(140px, 25vw, 180px)', backgroundColor: '#D0C4B0' }}

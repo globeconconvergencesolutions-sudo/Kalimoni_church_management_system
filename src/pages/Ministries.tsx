@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useSEO } from '../hooks/useSEO'
+import { useSiteMedia } from '../hooks/useSiteMedia'
 
 const MINISTRIES = [
   {
@@ -102,6 +103,7 @@ export default function Ministries() {
     path: '/ministries',
   })
   const [active, setActive] = useState('cwa')
+  const site = useSiteMedia()
   const ministry = MINISTRIES.find(m => m.id === active)!
 
   return (
@@ -157,7 +159,7 @@ export default function Ministries() {
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
             <div className="w-full lg:w-1/2 overflow-hidden" style={{ minHeight: 280 }}>
               <img
-                src={`https://images.unsplash.com/${ministry.img}?w=800&h=560&fit=crop&auto=format`}
+                src={site.src(`ministries.${ministry.id}`, ministry.img, 800, 560)}
                 alt={ministry.name}
                 className="w-full h-full object-cover"
                 style={{ height: 'clamp(220px, 40vw, 420px)', backgroundColor: '#D0C4B0' }}

@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { useSEO } from '../hooks/useSEO'
+import { useSiteMedia } from '../hooks/useSiteMedia'
 
 const PILLARS = [
   { icon: '✦', title: 'Faith', desc: 'Rooted in the Catholic tradition, nurtured through the sacraments, scripture, and the Small Christian Communities known as Jumuiyas.' },
@@ -9,6 +10,7 @@ const PILLARS = [
 ]
 
 export default function About() {
+  const site = useSiteMedia()
   useSEO({ title: 'About Us', description: 'Learn about the vision, mission, and identity of St. Theresa Parish, Kalimoni — a Catholic community in Juja, Kiambu County, Kenya, serving since 1912.', path: '/about' })
   return (
     <div>
@@ -48,7 +50,7 @@ export default function About() {
               style={{ boxShadow: '0 0 0 1px rgba(200,146,42,0.15)' }}
             />
             <img
-              src="https://images.unsplash.com/photo-1438032005730-c779502df39b?w=700&h=520&fit=crop&auto=format"
+              src={site.src('about.identity', 'photo-1438032005730-c779502df39b', 700, 520)}
               alt="Church interior"
               className="w-full object-cover"
               style={{ height: 'clamp(200px, 40vw, 400px)', backgroundColor: '#D0C4B0' }}

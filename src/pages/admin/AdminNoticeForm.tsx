@@ -1,8 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { createNotice, fetchNotice, updateNotice } from '../../lib/notices'
 import { getSupabase } from '../../lib/supabase'
 import type { NoticeDraft, NoticeSeverity } from '../../lib/noticeTypes'
+import OfficePage, { OfficeButton } from '../../components/office/OfficePage'
+import { office } from '../../components/office/officeTheme'
 
 function toLocalInput(iso: string | null): string {
   if (!iso) return ''
@@ -82,7 +84,7 @@ export default function AdminNoticeForm() {
         setError(result.error)
         return
       }
-      navigate('/admin')
+      navigate('/admin/notices')
       return
     }
 
@@ -92,33 +94,28 @@ export default function AdminNoticeForm() {
       setError(result.error)
       return
     }
-    navigate('/admin')
+    navigate('/admin/notices')
   }
 
   if (!loaded) {
-    return (
-      <div className="px-8 py-10 text-sm" style={{ color: '#6B6259' }}>Loading notice…</div>
-    )
+    return <div className="text-sm" style={{ color: office.mute }}>Loading notice…</div>
   }
 
-  const field = { border: '1px solid #D0C4B0', backgroundColor: '#fff', outline: 'none' as const }
-
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-8 py-10">
-      <Link to="/admin" className="text-xs uppercase tracking-widest mb-6 inline-block" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
-        ← All notices
-      </Link>
-      <h1 className="text-3xl font-bold mb-6" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
-        {isNew ? 'New notice' : 'Edit notice'}
-      </h1>
-      <form onSubmit={e => { void onSubmit(e) }} className="flex flex-col gap-4">
+    <OfficePage
+      kicker="Proclaim"
+      title={isNew ? 'New notice' : 'Edit notice'}
+      lede="A few clear words for the bar under the parish menu."
+      back={{ to: '/admin/notices', label: 'All notices' }}
+    >
+      <form onSubmit={e => { void onSubmit(e) }} className="flex flex-col gap-4 max-w-2xl">
         <label className="text-xs" style={{ color: '#6B6259' }}>Title</label>
         <input
           required
           value={draft.title}
           onChange={e => setDraft(d => ({ ...d, title: e.target.value }))}
           className="px-3 py-3 text-sm min-h-[44px]"
-          style={field}
+          style={office.field}
         />
         <label className="text-xs" style={{ color: '#6B6259' }}>Body</label>
         <textarea
@@ -126,14 +123,14 @@ export default function AdminNoticeForm() {
           value={draft.body}
           onChange={e => setDraft(d => ({ ...d, body: e.target.value }))}
           className="px-3 py-3 text-sm"
-          style={field}
+          style={office.field}
         />
         <label className="text-xs" style={{ color: '#6B6259' }}>Severity</label>
         <select
           value={draft.severity}
           onChange={e => setDraft(d => ({ ...d, severity: e.target.value as NoticeSeverity }))}
           className="px-3 py-3 text-sm min-h-[44px]"
-          style={field}
+          style={office.field}
         >
           <option value="info">Info — gold bar</option>
           <option value="urgent">Urgent — burgundy bar + spotlight</option>
@@ -144,7 +141,7 @@ export default function AdminNoticeForm() {
         </label>
         <label className="flex items-center gap-2 text-sm" style={{ color: '#4A3A30' }}>
           <input type="checkbox" checked={draft.published} onChange={e => setDraft(d => ({ ...d, published: e.target.checked }))} />
-          Published (visible on the public site)
+          Published on the parish website
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -154,7 +151,7 @@ export default function AdminNoticeForm() {
               value={toLocalInput(draft.starts_at)}
               onChange={e => setDraft(d => ({ ...d, starts_at: fromLocalInput(e.target.value) }))}
               className="w-full px-3 py-3 text-sm min-h-[44px]"
-              style={field}
+              style={office.field}
             />
           </div>
           <div>
@@ -164,20 +161,13 @@ export default function AdminNoticeForm() {
               value={toLocalInput(draft.ends_at)}
               onChange={e => setDraft(d => ({ ...d, ends_at: fromLocalInput(e.target.value) }))}
               className="w-full px-3 py-3 text-sm min-h-[44px]"
-              style={field}
+              style={office.field}
             />
           </div>
         </div>
-        {error ? <p className="text-sm" style={{ color: '#6B1A2A' }}>{error}</p> : null}
-        <button
-          type="submit"
-          disabled={busy}
-          className="py-3 text-sm font-semibold min-h-[44px]"
-          style={{ backgroundColor: '#6B1A2A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
-        >
-          {busy ? 'Saving…' : 'Save notice'}
-        </button>
+        {error ? <p className="text-sm" style={{ color: office.wine }}>{error}</p> : null}
+        <OfficeButton type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save notice'}</OfficeButton>
       </form>
-    </div>
+    </OfficePage>
   )
 }

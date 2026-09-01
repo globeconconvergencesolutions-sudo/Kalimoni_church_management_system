@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { fetchPublishedMedia } from '../lib/mediaAdmin'
+import { parishImage, parishVideo, parishVideoPoster, type ParishMedia } from '../lib/media'
 import { useSEO } from '../hooks/useSEO'
 
-const CATEGORIES = ['All', 'Church Life', 'Sacraments', 'Celebrations', 'Community Outreach', 'Youth Activities']
-
-const PHOTOS = [
+const FALLBACK = [
   { id: 'photo-1609234656388-0ff363383899', title: 'Parish Community Gathering', category: 'Church Life', desc: 'A vibrant gathering of the St. Theresa Parish community, reflecting the unity and joy of faith shared together.' },
   { id: 'photo-1609234656381-73e732808098', title: 'Faith in Fellowship', category: 'Church Life', desc: 'Members of the parish community in prayer and fellowship, embodying the Vincentian spirit of service and unity.' },
   { id: 'photo-1550541231-56ddb7f844ec', title: 'Stained Glass — Light of Faith', category: 'Sacraments', desc: 'Sacred light filtering through stained glass — a symbol of the faith that has sustained Kalimoni for over 99 years.' },
@@ -22,16 +22,46 @@ const PHOTOS = [
   { id: 'photo-1438032005730-c779502df39b', title: 'Church Interior', category: 'Sacraments', desc: 'The interior of a Catholic church — a place of encounter with the divine that mirrors the spirit of St. Theresa Parish.' },
 ]
 
+type GalleryItem = {
+  id: string
+  src: string
+  title: string
+  category: string
+  desc: string
+  mediaType?: string
+}
+
+function fromMedia(row: ParishMedia): GalleryItem {
+  return {
+    id: row.id,
+    src: row.url || row.cloudinary_id,
+    title: row.title,
+    category: row.category,
+    desc: row.alt,
+    mediaType: row.media_type,
+  }
+}
+
 export default function Gallery() {
   useSEO({ title: 'Photo Gallery', description: 'Browse photos from St. Theresa Parish, Kalimoni — community celebrations, youth ministry, liturgical events, and parish life in Juja, Kenya.', path: '/gallery' })
   const [activeCategory, setActiveCategory] = useState('All')
-  const [lightbox, setLightbox] = useState<typeof PHOTOS[0] | null>(null)
+  const [lightbox, setLightbox] = useState<GalleryItem | null>(null)
+  const [photos, setPhotos] = useState<GalleryItem[]>(FALLBACK.map(p => ({ ...p, src: p.id, desc: p.desc })))
+  const [live, setLive] = useState(false)
 
-  const filtered = activeCategory === 'All' ? PHOTOS : PHOTOS.filter(p => p.category === activeCategory)
+  useEffect(() => {
+    void fetchPublishedMedia().then(rows => {
+      if (!rows.length) return
+      setPhotos(rows.map(fromMedia))
+      setLive(true)
+    })
+  }, [])
+
+  const categories = ['All', ...Array.from(new Set(photos.map(p => p.category)))]
+  const filtered = activeCategory === 'All' ? photos : photos.filter(p => p.category === activeCategory)
 
   return (
     <div>
-      {/* HERO */}
       <div className="pt-16 sm:pt-20 px-3 sm:px-5 lg:px-8" style={{ backgroundColor: '#FAF6F0' }}>
       <section
         className="hero-section relative rounded-2xl overflow-hidden pt-12 sm:pt-14 pb-14 sm:pb-20 px-6 sm:px-10 lg:px-16"
@@ -39,28 +69,27 @@ export default function Gallery() {
       >
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
         <div className="relative max-w-4xl">
-          <div className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace", marginLeft: '31px', marginRight: '31px' }}>Parish Gallery</div>
+          <div className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>Parish Gallery</div>
           <h1
             className="font-bold text-white mb-5"
-            style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(2rem, 6vw, 3.5rem)', lineHeight: 1.15, marginLeft: '28px', marginRight: '28px' }}
+            style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(2rem, 6vw, 3.5rem)', lineHeight: 1.15 }}
           >
             Moments of<br />
             <em className="not-italic" style={{ color: '#E8B84B' }}>Faith & Community</em>
           </h1>
-          <p className="text-sm sm:text-base max-w-lg leading-relaxed" style={{ color: '#F0E8D8AA', marginLeft: '29px', marginRight: '29px' }}>
-            A visual journey through parish life — celebrations, worship, education, health,
-            and the joyful faces of a community alive in faith.
+          <p className="text-sm sm:text-base max-w-lg leading-relaxed" style={{ color: '#F0E8D8AA' }}>
+            {live
+              ? 'Celebrations, worship, and community life in Kalimoni — shared from the heart of the parish.'
+              : 'A visual journey through faith and fellowship at St. Theresa Parish, Kalimoni.'}
           </p>
         </div>
       </section>
       </div>
 
-      {/* FILTER + GRID */}
       <section className="py-10 sm:py-14 md:py-16 px-4 sm:px-6 md:px-10 lg:px-16" style={{ backgroundColor: '#FAF6F0' }}>
         <div className="max-w-7xl mx-auto">
-          {/* Category filter — horizontal scroll on phone */}
           <div className="flex gap-2 mb-8 sm:mb-10 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-            {CATEGORIES.map(cat => (
+            {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
@@ -74,74 +103,65 @@ export default function Gallery() {
               >
                 {cat}
                 <span className="ml-1.5 opacity-50">
-                  ({cat === 'All' ? PHOTOS.length : PHOTOS.filter(p => p.category === cat).length})
+                  ({cat === 'All' ? photos.length : photos.filter(p => p.category === cat).length})
                 </span>
               </button>
             ))}
           </div>
 
-          {/* Responsive masonry grid */}
-          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-2 sm:gap-2.5 space-y-2 sm:space-y-2.5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
             {filtered.map(photo => (
-              <div
+              <button
                 key={photo.id}
-                className="break-inside-avoid cursor-pointer group relative overflow-hidden"
+                type="button"
                 onClick={() => setLightbox(photo)}
-                style={{ backgroundColor: '#D0C4B0' }}
+                className="group relative overflow-hidden text-left"
+                style={{ aspectRatio: '5 / 4', backgroundColor: '#D0C4B0' }}
               >
-                <img
-                  src={`https://images.unsplash.com/${photo.id}?w=500&h=400&fit=crop&auto=format`}
-                  alt={photo.title}
-                  className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  style={{ display: 'block' }}
-                  loading="lazy"
-                />
-                <div
-                  className="absolute inset-0 flex flex-col justify-end p-4 sm:p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  style={{ background: 'linear-gradient(to top, rgba(28,8,15,0.92) 0%, rgba(74,16,25,0.5) 50%, transparent 100%)' }}
-                >
-                  <span className="text-[9px] tracking-[0.25em] uppercase mb-1.5" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>{photo.category}</span>
-                  <span className="text-xs sm:text-sm font-bold text-white leading-snug" style={{ fontFamily: "'Lora', serif" }}>{photo.title}</span>
-                </div>
-              </div>
+                {photo.mediaType === 'video' ? (
+                  <>
+                    <img
+                      src={parishVideoPoster(photo.src, 500, 400)}
+                      alt={photo.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <span className="absolute bottom-2 right-2 px-2 py-0.5 text-[9px] tracking-widest uppercase" style={{ backgroundColor: 'rgba(28,26,24,0.75)', color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>Video</span>
+                  </>
+                ) : (
+                  <img
+                    src={parishImage(photo.src, 500, 400)}
+                    alt={photo.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                )}
+              </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* LIGHTBOX */}
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 md:p-10"
-          style={{ backgroundColor: 'rgba(28,26,24,0.97)' }}
-          onClick={() => setLightbox(null)}
-        >
-          <div
-            className="relative w-full max-w-4xl flex flex-col md:flex-row overflow-hidden"
-            style={{ maxHeight: '90vh' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <button
-              className="absolute top-3 right-3 z-10 text-white w-10 h-10 flex items-center justify-center transition-colors hover:text-yellow-300 bg-black/40"
-              onClick={() => setLightbox(null)}
-              aria-label="Close"
-            >
-              ✕
-            </button>
-            <img
-              src={`https://images.unsplash.com/${lightbox.id}?w=800&h=600&fit=crop&auto=format`}
-              alt={lightbox.title}
-              className="w-full md:w-2/3 object-cover"
-              style={{ maxHeight: '60vw', minHeight: 200, backgroundColor: '#2C2A28' }}
-            />
-            <div className="p-5 sm:p-7 flex flex-col justify-end md:w-1/3 flex-shrink-0" style={{ backgroundColor: '#2C2A28' }}>
-              <div className="text-xs tracking-widest uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>{lightbox.category}</div>
-              <h3 className="text-lg sm:text-xl font-bold text-white mb-3" style={{ fontFamily: "'Lora', serif" }}>{lightbox.title}</h3>
-              <p className="text-sm leading-relaxed" style={{ color: '#F0E8D8AA' }}>{lightbox.desc}</p>
+      {lightbox ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(12,4,8,0.88)' }} onClick={() => setLightbox(null)}>
+          <div className="max-w-3xl w-full" onClick={e => e.stopPropagation()}>
+            {lightbox.mediaType === 'video' ? (
+              <video
+                src={parishVideo(lightbox.src, 1200)}
+                controls
+                playsInline
+                className="w-full object-contain max-h-[70vh] bg-black"
+              />
+            ) : (
+              <img src={parishImage(lightbox.src, 1200, 800)} alt={lightbox.title} className="w-full object-contain max-h-[70vh]" />
+            )}
+            <div className="mt-3 text-white">
+              <div className="text-xs uppercase tracking-widest mb-1" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>{lightbox.category}</div>
+              <h2 className="text-xl font-bold" style={{ fontFamily: "'Lora', serif" }}>{lightbox.title}</h2>
+              <p className="text-sm mt-1" style={{ color: '#F0E8D8AA' }}>{lightbox.desc}</p>
             </div>
+            <button type="button" onClick={() => setLightbox(null)} className="mt-4 text-xs uppercase tracking-widest" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Close</button>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   )
 }

@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { fetchStaffEvent, saveStaffEvent, slugify } from '../../lib/cms'
+import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
+import { office } from '../../components/office/officeTheme'
 
 const empty = {
   slug: '',
@@ -77,20 +79,19 @@ export default function AdminEventForm() {
   }
 
   if (!loaded) {
-    return <div className="px-8 py-10 text-sm" style={{ color: '#6B6259' }}>Loading event…</div>
+    return <p className="text-sm" style={{ color: office.mute }}>Loading event…</p>
   }
 
-  const field = { border: '1px solid #D0C4B0', backgroundColor: '#fff', outline: 'none' as const }
+  const field = office.field
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-8 py-10">
-      <Link to="/admin/events" className="text-xs uppercase tracking-widest mb-6 inline-block" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
-        ← All events
-      </Link>
-      <h1 className="text-3xl font-bold mb-6" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
-        {isNew ? 'New event' : 'Edit event'}
-      </h1>
-      <form onSubmit={e => { void onSubmit(e) }} className="flex flex-col gap-4">
+    <OfficePage
+      kicker="Calendar"
+      title={isNew ? 'New event' : 'Edit event'}
+      lede="Feast days and gatherings for the public calendar."
+      back={{ to: '/admin/events', label: 'All events' }}
+    >
+      <form onSubmit={e => { void onSubmit(e) }} className="flex flex-col gap-4 max-w-2xl">
         <label className="text-xs" style={{ color: '#6B6259' }}>Title</label>
         <input required value={draft.title} onChange={e => setDraft(d => ({ ...d, title: e.target.value }))} className="px-3 py-3 text-sm min-h-[44px]" style={field} />
         <label className="text-xs" style={{ color: '#6B6259' }}>Slug</label>
@@ -133,13 +134,13 @@ export default function AdminEventForm() {
         </div>
         <label className="flex items-center gap-2 text-sm" style={{ color: '#4A3A30' }}>
           <input type="checkbox" checked={draft.published} onChange={e => setDraft(d => ({ ...d, published: e.target.checked }))} />
-          Published (visible on the public site)
+          Published on the parish website
         </label>
-        {error ? <p className="text-sm" style={{ color: '#6B1A2A' }}>{error}</p> : null}
-        <button type="submit" disabled={busy} className="py-3 text-sm font-semibold min-h-[44px]" style={{ backgroundColor: '#6B1A2A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}>
+        {error ? <OfficeAlert>{error}</OfficeAlert> : null}
+        <OfficeButton type="submit" disabled={busy}>
           {busy ? 'Saving…' : 'Save event'}
-        </button>
+        </OfficeButton>
       </form>
-    </div>
+    </OfficePage>
   )
 }

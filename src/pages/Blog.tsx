@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { useSEO } from '../hooks/useSEO'
 import { usePublishedPosts } from '../hooks/usePublishedPosts'
+import { parishImage } from '../lib/media'
 
 export default function Blog() {
   useSEO({ title: 'Blog & News', description: 'Stories, reflections, and news from St. Theresa Parish, Kalimoni — parish life, community celebrations, faith formation, and more.', path: '/blog' })
@@ -75,7 +76,7 @@ export default function Blog() {
             >
               <div className="w-full lg:w-1/2 overflow-hidden" style={{ minHeight: 260 }}>
                 <img
-                  src={`https://images.unsplash.com/${featured.coverImg}?w=800&h=500&fit=crop&auto=format`}
+                  src={parishImage(featured.coverImg, 800, 500)}
                   alt={featured.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   style={{ minHeight: 260 }}
@@ -166,7 +167,7 @@ export default function Blog() {
                   {/* Cover */}
                   <div className="overflow-hidden" style={{ height: 200 }}>
                     <img
-                      src={`https://images.unsplash.com/${post.coverImg}?w=600&h=350&fit=crop&auto=format`}
+                      src={parishImage(post.coverImg, 600, 350)}
                       alt={post.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       style={{ backgroundColor: '#D0C4B0' }}

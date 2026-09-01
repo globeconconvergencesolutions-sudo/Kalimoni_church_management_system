@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useSEO } from '../hooks/useSEO'
 import { useMassSchedule } from '../hooks/useMassSchedule'
+import { submitInbox } from '../lib/inbox'
 
 const OFFICE_HOURS = [
   { day: 'Monday – Friday', hours: '8:00 AM – 5:00 PM EAT' },
@@ -25,10 +26,29 @@ export default function Contact() {
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [sent, setSent] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [website, setWebsite] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name || !email || !message) return
+    setBusy(true)
+    setError(null)
+    const result = await submitInbox({
+      kind: subject === 'Prayer Request' ? 'prayer' : 'contact',
+      name,
+      email,
+      country,
+      subject: subject || 'General Inquiry',
+      body: message,
+      website,
+    })
+    setBusy(false)
+    if (!result.ok) {
+      setError(result.error)
+      return
+    }
     setSent(true)
   }
 
@@ -84,7 +104,7 @@ export default function Contact() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <form onSubmit={e => { void handleSubmit(e) }} className="relative flex flex-col gap-4">
                 {/* Name + Email */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -126,8 +146,12 @@ export default function Contact() {
                   <label className="block text-xs tracking-widest uppercase mb-1.5" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Message *</label>
                   <textarea required rows={5} value={message} onChange={e => setMessage(e.target.value)} placeholder="Write your message here..." className="w-full px-4 py-3 text-sm resize-none" style={inputStyle} />
                 </div>
-                <button type="submit" className="py-4 font-bold tracking-wide transition-all hover:brightness-110 active:scale-95 min-h-[52px]" style={{ backgroundColor: '#6B1A2A', color: '#F0E8D8', fontFamily: "'Lora', serif" }}>
-                  Send Message
+                <div aria-hidden="true" className="absolute -left-[9999px] h-0 overflow-hidden">
+                  <input tabIndex={-1} autoComplete="off" value={website} onChange={e => setWebsite(e.target.value)} />
+                </div>
+                {error ? <p className="text-sm" style={{ color: '#6B1A2A' }}>{error}</p> : null}
+                <button type="submit" disabled={busy} className="py-4 font-bold tracking-wide transition-all hover:brightness-110 active:scale-95 min-h-[52px]" style={{ backgroundColor: '#6B1A2A', color: '#F0E8D8', fontFamily: "'Lora', serif" }}>
+                  {busy ? 'Sending…' : 'Send Message'}
                 </button>
               </form>
             )}

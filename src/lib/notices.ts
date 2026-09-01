@@ -23,7 +23,10 @@ export async function fetchLiveNotices(): Promise<Notice[]> {
     if (n.starts_at && new Date(n.starts_at).getTime() > now) return false
     if (n.ends_at && new Date(n.ends_at).getTime() < now) return false
     return true
-  })
+  }).map(n => ({
+    ...n,
+    body: n.body?.replace(/\s*This notice can be edited from the parish office admin\.?$/i, '') ?? n.body,
+  }))
 }
 
 export async function fetchAllNotices(): Promise<{ notices: Notice[]; error: string | null }> {
@@ -38,7 +41,7 @@ export async function fetchAllNotices(): Promise<{ notices: Notice[]; error: str
 
   if (error) {
     const hint = isMissingTable(error)
-      ? 'The notices table is missing. Run supabase/migrations/20260831_sprint1_notices.sql in the Supabase SQL Editor.'
+      ? 'Notices could not be loaded. Please try again shortly.'
       : error.message
     return { notices: [], error: hint }
   }

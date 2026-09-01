@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useSEO } from '../hooks/useSEO'
+import { submitInbox } from '../lib/inbox'
+import { confirmDemoStk, estimateKes, sendDemoStk } from '../lib/mpesa'
 
 const PAYMENT_METHODS = [
   {
@@ -167,6 +169,9 @@ function PaymentMethods() {
         </div>
 
         {/* Fields */}
+        <div className="text-[10px] uppercase tracking-widest mb-3 px-0" style={{ color: '#A8FFCC', fontFamily: "'DM Mono', monospace" }}>
+          {method.id === 'mpesa' ? 'Manual Paybill · live STK comes after Daraja' : 'How to pay'}
+        </div>
         <div className="flex flex-col gap-2 mb-4">
           {method.fields.map(f => (
             <div key={f.label} className="flex flex-col gap-0.5">
@@ -216,20 +221,81 @@ const CURRENCIES = [
 export default function Donation() {
   useSEO({ title: 'Donate', description: 'Support the mission of St. Theresa Parish, Kalimoni. Fund the hospital, school, church building, and community outreach — donations accepted in KES, USD, GBP, EUR and more.', path: '/donate' })
   const [selectedCause, setSelectedCause] = useState('hospital')
-  const [amount, setAmount] = useState(50)
+  const [amount, setAmount] = useState(1000)
   const [customAmount, setCustomAmount] = useState('')
-  const [currency, setCurrency] = useState('USD')
+  const [currency, setCurrency] = useState('KES')
   const [frequency, setFrequency] = useState<'once' | 'monthly'>('once')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [stkRef, setStkRef] = useState<string | null>(null)
+  const [stkPaid, setStkPaid] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [website, setWebsite] = useState('')
 
   const curr = CURRENCIES.find(c => c.code === currency)!
   const finalAmount = customAmount ? Number(customAmount) : amount
+  const kesAmount = estimateKes(finalAmount || 0, currency)
+  const amounts = currency === 'KES' ? [500, 1000, 2500, 5000, 10000] : AMOUNTS
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleStk = async () => {
+    if (!name || !email || !finalAmount || !phone) {
+      setError('Name, email, amount, and a Kenyan mobile number are required for M-Pesa giving.')
+      return
+    }
+    setBusy(true)
+    setError(null)
+    const cause = CAUSES.find(c => c.id === selectedCause)?.title ?? selectedCause
+    const result = await sendDemoStk({
+      name,
+      email,
+      phone,
+      amount: finalAmount,
+      currency,
+      cause,
+      frequency,
+    })
+    setBusy(false)
+    if (!result.ok) {
+      setError(result.error)
+      return
+    }
+    setStkRef(result.checkoutRef || null)
+  }
+
+  const handleConfirmStk = async (paid: boolean) => {
+    if (!stkRef) return
+    setBusy(true)
+    const result = await confirmDemoStk(stkRef, paid)
+    setBusy(false)
+    if (!result.ok) {
+      setError(result.error)
+      return
+    }
+    setStkPaid(paid)
+    setSubmitted(true)
+  }
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name || !email || !finalAmount) return
+    setBusy(true)
+    setError(null)
+    const cause = CAUSES.find(c => c.id === selectedCause)?.title ?? selectedCause
+    const result = await submitInbox({
+      kind: 'giving',
+      name,
+      email,
+      subject: `${frequency === 'monthly' ? 'Monthly' : 'One-time'} giving note — ${cause}`,
+      body: `Intended gift: ${curr.symbol}${finalAmount} ${currency}\nCause: ${cause}\nFrequency: ${frequency}\nPhone: ${phone || '—'}\n\nThis is a giving note from the website, not a completed payment.`,
+      website,
+    })
+    setBusy(false)
+    if (!result.ok) {
+      setError(result.error)
+      return
+    }
     setSubmitted(true)
   }
 
@@ -242,9 +308,15 @@ export default function Donation() {
             Thank You, {name}!
           </h2>
           <p className="text-sm sm:text-base leading-relaxed mb-6" style={{ color: '#4A3A30' }}>
-            Your generous gift of <strong>{curr.symbol}{finalAmount}</strong> to
-            <strong> {CAUSES.find(c => c.id === selectedCause)?.title}</strong> has been received.
-            You will receive a confirmation at <strong>{email}</strong>.
+            {stkRef ? (
+              stkPaid
+                ? <>Thank you. Your gift of <strong>KSh {kesAmount.toLocaleString()}</strong> toward <strong>{CAUSES.find(c => c.id === selectedCause)?.title}</strong> has been recorded. Reference <strong>{stkRef}</strong>. May God bless your generosity.</>
+                : <>The M-Pesa request was not completed. You can still give using the Paybill or bank details on this page.</>
+            ) : (
+              <>Thank you, <strong>{name}</strong>. We have received your giving note for
+              <strong> {CAUSES.find(c => c.id === selectedCause)?.title}</strong> ({curr.symbol}{finalAmount} {currency}).
+              Please complete your gift using M-Pesa or the bank details on this page.</>
+            )}
           </p>
           <p className="text-sm mb-8" style={{ color: '#6B6259' }}>
             "Service to God through service to humanity." — Your gift embodies this spirit.
@@ -339,7 +411,7 @@ export default function Donation() {
               Give Now — From Anywhere
             </h2>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5">
+            <form onSubmit={e => { void handleSubmit(e) }} className="flex flex-col gap-4 sm:gap-5">
               {/* Frequency */}
               <div>
                 <label className="block text-xs tracking-widest uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Frequency</label>
@@ -368,7 +440,12 @@ export default function Donation() {
                 <label className="block text-xs tracking-widest uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Currency</label>
                 <select
                   value={currency}
-                  onChange={e => setCurrency(e.target.value)}
+                  onChange={e => {
+                    const next = e.target.value
+                    setCurrency(next)
+                    setCustomAmount('')
+                    setAmount(next === 'KES' ? 1000 : 50)
+                  }}
                   className="w-full px-4 py-3 text-sm min-h-[48px]"
                   style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(200,146,42,0.25)', color: '#F0E8D8', fontFamily: "'Inter', sans-serif" }}
                 >
@@ -384,7 +461,7 @@ export default function Donation() {
               <div>
                 <label className="block text-xs tracking-widest uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Amount ({curr.symbol})</label>
                 <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mb-2">
-                  {AMOUNTS.map(a => (
+                  {amounts.map(a => (
                     <button
                       key={a}
                       type="button"
@@ -433,25 +510,73 @@ export default function Donation() {
                 </div>
                 <div>
                   <label className="block text-xs tracking-widest uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Email Address</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      className="w-full px-4 py-3 text-sm min-h-[48px]"
+                      style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(200,146,42,0.25)', color: '#F0E8D8', fontFamily: "'Inter', sans-serif", outline: 'none' }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs tracking-widest uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>M-Pesa phone (Kenya)</label>
                   <input
-                    type="email"
-                    required
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    type="tel"
+                    placeholder="07xx xxx xxx"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
                     className="w-full px-4 py-3 text-sm min-h-[48px]"
                     style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(200,146,42,0.25)', color: '#F0E8D8', fontFamily: "'Inter', sans-serif", outline: 'none' }}
                   />
                 </div>
-              </div>
 
-              <button
-                type="submit"
-                className="py-4 font-bold text-base tracking-wide transition-all hover:brightness-110 active:scale-95 min-h-[52px]"
-                style={{ backgroundColor: '#C8922A', color: '#1C1A18', fontFamily: "'Lora', serif" }}
-              >
-                Donate {curr.symbol}{finalAmount || '—'} {frequency === 'monthly' ? '/month' : 'Now'}
-              </button>
+                {stkRef && !submitted ? (
+                  <div className="p-4" style={{ backgroundColor: 'rgba(0,154,61,0.12)', border: '1px solid #009A3D' }}>
+                    <div className="text-xs uppercase tracking-widest mb-2" style={{ color: '#A8FFCC', fontFamily: "'DM Mono', monospace" }}>M-Pesa on your phone</div>
+                    <p className="text-sm mb-3" style={{ color: '#F0E8D8' }}>
+                      A giving request for <strong>KSh {kesAmount.toLocaleString()}</strong> has been sent to your number.
+                      Complete the M-Pesa prompt when it appears on your phone.
+                    </p>
+                    <p className="text-[10px] mb-3" style={{ color: '#8A7A70', fontFamily: "'DM Mono', monospace" }}>{stkRef}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button type="button" disabled={busy} onClick={() => { void handleConfirmStk(true) }} className="px-4 py-3 text-sm font-semibold min-h-[44px]" style={{ backgroundColor: '#009A3D', color: '#fff' }}>
+                        I completed payment
+                      </button>
+                      <button type="button" disabled={busy} onClick={() => { void handleConfirmStk(false) }} className="px-4 py-3 text-sm min-h-[44px]" style={{ border: '1px solid #C8922A', color: '#E8B84B' }}>
+                        Cancel request
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+
+                <input tabIndex={-1} autoComplete="off" value={website} onChange={e => setWebsite(e.target.value)} className="hidden" aria-hidden="true" />
+                {error ? <p className="text-sm" style={{ color: '#E8B84B' }}>{error}</p> : null}
+                <p className="text-xs leading-relaxed" style={{ color: '#F0E8D8AA' }}>
+                  You may also give through Paybill or bank transfer using the instructions on the right.
+                  {currency !== 'KES' ? ` Estimated M-Pesa amount: KSh ${kesAmount.toLocaleString()}.` : ''}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    disabled={busy || Boolean(stkRef)}
+                    onClick={() => { void handleStk() }}
+                    className="flex-1 py-4 font-bold text-base tracking-wide min-h-[52px]"
+                    style={{ backgroundColor: '#009A3D', color: '#fff', fontFamily: "'Lora', serif" }}
+                  >
+                    {busy && !stkRef ? 'Sending to your phone…' : `Give via M-Pesa · KSh ${kesAmount.toLocaleString()}`}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={busy}
+                    className="flex-1 py-4 font-bold text-base tracking-wide min-h-[52px]"
+                    style={{ backgroundColor: '#C8922A', color: '#1C1A18', fontFamily: "'Lora', serif" }}
+                  >
+                    {busy ? 'Sending…' : 'Send a giving note'}
+                  </button>
+                </div>
             </form>
           </div>
 

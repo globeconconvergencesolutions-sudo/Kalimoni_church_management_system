@@ -167,7 +167,7 @@ export async function cmsTablesReady(): Promise<{ ready: boolean; message: strin
   for (const table of ['posts', 'parish_events', 'mass_slots'] as const) {
     const { error } = await supabase.from(table).select('id').limit(1)
     if (error && isMissingTable(error)) {
-      return { ready: false, message: 'Run supabase/migrations/20260831_sprint2_cms.sql in the SQL Editor, then import content here.' }
+      return { ready: false, message: 'Parish content is not available yet. Please try again later.' }
     }
     if (error) return { ready: false, message: error.message }
   }

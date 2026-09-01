@@ -41,8 +41,10 @@ export default function NoticeRail({ notices }: NoticeRailProps) {
       className="flex items-center gap-3 px-4 sm:px-6 lg:px-8"
       style={{
         height: NOTICE_RAIL_HEIGHT,
-        backgroundColor: urgent ? '#6B1A2A' : '#C8922A',
-        color: urgent ? '#FAF6F0' : '#1C1A18',
+        backgroundColor: urgent ? '#6B1A2A' : '#2A0C12',
+        color: '#FAF6F0',
+        borderBottom: '1px solid rgba(200,146,42,0.28)',
+        boxShadow: 'inset 3px 0 0 #C8922A',
       }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -81,7 +83,7 @@ export default function NoticeRail({ notices }: NoticeRailProps) {
               style={{
                 width: 6,
                 height: 6,
-                backgroundColor: i === index ? (urgent ? '#E8B84B' : '#4A1019') : 'rgba(0,0,0,0.25)',
+                backgroundColor: i === index ? '#E8B84B' : 'rgba(250,246,240,0.28)',
               }}
             />
           ))}

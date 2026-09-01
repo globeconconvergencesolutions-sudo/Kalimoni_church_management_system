@@ -3,38 +3,51 @@ import { Outlet, NavLink, useLocation, Link } from 'react-router'
 import officialLogo from '../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
 import NoticeRail from './NoticeRail'
 import NoticeSpotlight from './NoticeSpotlight'
+import StaffOfficeLink from './StaffOfficeLink'
 import { useLiveNotices } from '../hooks/useLiveNotices'
 import { NOTICE_RAIL_HEIGHT } from '../lib/noticeTypes'
 
 const NAV = [
-  { label: 'Home', to: '/' },
-  { label: 'About', to: '/about' },
-  { label: 'Ministries', to: '/ministries' },
-  { label: 'Events', to: '/events' },
-  { label: 'Gallery', to: '/gallery' },
-  { label: 'News', to: '/blog' },
-  { label: 'Contact', to: '/contact' },
+  { to: '/', en: 'Home', sw: 'Nyumbani' },
+  { to: '/about', en: 'About', sw: 'Kuhusu' },
+  { to: '/ministries', en: 'Ministries', sw: 'Huduma' },
+  { to: '/events', en: 'Events', sw: 'Matukio' },
+  { to: '/gallery', en: 'Gallery', sw: 'Picha' },
+  { to: '/blog', en: 'News', sw: 'Habari' },
+  { to: '/contact', en: 'Contact', sw: 'Wasiliana' },
 ]
 
-const FOOTER_LINKS = {
-  'The Parish': [
-    { label: 'About Us', to: '/about' },
-    { label: 'Our History', to: '/history' },
-    { label: 'Community', to: '/community' },
-    { label: 'Gallery', to: '/gallery' },
-  ],
-  'Ministries': [
-    { label: 'All Ministries', to: '/ministries' },
-    { label: 'Vincentian Fathers', to: '/vincentians' },
-    { label: 'HHCJ Sisters', to: '/sisters' },
-    { label: 'Events Calendar', to: '/events' },
-  ],
-  'Connect': [
-    { label: 'Parish News', to: '/blog' },
-    { label: 'Contact Us', to: '/contact' },
-    { label: 'Donate', to: '/donate' },
-  ],
-}
+const FOOTER_LINKS = [
+  {
+    en: 'The Parish',
+    sw: 'Parokia',
+    links: [
+      { to: '/about', en: 'About Us', sw: 'Kuhusu sisi' },
+      { to: '/history', en: 'Our History', sw: 'Historia' },
+      { to: '/community', en: 'Community', sw: 'Jumuiya' },
+      { to: '/gallery', en: 'Gallery', sw: 'Picha' },
+    ],
+  },
+  {
+    en: 'Ministries',
+    sw: 'Huduma',
+    links: [
+      { to: '/ministries', en: 'All Ministries', sw: 'Huduma zote' },
+      { to: '/vincentians', en: 'Vincentian Fathers', sw: 'Padre wa Vincentian' },
+      { to: '/sisters', en: 'HHCJ Sisters', sw: 'Masista HHCJ' },
+      { to: '/events', en: 'Events Calendar', sw: 'Kalenda' },
+    ],
+  },
+  {
+    en: 'Connect',
+    sw: 'Wasiliana',
+    links: [
+      { to: '/blog', en: 'Parish News', sw: 'Habari' },
+      { to: '/contact', en: 'Contact Us', sw: 'Wasiliana nasi' },
+      { to: '/donate', en: 'Donate', sw: 'Changia' },
+    ],
+  },
+]
 
 const SWAHILI = {
   welcome: 'Karibu — Welcome',
@@ -44,9 +57,14 @@ const SWAHILI = {
 export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [scrollProgress, setScrollProgress] = useState(0)
   const [showBackTop, setShowBackTop] = useState(false)
-  const [lang, setLang] = useState<'en' | 'sw'>('en')
+  const [lang, setLang] = useState<'en' | 'sw'>(() => {
+    try {
+      return window.sessionStorage.getItem('kalimoni.lang') === 'sw' ? 'sw' : 'en'
+    } catch {
+      return 'en'
+    }
+  })
   const location = useLocation()
   const { notices, ready } = useLiveNotices()
   const railOn = notices.length > 0
@@ -60,9 +78,7 @@ export default function Layout() {
   useEffect(() => {
     const onScroll = () => {
       const scrollTop = window.scrollY
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight
       setScrolled(scrollTop > 40)
-      setScrollProgress(docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0)
       setShowBackTop(scrollTop > 500)
     }
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -74,6 +90,13 @@ export default function Layout() {
     return () => { document.body.style.overflow = '' }
   }, [menuOpen])
 
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem('kalimoni.lang', lang)
+    } catch { /* ignore */ }
+  }, [lang])
+
+  const t = (en: string, sw: string) => (lang === 'sw' ? sw : en)
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 
   return (
@@ -90,12 +113,6 @@ export default function Layout() {
             : '0 1px 0 rgba(200,146,42,0.06)',
         }}
       >
-        {/* Scroll progress bar */}
-        <div
-          className="absolute top-0 left-0 h-[2px] transition-all duration-100 ease-out"
-          style={{ width: `${scrollProgress}%`, backgroundColor: '#C8922A', zIndex: 60 }}
-        />
-
         {/* ── unified centred band ── */}
         <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-14 sm:h-16">
 
@@ -129,7 +146,7 @@ export default function Layout() {
               className="object-contain rounded-full shrink-0 mr-1.5"
               style={{ width: 26, height: 26, backgroundColor: '#fff', boxShadow: '0 0 0 1.5px rgba(200,146,42,0.3)' }}
             />
-            {NAV.map(({ label, to }) => (
+            {NAV.map(({ en, sw, to }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -141,7 +158,7 @@ export default function Layout() {
                 }
                 style={{ fontFamily: "'Inter', sans-serif" }}
               >
-                {label}
+                {t(en, sw)}
               </NavLink>
             ))}
             <span className="w-px h-3.5 mx-2 shrink-0" style={{ backgroundColor: 'rgba(200,146,42,0.2)' }} />
@@ -150,12 +167,13 @@ export default function Layout() {
               className="px-4 py-1.5 text-[10px] font-bold tracking-[0.14em] uppercase transition-all duration-200 hover:brightness-110 active:scale-95 whitespace-nowrap rounded-full"
               style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
             >
-              Donate
+              {t('Donate', 'Changia')}
             </Link>
           </div>
 
-          {/* Right: language + mobile burger */}
+          {/* Right: language + staff + mobile burger */}
           <div className="flex items-center gap-2">
+            <StaffOfficeLink variant="nav" lang={lang} />
             <button
               onClick={() => setLang(l => l === 'en' ? 'sw' : 'en')}
               className="hidden xl:flex px-2 py-1 text-[10px] tracking-widest transition-all duration-200"
@@ -186,7 +204,7 @@ export default function Layout() {
           style={{ backgroundColor: '#3A0C14' }}
         >
           <div className="px-4 sm:px-6 py-3 grid grid-cols-2 gap-1">
-            {NAV.map(({ label, to }) => (
+            {NAV.map(({ en, sw, to }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -198,7 +216,7 @@ export default function Layout() {
                 }
                 style={{ fontFamily: "'Inter', sans-serif" }}
               >
-                {label}
+                {t(en, sw)}
               </NavLink>
             ))}
             <Link
@@ -206,8 +224,17 @@ export default function Layout() {
               className="col-span-2 mt-2 py-3.5 text-center text-sm font-bold tracking-widest uppercase min-h-[44px] flex items-center justify-center"
               style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
             >
-              Donate Now
+              {t('Donate Now', 'Changia sasa')}
             </Link>
+            <button
+              type="button"
+              onClick={() => setLang(l => l === 'en' ? 'sw' : 'en')}
+              className="col-span-2 py-3 text-[10px] tracking-[0.2em] uppercase"
+              style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace", border: '1px solid rgba(200,146,42,0.35)' }}
+            >
+              {lang === 'en' ? 'Kiswahili' : 'English'}
+            </button>
+            <StaffOfficeLink variant="drawer" lang={lang} />
           </div>
           <div className="h-safe-bottom" />
         </div>
@@ -224,7 +251,7 @@ export default function Layout() {
           }`}
           style={{ backgroundColor: '#C8922A', color: '#1C1A18', fontFamily: "'DM Mono', monospace" }}
         >
-          🙏 Karibu sana — {SWAHILI.tagline} &nbsp;·&nbsp;
+          Karibu sana — {SWAHILI.tagline} &nbsp;·&nbsp;
           <button onClick={() => setLang('en')} className="underline underline-offset-2 hover:opacity-70 ml-1">
             English
           </button>
@@ -246,10 +273,12 @@ export default function Layout() {
           <div className="max-w-6xl mx-auto flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
             <div>
               <div className="text-xs tracking-[0.25em] uppercase mb-2" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
-                Partner With Us
+                {t('Partner With Us', 'Shirikiana nasi')}
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight" style={{ fontFamily: "'Lora', serif" }}>
-                Support the Mission<br className="hidden sm:block" /> of St. Theresa Parish
+                {t('Support the Mission', 'Saidia utume')}
+                <br className="hidden sm:block" />
+                {t(' of St. Theresa Parish', ' wa Parokia ya St. Theresa')}
               </h2>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
@@ -258,14 +287,14 @@ export default function Layout() {
                 className="px-7 py-3.5 font-bold text-sm tracking-wide transition-all hover:brightness-110 active:scale-95 text-center min-h-[48px] flex items-center justify-center"
                 style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
               >
-                Donate Now
+                {t('Donate Now', 'Changia sasa')}
               </Link>
               <Link
                 to="/contact"
                 className="px-7 py-3.5 font-medium text-sm tracking-wide border transition-all hover:bg-white/10 text-center min-h-[48px] flex items-center justify-center"
                 style={{ border: '1px solid rgba(240,232,216,0.35)', color: '#F0E8D8', fontFamily: "'Inter', sans-serif" }}
               >
-                Get in Touch
+                {t('Get in Touch', 'Wasiliana nasi')}
               </Link>
             </div>
           </div>
@@ -286,13 +315,15 @@ export default function Layout() {
                     style={{ width: 52, height: 52, backgroundColor: '#fff', boxShadow: '0 0 0 1.5px rgba(200,146,42,0.35)' }}
                   />
                   <div>
-                    <div className="text-[10px] tracking-[0.2em] uppercase" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Catholic Church · Est. 1927</div>
+                    <div className="text-[10px] tracking-[0.2em] uppercase" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>{t('Catholic Church · Est. 1927', 'Kanisa Katoliki · 1927')}</div>
                     <div className="text-white font-semibold text-sm" style={{ fontFamily: "'Lora', serif" }}>St. Theresa, Kalimoni</div>
                   </div>
                 </div>
                 <p className="text-sm leading-relaxed mb-6 max-w-xs" style={{ color: '#5A4E48' }}>
-                  Established 1927. Serving God through service to humanity in Kalimoni, Juja,
-                  Kiambu County, Kenya — Ruiru Deanery, Archdiocese of Nairobi.
+                  {t(
+                    'Established 1927. Serving God through service to humanity in Kalimoni, Juja, Kiambu County, Kenya — Ruiru Deanery, Archdiocese of Nairobi.',
+                    'Imeanzishwa 1927. Kumtumikia Mungu kwa kuwatumikia watu Kalimoni, Juja, Kaunti ya Kiambu — Deanery ya Ruiru, Jimbo Kuu la Nairobi.',
+                  )}
                 </p>
                 <div className="flex flex-col gap-3 text-xs" style={{ color: '#5A4E48', fontFamily: "'DM Mono', monospace" }}>
                   <div className="flex items-start gap-2.5">
@@ -319,30 +350,30 @@ export default function Layout() {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="#C8922A" className="mt-0.5 shrink-0">
                       <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke="#C8922A" strokeWidth="2" fill="none" />
                     </svg>
-                    <span>Facebook Page</span>
+                    <span>{t('Facebook Page', 'Ukurasa wa Facebook')}</span>
                   </a>
                 </div>
               </div>
 
               {/* Link columns */}
-              {Object.entries(FOOTER_LINKS).map(([group, links]) => (
-                <div key={group}>
+              {FOOTER_LINKS.map(group => (
+                <div key={group.en}>
                   <div
                     className="text-xs tracking-[0.2em] uppercase mb-5 pb-2 border-b"
                     style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace", borderColor: '#2A2520' }}
                   >
-                    {group}
+                    {t(group.en, group.sw)}
                   </div>
                   <div className="flex flex-col gap-2.5">
-                    {links.map(({ label, to }) => (
+                    {group.links.map(link => (
                       <Link
-                        key={label}
-                        to={to}
+                        key={link.to + link.en}
+                        to={link.to}
                         className="text-sm transition-colors duration-150 hover:text-white flex items-center gap-1.5 group"
                         style={{ color: '#5A4E48' }}
                       >
                         <span className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#C8922A', fontSize: '0.5rem' }}>●</span>
-                        {label}
+                        {t(link.en, link.sw)}
                       </Link>
                     ))}
                   </div>
@@ -358,20 +389,22 @@ export default function Layout() {
               <div className="text-xs leading-relaxed" style={{ color: '#3A3530', fontFamily: "'DM Mono', monospace" }}>
                 © 2026 St. Theresa Parish, Kalimoni. All rights reserved. Est. 1927.
               </div>
-              <div className="flex flex-wrap gap-4 sm:gap-6 text-xs" style={{ fontFamily: "'DM Mono', monospace" }}>
+              <div className="flex flex-wrap gap-4 sm:gap-6 text-xs items-center" style={{ fontFamily: "'DM Mono', monospace" }}>
+                <StaffOfficeLink variant="footer" lang={lang} />
+                <span style={{ color: '#2A2520' }} aria-hidden>|</span>
                 {[
-                  { label: 'Blog', to: '/blog' },
-                  { label: 'Gallery', to: '/gallery' },
-                  { label: 'Donate', to: '/donate' },
-                  { label: 'Privacy', to: '/contact' },
-                ].map(({ label, to }) => (
+                  { en: 'News', sw: 'Habari', to: '/blog' },
+                  { en: 'Gallery', sw: 'Picha', to: '/gallery' },
+                  { en: 'Donate', sw: 'Changia', to: '/donate' },
+                  { en: 'Privacy', sw: 'Faragha', to: '/contact' },
+                ].map(({ en, sw, to }) => (
                   <Link
-                    key={label}
+                    key={en}
                     to={to}
                     className="transition-colors hover:text-white"
                     style={{ color: '#3A3530' }}
                   >
-                    {label}
+                    {t(en, sw)}
                   </Link>
                 ))}
               </div>

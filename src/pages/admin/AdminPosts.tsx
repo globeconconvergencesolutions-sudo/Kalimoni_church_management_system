@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { deleteStaffPost, fetchStaffPosts, type StaffPost } from '../../lib/cms'
+import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 
 export default function AdminPosts() {
   const [posts, setPosts] = useState<StaffPost[]>([])
@@ -30,38 +31,17 @@ export default function AdminPosts() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-8 py-10">
-      <div className="flex items-start justify-between gap-4 mb-8">
-        <div>
-          <div className="text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
-            Sprint 2
-          </div>
-          <h1 className="text-3xl font-bold" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
-            News & stories
-          </h1>
-          <p className="text-sm mt-2 max-w-xl" style={{ color: '#6B6259' }}>
-            Published articles appear on the home highlights, /blog, and each article page.
-            Import prototype copy first if this list is empty.
-          </p>
-        </div>
-        <Link
-          to="/admin/posts/new"
-          className="px-4 py-3 text-sm font-semibold shrink-0 min-h-[44px] flex items-center"
-          style={{ backgroundColor: '#6B1A2A', color: '#FAF6F0' }}
-        >
-          New article
-        </Link>
-      </div>
-
-      {error ? (
-        <div className="p-4 mb-6 text-sm" style={{ backgroundColor: '#F0E8D8', color: '#6B1A2A' }}>
-          {error}
-        </div>
-      ) : null}
+    <OfficePage
+      kicker="Proclaim"
+      title="News & stories"
+      lede="Articles appear on the homepage highlights and in the parish blog."
+      action={<OfficeButton to="/admin/posts/new">New article</OfficeButton>}
+    >
+      {error ? <OfficeAlert>{error}</OfficeAlert> : null}
 
       {posts.length === 0 && !error ? (
         <p className="text-sm" style={{ color: '#6B6259' }}>
-          No articles in the database yet. Open Content and import the prototype, or write a new article.
+          No articles yet. Write the first story for the parish blog.
         </p>
       ) : (
         <div className="flex flex-col gap-3">
@@ -105,6 +85,6 @@ export default function AdminPosts() {
           ))}
         </div>
       )}
-    </div>
+    </OfficePage>
   )
 }

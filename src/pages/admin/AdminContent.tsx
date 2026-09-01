@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
 import { cmsTablesReady, importPrototypeContent } from '../../lib/cms'
+import OfficePage, { OfficeAlert, OfficeButton, OfficeCard } from '../../components/office/OfficePage'
+import { office } from '../../components/office/officeTheme'
 
 export default function AdminContent() {
   const [ready, setReady] = useState<boolean | null>(null)
@@ -24,55 +25,41 @@ export default function AdminContent() {
       setStatus(err)
       return
     }
-    setStatus('Prototype news, events, and Mass times are now in the database. The public site will use this content.')
+    setStatus('Brochure stories, feast days, and Mass times are now live on the parish website.')
     const result = await cmsTablesReady()
     setReady(result.ready)
     setMessage(result.message)
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-8 py-10">
-      <div className="text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
-        Sprint 2
-      </div>
-      <h1 className="text-3xl font-bold mb-3" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
-        Website content
-      </h1>
-      <p className="text-sm mb-6 leading-relaxed" style={{ color: '#6B6259' }}>
-        News, the parish calendar, and Mass times now live in Supabase after you run the Sprint 2 SQL
-        and import once. Until then the public site keeps using the prototype copy so nothing goes blank.
-      </p>
-
-      {ready === false && message ? (
-        <div className="p-4 mb-6 text-sm leading-relaxed" style={{ backgroundColor: '#F0E8D8', color: '#6B1A2A' }}>
-          {message}
-        </div>
-      ) : null}
-
-      {ready ? (
-        <>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => { void onImport() }}
-            className="px-5 py-3 text-sm font-semibold min-h-[44px]"
-            style={{ backgroundColor: '#6B1A2A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
-          >
-            {busy ? 'Importing…' : 'Import prototype news, events, and Mass times'}
-          </button>
-          <div className="flex flex-wrap gap-3 mt-6 text-sm">
-            <Link to="/admin/posts" className="underline underline-offset-2" style={{ color: '#6B1A2A' }}>Edit news</Link>
-            <Link to="/admin/events" className="underline underline-offset-2" style={{ color: '#6B1A2A' }}>Edit calendar</Link>
-            <Link to="/admin/mass" className="underline underline-offset-2" style={{ color: '#6B1A2A' }}>Edit Mass times</Link>
-          </div>
-        </>
-      ) : null}
-
+    <OfficePage
+      kicker="House"
+      title="Parish archive"
+      lede="Load the founding news, feast days, and Mass times from the printed brochure. After that, keep everything current from News, Events, and Mass times."
+    >
+      {ready === false && message ? <OfficeAlert>{message}</OfficeAlert> : null}
       {status ? (
-        <p className="text-sm mt-4" style={{ color: status.includes('now in the database') ? '#2A6B3A' : '#6B1A2A' }}>
-          {status}
-        </p>
+        <OfficeAlert tone={status.includes('now live') ? 'ok' : 'warn'}>{status}</OfficeAlert>
       ) : null}
-    </div>
+
+      <OfficeCard>
+        <p className="text-sm leading-relaxed mb-6" style={{ color: office.mute }}>
+          Use this once when setting up the parish website. It brings the brochure content into the live site
+          without removing anything you have already written.
+        </p>
+        {ready ? (
+          <div className="flex flex-wrap gap-3">
+            <OfficeButton disabled={busy} onClick={() => { void onImport() }}>
+              {busy ? 'Loading…' : 'Load brochure archive'}
+            </OfficeButton>
+            <OfficeButton to="/admin/posts" variant="ghost">News</OfficeButton>
+            <OfficeButton to="/admin/events" variant="ghost">Calendar</OfficeButton>
+            <OfficeButton to="/admin/mass" variant="ghost">Mass times</OfficeButton>
+          </div>
+        ) : ready === null ? (
+          <p className="text-sm" style={{ color: office.mute }}>One moment…</p>
+        ) : null}
+      </OfficeCard>
+    </OfficePage>
   )
 }

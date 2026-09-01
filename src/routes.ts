@@ -16,6 +16,7 @@ import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminLogin from './pages/admin/AdminLogin'
+import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminNotices from './pages/admin/AdminNotices'
 import AdminNoticeForm from './pages/admin/AdminNoticeForm'
 import AdminContent from './pages/admin/AdminContent'
@@ -24,6 +25,9 @@ import AdminEventForm from './pages/admin/AdminEventForm'
 import AdminPosts from './pages/admin/AdminPosts'
 import AdminPostForm from './pages/admin/AdminPostForm'
 import AdminMass from './pages/admin/AdminMass'
+import AdminInbox from './pages/admin/AdminInbox'
+import AdminMedia from './pages/admin/AdminMedia'
+import AdminGiving from './pages/admin/AdminGiving'
 
 export const router = createBrowserRouter([
   {
@@ -34,7 +38,8 @@ export const router = createBrowserRouter([
     path: '/admin',
     Component: AdminLayout,
     children: [
-      { index: true, Component: AdminNotices },
+      { index: true, Component: AdminDashboard },
+      { path: 'notices', Component: AdminNotices },
       { path: 'notices/new', Component: AdminNoticeForm },
       { path: 'notices/:id', Component: AdminNoticeForm },
       { path: 'content', Component: AdminContent },
@@ -45,6 +50,10 @@ export const router = createBrowserRouter([
       { path: 'posts/new', Component: AdminPostForm },
       { path: 'posts/:id', Component: AdminPostForm },
       { path: 'mass', Component: AdminMass },
+      { path: 'inbox', Component: AdminInbox },
+      { path: 'media', Component: AdminMedia },
+      { path: 'photos', Component: AdminMedia },
+      { path: 'giving', Component: AdminGiving },
     ],
   },
   {

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSEO } from '../hooks/useSEO'
+import { useSiteMedia } from '../hooks/useSiteMedia'
 
 const ERAS = [
   {
@@ -49,6 +50,7 @@ export default function History() {
     path: '/history',
   })
   const [activeEra, setActiveEra] = useState('founding')
+  const site = useSiteMedia()
   const era = ERAS.find(e => e.id === activeEra)!
 
   return (
@@ -61,7 +63,7 @@ export default function History() {
         <div
           className="absolute top-0 right-0 w-full sm:w-2/3 lg:w-1/2 h-full opacity-15 sm:opacity-20"
           style={{
-            backgroundImage: `url(https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=900&h=600&fit=crop&auto=format)`,
+            backgroundImage: site.bg('history.hero', 'photo-1547471080-7cc2caa01a7e', 900, 600),
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}

@@ -45,6 +45,21 @@ img { max-width: 100%; display: block; }
 
 .h-safe-bottom { height: 0px; }
 
+@keyframes parish-loader-spin {
+  to { transform: rotate(360deg); }
+}
+
+.parish-loader-ring {
+  animation: parish-loader-spin 1.05s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .parish-loader-ring {
+    animation: none;
+    border-top-color: rgba(200, 146, 42, 0.45);
+  }
+}
+
 @media (pointer: coarse) {
   button, a[href], select, input[type="submit"] {
     min-height: 44px;

@@ -3,6 +3,7 @@ import { useParams, Link, Navigate } from 'react-router'
 import { type Section, type BlogPost } from '../data/blog'
 import { useSEO } from '../hooks/useSEO'
 import { fetchPublishedPost, fetchPublishedPosts } from '../lib/cms'
+import { parishImage } from '../lib/media'
 
 function renderSection(section: Section, i: number) {
   switch (section.type) {
@@ -42,7 +43,7 @@ function renderSection(section: Section, i: number) {
       return (
         <figure key={i} className="my-8">
           <img
-            src={`https://images.unsplash.com/${section.src}?w=900&h=500&fit=crop&auto=format`}
+            src={parishImage(section.src, 900, 500)}
             alt={section.alt}
             className="w-full object-cover"
             style={{ maxHeight: 420, backgroundColor: '#D0C4B0' }}
@@ -112,7 +113,7 @@ export default function BlogPost() {
         <div
           className="absolute inset-0 opacity-30"
           style={{
-            backgroundImage: `url(https://images.unsplash.com/${post.coverImg}?w=1400&h=600&fit=crop&auto=format)`,
+            backgroundImage: `url(${parishImage(post.coverImg, 1400, 600)})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: 'saturate(0.7)',
@@ -238,7 +239,7 @@ export default function BlogPost() {
                       className="group flex gap-3 items-start"
                     >
                       <img
-                        src={`https://images.unsplash.com/${s.coverImg}?w=120&h=80&fit=crop&auto=format`}
+                        src={parishImage(s.coverImg, 120, 80)}
                         alt={s.title}
                         className="shrink-0 object-cover"
                         style={{ width: 72, height: 52, backgroundColor: '#D0C4B0' }}

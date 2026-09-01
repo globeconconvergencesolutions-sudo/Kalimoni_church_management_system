@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSEO } from '../hooks/useSEO'
+import { useSiteMedia } from '../hooks/useSiteMedia'
 
 const PILLARS = [
   {
@@ -31,6 +32,7 @@ export default function Vincentians() {
     path: '/vincentians',
   })
   const [activePillar, setActivePillar] = useState('evangelisation')
+  const site = useSiteMedia()
   const pillar = PILLARS.find(p => p.id === activePillar)!
 
   return (
@@ -39,7 +41,7 @@ export default function Vincentians() {
       <section
         className="relative pt-24 sm:pt-28 md:pt-32 pb-14 sm:pb-18 md:pb-20 px-4 sm:px-6 md:px-10 lg:px-16 overflow-hidden"
         style={{
-          backgroundImage: `url(https://images.unsplash.com/photo-1609234656381-73e732808098?w=1600&h=800&fit=crop&auto=format)`,
+          backgroundImage: site.bg('vincentians.hero', 'photo-1609234656381-73e732808098', 1600, 800),
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -159,7 +161,7 @@ export default function Vincentians() {
       <section
         className="py-16 sm:py-20 px-4 sm:px-6 md:px-10 lg:px-16 relative"
         style={{
-          backgroundImage: `url(https://images.unsplash.com/photo-1476873282730-9018f17bdf4e?w=1600&h=600&fit=crop&auto=format)`,
+          backgroundImage: site.bg('vincentians.quote', 'photo-1476873282730-9018f17bdf4e', 1600, 600),
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

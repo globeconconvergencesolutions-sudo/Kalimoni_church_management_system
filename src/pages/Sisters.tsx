@@ -1,8 +1,16 @@
 import { useSEO } from '../hooks/useSEO'
+import { useSiteMedia } from '../hooks/useSiteMedia'
+
+const APOSTOLATE_SLOTS = [
+  'sisters.ministry.health',
+  'sisters.ministry.education',
+  'sisters.ministry.pastoral',
+  'sisters.ministry.charity',
+] as const
 
 const APOSTOLATE = [
   { num: '01', title: 'Health Ministry', detail: 'Kalimoni Mission Hospital — a fully-fledged Level 4 hospital. What began as a modest dispensary under Sr. Juliana Mose now serves the entire wider community.', img: 'photo-1517120026326-d87759a7b63b', color: '#1A3A4A' },
-  { num: '02', title: 'Education Ministry', detail: 'Kalimoni Comprehensive School, nurturing the next generation with quality education grounded in Catholic values and care.', img: 'flagged/photo-1555251255-e9a095d6eb9d', color: '#4A3A10' },
+  { num: '02', title: 'Education Ministry', detail: 'Kalimoni Comprehensive School, nurturing the next generation with quality education grounded in Catholic values and care.', img: 'photo-1555251255-e9a095d6eb9d', color: '#4A3A10' },
   { num: '03', title: 'Pastoral Ministry', detail: 'Guiding Small Christian Communities, ministering to children and women, and supporting parish liturgy with grace and dedication.', img: 'photo-1632932693914-89b90ae3d16d', color: '#6B1A2A' },
   { num: '04', title: 'Charitable Works', detail: 'Standing with the poor, vulnerable, and marginalised — offering practical assistance, encouragement, and the compassion of the Gospel.', img: 'photo-1599659593072-10de2e109486', color: '#2A1A4A' },
 ]
@@ -14,6 +22,7 @@ const IMPACT = [
 ]
 
 export default function Sisters() {
+  const site = useSiteMedia()
   useSEO({
     title: 'HHCJ Sisters',
     description: 'The Sisters of the Handmaids of the Holy Child Jesus serve Kalimoni through the mission hospital, school, pastoral ministry, and charity.',
@@ -68,7 +77,7 @@ export default function Sisters() {
           </div>
           <div className="w-full lg:w-1/2 flex flex-col gap-3">
             <img
-              src="https://images.unsplash.com/photo-1517120026326-d87759a7b63b?w=700&h=360&fit=crop&auto=format"
+              src={site.src('sisters.hero', 'photo-1517120026326-d87759a7b63b', 700, 360)}
               alt="Kalimoni Mission Hospital"
               className="w-full object-cover"
               style={{ height: 'clamp(180px, 35vw, 240px)', backgroundColor: '#D0C4B0' }}
@@ -98,14 +107,14 @@ export default function Sisters() {
             Four Areas of<br />Transformative Service
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {APOSTOLATE.map(a => (
+            {APOSTOLATE.map((a, i) => (
               <div
                 key={a.num}
                 className="group overflow-hidden relative transition-transform hover:-translate-y-0.5 duration-200"
                 style={{ minHeight: 200, backgroundColor: a.color }}
               >
                 <img
-                  src={`https://images.unsplash.com/${a.img}?w=600&h=300&fit=crop&auto=format`}
+                  src={site.src(APOSTOLATE_SLOTS[i], a.img, 600, 300)}
                   alt={a.title}
                   className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-300"
                   style={{ backgroundColor: a.color }}

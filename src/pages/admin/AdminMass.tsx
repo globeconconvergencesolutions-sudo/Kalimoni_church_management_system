@@ -1,5 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { deleteStaffMassSlot, fetchStaffMassSlots, saveStaffMassSlot, type StaffMassSlot } from '../../lib/cms'
+import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
+import { office } from '../../components/office/officeTheme'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -63,24 +65,15 @@ export default function AdminMass() {
     else await load()
   }
 
-  const field = { border: '1px solid #D0C4B0', backgroundColor: '#fff', outline: 'none' as const }
+  const field = office.field
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-8 py-10">
-      <div className="text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
-        Sprint 2
-      </div>
-      <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
-        Mass times
-      </h1>
-      <p className="text-sm mb-8 max-w-xl" style={{ color: '#6B6259' }}>
-        Eucharist rows drive the “Next Mass” countdown (weekday + minutes from midnight).
-        Regular list rows appear on Events and Contact.
-      </p>
-
-      {error ? (
-        <div className="p-4 mb-6 text-sm" style={{ backgroundColor: '#F0E8D8', color: '#6B1A2A' }}>{error}</div>
-      ) : null}
+    <OfficePage
+      kicker="Calendar"
+      title="Mass times"
+      lede="Eucharist rows drive the Next Mass countdown. List rows appear on Events and Contact."
+    >
+      {error ? <OfficeAlert>{error}</OfficeAlert> : null}
 
       <form onSubmit={e => { void onAdd(e) }} className="p-4 mb-8 grid grid-cols-1 sm:grid-cols-2 gap-3" style={{ backgroundColor: '#fff', border: '1px solid #E8DFD0' }}>
         <label className="text-xs sm:col-span-2" style={{ color: '#6B6259' }}>Add a slot</label>
@@ -140,9 +133,9 @@ export default function AdminMass() {
           className="px-3 py-3 text-sm min-h-[44px]"
           style={field}
         />
-        <button type="submit" disabled={busy} className="sm:col-span-2 py-3 text-sm font-semibold min-h-[44px]" style={{ backgroundColor: '#6B1A2A', color: '#FAF6F0' }}>
-          {busy ? 'Saving…' : 'Add Mass time'}
-        </button>
+        <div className="sm:col-span-2">
+          <OfficeButton type="submit" disabled={busy}>{busy ? 'Saving…' : 'Add Mass time'}</OfficeButton>
+        </div>
       </form>
 
       <div className="flex flex-col gap-3">
@@ -169,6 +162,6 @@ export default function AdminMass() {
           </div>
         ))}
       </div>
-    </div>
+    </OfficePage>
   )
 }
