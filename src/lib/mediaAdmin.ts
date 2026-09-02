@@ -2,6 +2,7 @@ import { getSupabase } from './supabase'
 import { isMissingTable } from './supabaseErrors'
 import type { ParishMedia } from './media'
 import { getSlotDef, GALLERY_FOLDER_SLUGS } from './mediaSlots'
+import { validateParishMediaFile } from './mediaUploadRules'
 
 export async function fetchPublishedMedia(): Promise<ParishMedia[]> {
   const supabase = getSupabase()
@@ -58,16 +59,30 @@ export async function saveStaffMediaMeta(
 async function mediaApi<T>(path: string, body: Record<string, unknown>): Promise<{ ok: boolean; error: string | null; data?: T }> {
   const token = await authToken()
   if (!token) return { ok: false, error: 'Please sign in to manage media.' }
-  const res = await fetch(path, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(body),
-  })
-  const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string } & T
-  if (!res.ok || !data.ok) return { ok: false, error: data.error || 'Request failed.' }
+  let res: Response
+  try {
+    res = await fetch(path, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    })
+  } catch {
+    return { ok: false, error: 'Could not reach the upload service. Check your connection and try again.' }
+  }
+  const contentType = res.headers.get('content-type') || ''
+  const data = contentType.includes('application/json')
+    ? ((await res.json().catch(() => ({}))) as { ok?: boolean; error?: string } & T)
+    : ({} as { ok?: boolean; error?: string } & T)
+  if (res.status === 404) {
+    return {
+      ok: false,
+      error: 'Upload service not found. On production, deploy the /api/media routes. Locally, restart the dev server (pnpm dev).',
+    }
+  }
+  if (!res.ok || !data.ok) return { ok: false, error: data.error || `Upload failed (${res.status}).` }
   return { ok: true, error: null, data }
 }
 
@@ -110,12 +125,19 @@ export async function uploadParishMedia(
   const token = await authToken()
   if (!token) return { ok: false, error: 'Please sign in to upload media.' }
 
+  const allowVideo =
+    meta.mode === 'gallery' ||
+    (meta.mode === 'slot' && getSlotDef(meta.slotKey)?.mediaType === 'video')
+  const check = validateParishMediaFile(file, { allowVideo })
+  if (!check.ok) return { ok: false, error: check.error }
+
   const dataUrl = await fileToDataUrl(file)
-  const isVideo = file.type.startsWith('video/')
+  const isVideo = file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(file.name)
 
   const body: Record<string, unknown> = {
     dataUrl,
     filename: file.name,
+    fileSize: file.size,
     mediaType: isVideo ? 'video' : 'image',
     mode: meta.mode,
   }
@@ -135,23 +157,37 @@ export async function uploadParishMedia(
     body.title = def.label
   }
 
-  const res = await fetch('/api/media/upload', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(body),
-  })
-  const data = (await res.json().catch(() => ({}))) as {
-    ok?: boolean
-    error?: string
-    media?: ParishMedia
-    stored?: boolean
-    storeError?: string
+  let res: Response
+  try {
+    res = await fetch('/api/media/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    })
+  } catch {
+    return { ok: false, error: 'Could not reach the upload service. Check your connection and try again.' }
+  }
+  const contentType = res.headers.get('content-type') || ''
+  const data = contentType.includes('application/json')
+    ? ((await res.json().catch(() => ({}))) as {
+        ok?: boolean
+        error?: string
+        media?: ParishMedia
+        stored?: boolean
+        storeError?: string
+      })
+    : {}
+  if (res.status === 404) {
+    return {
+      ok: false,
+      error: 'Upload service not found. On production, deploy the /api/media routes. Locally, restart the dev server (pnpm dev).',
+    }
   }
   if (!res.ok || !data.ok || data.stored === false) {
-    return { ok: false, error: data.storeError || data.error || 'Upload failed.' }
+    return { ok: false, error: data.storeError || data.error || `Upload failed (${res.status}).` }
   }
   if (!data.media) return { ok: false, error: 'Upload succeeded but no media record was returned.' }
   return { ok: true, error: null, media: data.media }

@@ -1,23 +1,18 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { v2 as cloudinary } from 'cloudinary'
 import { getSlotDef, GALLERY_FOLDER_SLUGS } from '../src/lib/mediaSlots'
+import { cloudinaryCloudName, envFrom, supabaseAnonKey, supabaseUrl } from './parishEnv'
+
+export { envFrom }
 
 export type ApiResult = { status: number; body: Record<string, unknown> }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AuthedClient = SupabaseClient<any, 'public', any>
 
-export function envFrom(source: NodeJS.ProcessEnv | Record<string, string | undefined>): Record<string, string> {
-  const out: Record<string, string> = {}
-  for (const [key, value] of Object.entries(source)) {
-    if (typeof value === 'string') out[key] = value
-  }
-  return out
-}
-
 function configureCloudinary(env: Record<string, string>) {
   cloudinary.config({
-    cloud_name: (env.CLOUDINARY_CLOUD_NAME || env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '').toLowerCase(),
+    cloud_name: cloudinaryCloudName(env),
     api_key: env.CLOUDINARY_API_KEY,
     api_secret: env.CLOUDINARY_API_SECRET,
   })
@@ -64,12 +59,12 @@ export async function authenticateStaff(
   if (!token) {
     return { status: 401, body: { ok: false, error: 'Sign in required.' } }
   }
-  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL || env.VITE_SUPABASE_URL || ''
-  const supabaseKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || ''
-  if (!supabaseUrl || !supabaseKey) {
+  const supabaseUrlValue = supabaseUrl(env)
+  const supabaseKey = supabaseAnonKey(env)
+  if (!supabaseUrlValue || !supabaseKey) {
     return { status: 503, body: { ok: false, error: 'Supabase is not configured.' } }
   }
-  const authed = createClient(supabaseUrl, supabaseKey, {
+  const authed = createClient(supabaseUrlValue, supabaseKey, {
     global: { headers: { Authorization: `Bearer ${token}` } },
   })
   const userRes = await authed.auth.getUser(token)
@@ -138,6 +133,7 @@ export async function processMediaUpload(
   body: {
     dataUrl?: string
     filename?: string
+    fileSize?: number
     title?: string
     category?: string
     alt?: string
@@ -155,18 +151,33 @@ export async function processMediaUpload(
   if ('status' in staff) return staff
   const { authed } = staff
 
-  const isImage = body.dataUrl?.startsWith('data:image/')
-  const isVideo = body.dataUrl?.startsWith('data:video/')
+  const mimeMatch = /^data:([^;,]+)/.exec(body.dataUrl || '')
+  const mime = mimeMatch?.[1]?.toLowerCase() ?? ''
+  const isImage = mime.startsWith('image/')
+  const isVideo = mime.startsWith('video/')
   if (!isImage && !isVideo) {
-    return { status: 400, body: { ok: false, error: 'Choose a JPG, PNG, WebP image, or MP4/WebM video.' } }
+    return {
+      status: 400,
+      body: {
+        ok: false,
+        error: 'Could not read this file. Try JPG, PNG, WebP, HEIC, MP4, or MOV.',
+      },
+    }
   }
-  const maxSize = isVideo ? 48_000_000 : 12_000_000
-  if ((body.dataUrl?.length ?? 0) > maxSize) {
+  const byteSize =
+    typeof body.fileSize === 'number' && body.fileSize > 0
+      ? body.fileSize
+      : Math.floor(((body.dataUrl?.length ?? 0) - (body.dataUrl?.indexOf(',') ?? 0) - 1) * 0.75)
+  const maxBytes = isVideo ? 100 * 1024 * 1024 : 25 * 1024 * 1024
+  if (byteSize > maxBytes) {
+    const mb = Math.round(maxBytes / (1024 * 1024))
     return {
       status: 413,
       body: {
         ok: false,
-        error: isVideo ? 'Video is too large. Use a file under about 32 MB.' : 'Image is too large. Use a file under about 8 MB.',
+        error: isVideo
+          ? `Video is too large. Please use a file under about ${mb} MB.`
+          : `Photo is too large. Please use a file under about ${mb} MB.`,
       },
     }
   }

@@ -14,8 +14,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    // Parish .env.local uses Next-style names; Vite must expose them to the client.
-    envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
+    // loadEnv(..., '') supplies all keys to server plugins; the browser only receives VITE_*.
+    envPrefix: 'VITE_',
     base: process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : '/',
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,

@@ -7,6 +7,7 @@ import {
   uploadParishMedia,
 } from '../../lib/mediaAdmin'
 import { invalidateSiteMediaCache } from '../../hooks/useSiteMedia'
+import { useStaffSession } from '../../hooks/useStaffSession'
 import { parishImage, parishVideoPoster, type ParishMedia } from '../../lib/media'
 import {
   GALLERY_CATEGORIES,
@@ -15,6 +16,7 @@ import {
   slotsForPage,
   type MediaSlotDef,
 } from '../../lib/mediaSlots'
+import { MEDIA_GALLERY_ACCEPT, mediaUploadHint } from '../../lib/mediaUploadRules'
 import MediaCenterTabs from '../../components/office/MediaCenterTabs'
 import MediaDropZone from '../../components/office/MediaDropZone'
 import MediaReplaceModal from '../../components/office/MediaReplaceModal'
@@ -62,6 +64,7 @@ function FilterChip({
 }
 
 export default function AdminMedia() {
+  const { ready: sessionReady } = useStaffSession()
   const [tab, setTab] = useState<Tab>('site')
   const [media, setMedia] = useState<ParishMedia[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -121,8 +124,9 @@ export default function AdminMedia() {
   }
 
   useEffect(() => {
+    if (!sessionReady) return
     void load()
-  }, [])
+  }, [sessionReady])
 
   useEffect(() => {
     if (!success) return
@@ -249,6 +253,7 @@ export default function AdminMedia() {
 
   const onGalleryFile = (file: File | null) => {
     setGFile(file)
+    if (file) setError(null)
     if (file && !gTitle.trim()) {
       const base = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim()
       if (base) setGTitle(base.charAt(0).toUpperCase() + base.slice(1))
@@ -441,10 +446,11 @@ export default function AdminMedia() {
                 <MediaDropZone
                   file={gFile}
                   onFile={onGalleryFile}
-                  accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                  accept={MEDIA_GALLERY_ACCEPT}
                   label="Drop a photo or video here"
-                  hint="JPG, PNG, WebP, MP4, or WebM · images up to 8 MB · videos up to 32 MB"
+                  hint={mediaUploadHint(true)}
                   disabled={busy}
+                  onValidationError={setError}
                 />
               </div>
               <div className="flex flex-col gap-4">
@@ -481,7 +487,7 @@ export default function AdminMedia() {
               style={{ borderTop: `1px solid ${office.line}`, backgroundColor: office.paper }}
             >
               <p className="text-[10px]" style={{ color: office.mute, fontFamily: "'DM Mono', monospace" }}>
-                {gFile ? 'Ready to publish' : 'Select a file to continue'}
+                {gFile ? 'File selected — click Publish to gallery' : 'Select a file, then publish'}
               </p>
               <OfficeButton type="submit" disabled={busy || !gFile}>
                 {busy ? 'Uploading…' : 'Publish to gallery'}
@@ -537,6 +543,7 @@ export default function AdminMedia() {
           busy={busy}
           onClose={() => !busy && setReplaceSlot(null)}
           onSubmit={e => { void onReplace(e) }}
+          onValidationError={setError}
         />
       ) : null}
     </OfficePage>

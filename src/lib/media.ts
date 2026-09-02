@@ -1,6 +1,4 @@
-export function getCloudinaryCloudName(): string {
-  return (import.meta.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '').toLowerCase()
-}
+import { getCloudinaryCloudName } from './env'
 
 export type ParishMedia = {
   id: string

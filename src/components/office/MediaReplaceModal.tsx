@@ -2,6 +2,11 @@ import { useEffect, useMemo, type FormEvent } from 'react'
 import { parishImage } from '../../lib/media'
 import type { MediaSlotDef } from '../../lib/mediaSlots'
 import type { ParishMedia } from '../../lib/media'
+import {
+  MEDIA_IMAGE_ACCEPT,
+  MEDIA_VIDEO_ACCEPT,
+  mediaUploadHint,
+} from '../../lib/mediaUploadRules'
 import MediaDropZone from './MediaDropZone'
 import { OfficeButton } from './OfficePage'
 import { office } from './officeTheme'
@@ -18,6 +23,7 @@ export default function MediaReplaceModal({
   busy,
   onClose,
   onSubmit,
+  onValidationError,
 }: {
   def: MediaSlotDef
   row?: ParishMedia
@@ -30,6 +36,7 @@ export default function MediaReplaceModal({
   busy: boolean
   onClose: () => void
   onSubmit: (e: FormEvent) => void
+  onValidationError?: (message: string | null) => void
 }) {
   const currentSrc = parishImage(
     row?.cloudinary_id || row?.url || def.fallback,
@@ -37,13 +44,8 @@ export default function MediaReplaceModal({
     270,
   )
 
-  const accept = def.mediaType === 'video'
-    ? 'video/mp4,video/webm'
-    : 'image/jpeg,image/png,image/webp'
-
-  const hint = def.mediaType === 'video'
-    ? 'MP4 or WebM · up to about 32 MB'
-    : `JPG, PNG, or WebP · ${def.aspect} recommended · up to 8 MB`
+  const accept = def.mediaType === 'video' ? MEDIA_VIDEO_ACCEPT : MEDIA_IMAGE_ACCEPT
+  const hint = mediaUploadHint(def.mediaType === 'video')
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -142,9 +144,11 @@ export default function MediaReplaceModal({
                 onFile={onFile}
                 accept={accept}
                 label="Drop your file here"
-                hint={hint}
+                hint={`${hint} · ${def.aspect} recommended`}
                 disabled={busy}
                 compact
+                allowVideo={def.mediaType === 'video'}
+                onValidationError={onValidationError}
               />
             </div>
           </div>
@@ -185,7 +189,7 @@ export default function MediaReplaceModal({
           style={{ borderTop: `1px solid ${office.line}`, backgroundColor: '#fff' }}
         >
           <p className="text-[10px]" style={{ color: office.mute, fontFamily: "'DM Mono', monospace" }}>
-            Goes live immediately on the public website
+            {file ? 'File ready — click Save to website to publish' : 'Choose a file, then save'}
           </p>
           <div className="flex gap-2">
             <OfficeButton type="button" variant="ghost" disabled={busy} onClick={onClose}>

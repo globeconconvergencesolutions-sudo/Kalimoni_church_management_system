@@ -13,8 +13,11 @@ const env = Object.fromEntries(
 )
 
 const sb = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  env.VITE_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL,
+  env.VITE_SUPABASE_ANON_KEY ||
+    env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
 )
 
 const login = await sb.auth.signInWithPassword({ email: env.USER_EMAIL, password: env.USER_PASSWORD })

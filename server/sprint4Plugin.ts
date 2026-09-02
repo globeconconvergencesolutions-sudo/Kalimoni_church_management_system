@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createClient } from '@supabase/supabase-js'
 import type { Plugin } from 'vite'
 import { processMediaDelete, processMediaUpload } from './mediaApi'
+import { supabaseAnonKey, supabaseUrl } from './parishEnv'
 
 function json(res: ServerResponse, status: number, body: Record<string, unknown>) {
   res.statusCode = status
@@ -66,8 +67,8 @@ export function parishSprint4Plugin(env: Record<string, string>): Plugin {
       return
     }
 
-    const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL || env.VITE_SUPABASE_URL || ''
-    const supabaseKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || ''
+    const sbUrl = supabaseUrl(env)
+    const supabaseKey = supabaseAnonKey(env)
 
     if (url === '/api/mpesa/stk') {
       const body = parsed as {
@@ -94,8 +95,8 @@ export function parishSprint4Plugin(env: Record<string, string>): Plugin {
       const checkoutRef = `ws_CO_DEMO_${Date.now()}`
       await new Promise(resolve => setTimeout(resolve, 1200))
 
-      if (supabaseUrl && supabaseKey) {
-        const sb = createClient(supabaseUrl, supabaseKey)
+      if (sbUrl && supabaseKey) {
+        const sb = createClient(sbUrl, supabaseKey)
         await sb.from('donations').insert({
           name: (body.name || '').trim() || null,
           email: (body.email || '').trim() || null,
@@ -122,8 +123,8 @@ export function parishSprint4Plugin(env: Record<string, string>): Plugin {
         json(res, 400, { ok: false, error: 'Missing checkout reference.' })
         return
       }
-      if (supabaseUrl && supabaseKey) {
-        const sb = createClient(supabaseUrl, supabaseKey)
+      if (sbUrl && supabaseKey) {
+        const sb = createClient(sbUrl, supabaseKey)
         await sb.from('donations').update({
           status: body.paid ? 'demo_paid' : 'demo_cancelled',
         }).eq('checkout_ref', body.checkoutRef)

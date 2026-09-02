@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useId, useRef, useState, type DragEvent } from 'react'
+import {
+  mediaUploadHint,
+  validateParishMediaFile,
+} from '../../lib/mediaUploadRules'
 import { office } from './officeTheme'
 
 function formatBytes(bytes: number): string {
@@ -12,9 +16,11 @@ export default function MediaDropZone({
   onFile,
   accept,
   label = 'Choose a file',
-  hint = 'JPG, PNG, or WebP · up to about 8 MB',
+  hint,
   disabled = false,
   compact = false,
+  allowVideo = true,
+  onValidationError,
 }: {
   file: File | null
   onFile: (file: File | null) => void
@@ -23,11 +29,15 @@ export default function MediaDropZone({
   hint?: string
   disabled?: boolean
   compact?: boolean
+  allowVideo?: boolean
+  onValidationError?: (message: string | null) => void
 }) {
   const inputId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragOver, setDragOver] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
+  const [localError, setLocalError] = useState<string | null>(null)
+  const resolvedHint = hint ?? mediaUploadHint(allowVideo)
 
   useEffect(() => {
     if (!file) {
@@ -39,6 +49,29 @@ export default function MediaDropZone({
     return () => URL.revokeObjectURL(url)
   }, [file])
 
+  const applyFile = useCallback(
+    (next: File | null) => {
+      if (!next) {
+        setLocalError(null)
+        onValidationError?.(null)
+        onFile(null)
+        return
+      }
+      const check = validateParishMediaFile(next, { allowVideo })
+      if (!check.ok) {
+        setLocalError(check.error)
+        onValidationError?.(check.error)
+        onFile(null)
+        if (inputRef.current) inputRef.current.value = ''
+        return
+      }
+      setLocalError(null)
+      onValidationError?.(null)
+      onFile(next)
+    },
+    [allowVideo, onFile, onValidationError],
+  )
+
   const pick = useCallback(() => {
     if (!disabled) inputRef.current?.click()
   }, [disabled])
@@ -49,12 +82,12 @@ export default function MediaDropZone({
       setDragOver(false)
       if (disabled) return
       const dropped = e.dataTransfer.files?.[0]
-      if (dropped) onFile(dropped)
+      if (dropped) applyFile(dropped)
     },
-    [disabled, onFile],
+    [applyFile, disabled],
   )
 
-  const isVideo = file?.type.startsWith('video/')
+  const isVideo = file ? file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(file.name) : false
 
   return (
     <div className={compact ? '' : 'w-full'}>
@@ -65,8 +98,22 @@ export default function MediaDropZone({
         accept={accept}
         className="sr-only"
         disabled={disabled}
-        onChange={e => onFile(e.target.files?.[0] ?? null)}
+        onChange={e => {
+          const picked = e.target.files?.[0] ?? null
+          applyFile(picked)
+          e.target.value = ''
+        }}
       />
+
+      {localError ? (
+        <p
+          className="mb-2 text-xs px-3 py-2"
+          style={{ backgroundColor: 'rgba(74,16,25,0.08)', border: `1px solid ${office.wine}`, color: office.burgundy }}
+          role="alert"
+        >
+          {localError}
+        </p>
+      ) : null}
 
       {!file ? (
         <button
@@ -103,7 +150,7 @@ export default function MediaDropZone({
                 {dragOver ? 'Drop to upload' : label}
               </p>
               <p className="text-xs mt-0.5" style={{ color: office.mute }}>
-                {hint}
+                {resolvedHint}
               </p>
               {!compact ? (
                 <span
@@ -119,7 +166,7 @@ export default function MediaDropZone({
       ) : (
         <div
           className="overflow-hidden"
-          style={{ border: `1px solid ${office.line}`, backgroundColor: '#fff' }}
+          style={{ border: `1px solid ${office.gold}`, backgroundColor: '#fff' }}
         >
           <div className="relative" style={{ aspectRatio: compact ? '16/9' : '2/1', backgroundColor: '#E8DFD0', maxHeight: compact ? 200 : 280 }}>
             {isVideo && preview ? (
@@ -134,6 +181,12 @@ export default function MediaDropZone({
               >
                 {isVideo ? 'Video' : 'Image'}
               </span>
+              <span
+                className="text-[9px] tracking-widest uppercase px-2 py-0.5"
+                style={{ backgroundColor: 'rgba(200,146,42,0.95)', color: '#1C1A18', fontFamily: "'DM Mono', monospace" }}
+              >
+                Ready
+              </span>
             </div>
           </div>
           <div className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -142,7 +195,7 @@ export default function MediaDropZone({
                 {file.name}
               </p>
               <p className="text-[10px] tracking-wide mt-0.5" style={{ color: office.mute, fontFamily: "'DM Mono', monospace" }}>
-                {formatBytes(file.size)}
+                {formatBytes(file.size)} · click <strong style={{ color: office.wine }}>Save</strong> below to publish
               </p>
             </div>
             <div className="flex gap-2 shrink-0">
@@ -157,7 +210,7 @@ export default function MediaDropZone({
               </button>
               <button
                 type="button"
-                onClick={() => onFile(null)}
+                onClick={() => applyFile(null)}
                 disabled={disabled}
                 className="px-3 py-2 text-[10px] tracking-widest uppercase min-h-[36px]"
                 style={{ color: office.mute, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}

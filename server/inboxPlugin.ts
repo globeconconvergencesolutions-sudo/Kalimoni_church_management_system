@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import nodemailer from 'nodemailer'
 import type { Plugin } from 'vite'
 import { isInboxKind, type InboxKind, type InboxPayload } from '../src/lib/inboxTypes'
+import { supabaseAnonKey, supabaseUrl } from './parishEnv'
 
 const KIND_LABEL: Record<InboxKind, string> = {
   contact: 'Contact message',
@@ -202,10 +203,10 @@ export function parishInboxPlugin(env: Record<string, string>): Plugin {
     }
 
     let stored = false
-    const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL || env.VITE_SUPABASE_URL || ''
-    const supabaseKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_ANON_KEY || ''
-    if (supabaseUrl && supabaseKey) {
-      const sb = createClient(supabaseUrl, supabaseKey)
+    const sbUrl = supabaseUrl(env)
+    const supabaseKey = supabaseAnonKey(env)
+    if (sbUrl && supabaseKey) {
+      const sb = createClient(sbUrl, supabaseKey)
       const insert = await sb.from('inbox_messages').insert({
         kind: payload.kind,
         name: payload.name || null,
