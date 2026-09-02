@@ -325,7 +325,33 @@ Browser (AdminMedia)
 
 ---
 
-## Production deployment (Vercel)
+## Production deployment
+
+This is a **single-page application (SPA)**. Direct visits to paths like `/donate`, `/gallery`, or `/admin/media` must be rewritten to `index.html` so React Router can handle them. Without that rule, hosts show their own ugly “Page not found” screen (as on Netlify).
+
+### Netlify (current live host: gcskalimoni.netlify.app)
+
+The repo includes:
+
+- **`netlify.toml`** — build command, publish folder, SPA redirect
+- **`public/_redirects`** — copied to `dist/_redirects` on build (backup rule)
+
+| Setting | Value |
+|---------|-------|
+| Build command | `pnpm build` |
+| Publish directory | `dist` |
+| Node version | 20 (set in `netlify.toml`) |
+
+**After pushing these files, trigger a new deploy** on Netlify. Then test:
+
+- https://gcskalimoni.netlify.app/donate
+- https://gcskalimoni.netlify.app/admin/login
+
+Set environment variables in **Netlify → Site configuration → Environment variables** (same `VITE_*` and `CLOUDINARY_*` keys as `.env.local`).
+
+**Note:** Staff media upload API routes (`/api/media/*`) are set up for **Vercel serverless** in this repo. On Netlify static hosting, uploads will not work until you add [Netlify Functions](https://docs.netlify.com/functions/overview/) or host the API elsewhere. The public site and Supabase-backed content still work.
+
+### Vercel (alternative)
 
 ### Build settings
 
@@ -392,6 +418,10 @@ Run the migrations in order (see [Database setup](#database-setup-supabase)).
 ### Media page shows 0 customised slots after upload
 
 Refresh the page or navigate away and back. The media module waits for auth before loading; a hard refresh after login also helps.
+
+### Netlify shows “Page not found” on /donate or other routes
+
+The site is missing the SPA fallback. Ensure `netlify.toml` and `public/_redirects` are in the repo, run `pnpm build`, and redeploy. The built `dist/_redirects` file must be published.
 
 ### CORS or auth errors
 

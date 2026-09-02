@@ -276,7 +276,7 @@ export default function AdminMedia() {
         <MediaCenterTabs active={tab} onChange={setTab} />
       </div>
 
-      {error ? <div className="mb-4"><OfficeAlert>{error}</OfficeAlert></div> : null}
+      {error ? <div className="mb-4"><OfficeAlert tone="error">{error}</OfficeAlert></div> : null}
 
       {success ? (
         <div

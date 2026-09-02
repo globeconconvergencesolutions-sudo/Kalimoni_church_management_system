@@ -1,4 +1,6 @@
+import { createElement } from 'react'
 import { createBrowserRouter } from 'react-router'
+import RouteErrorPage from './components/RouteErrorPage'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import About from './pages/About'
@@ -33,10 +35,12 @@ export const router = createBrowserRouter([
   {
     path: '/admin/login',
     Component: AdminLogin,
+    errorElement: createElement(RouteErrorPage, { scope: 'office' }),
   },
   {
     path: '/admin',
     Component: AdminLayout,
+    errorElement: createElement(RouteErrorPage, { scope: 'office' }),
     children: [
       { index: true, Component: AdminDashboard },
       { path: 'notices', Component: AdminNotices },
@@ -59,6 +63,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     Component: Layout,
+    errorElement: createElement(RouteErrorPage, { scope: 'public' }),
     children: [
       { index: true, Component: Home },
       { path: 'about', Component: About },

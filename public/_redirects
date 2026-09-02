@@ -1,0 +1,2 @@
+# Netlify — SPA fallback so /donate, /admin, etc. load the React app on direct visits.
+/*    /index.html   200

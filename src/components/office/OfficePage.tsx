@@ -98,14 +98,22 @@ export function OfficeCard({ children }: { children: ReactNode }) {
   )
 }
 
-export function OfficeAlert({ children, tone = 'warn' }: { children: ReactNode; tone?: 'warn' | 'ok' }) {
+export function OfficeAlert({ children, tone = 'warn' }: { children: ReactNode; tone?: 'warn' | 'ok' | 'error' }) {
+  const styles =
+    tone === 'ok'
+      ? { backgroundColor: '#E8F0E8', color: '#2A6B3A', border: '#2A6B3A' }
+      : tone === 'error'
+        ? { backgroundColor: 'rgba(74,16,25,0.08)', color: '#4A1019', border: office.wine }
+        : { backgroundColor: office.paper, color: office.wine, border: office.gold }
+
   return (
     <div
       className="p-4 mb-6 text-sm leading-relaxed"
+      role="alert"
       style={{
-        backgroundColor: tone === 'ok' ? '#E8F0E8' : office.paper,
-        color: tone === 'ok' ? '#2A6B3A' : office.wine,
-        borderLeft: `3px solid ${tone === 'ok' ? '#2A6B3A' : office.gold}`,
+        backgroundColor: styles.backgroundColor,
+        color: styles.color,
+        borderLeft: `3px solid ${styles.border}`,
       }}
     >
       {children}
