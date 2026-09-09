@@ -3,7 +3,6 @@ import { Outlet, NavLink, useLocation, Link } from 'react-router'
 import officialLogo from '../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
 import NoticeRail from './NoticeRail'
 import NoticeSpotlight from './NoticeSpotlight'
-import StaffOfficeLink from './StaffOfficeLink'
 import { useLiveNotices } from '../hooks/useLiveNotices'
 import { NOTICE_RAIL_HEIGHT } from '../lib/noticeTypes'
 
@@ -48,11 +47,6 @@ const FOOTER_LINKS = [
     ],
   },
 ]
-
-const SWAHILI = {
-  welcome: 'Karibu — Welcome',
-  tagline: 'Kanisa la Mtakatifu Theresa, Kalimoni',
-}
 
 export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -114,7 +108,7 @@ export default function Layout() {
         }}
       >
         {/* ── unified centred band ── */}
-        <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-14 sm:h-16">
+        <div className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-14 sm:h-16">
 
           {/* Logo — always visible */}
           <Link to="/" className="flex items-center gap-2.5 shrink-0" aria-label="St. Theresa Parish Home">
@@ -134,9 +128,9 @@ export default function Layout() {
             </div>
           </Link>
 
-          {/* Desktop: nav + donate tightly grouped in centre */}
+          {/* Desktop: nav + donate, mathematically centred in the bar regardless of side content */}
           <div
-            className="hidden xl:flex items-center gap-0.5 rounded-full px-3 py-1.5"
+            className="hidden xl:flex items-center gap-0.5 rounded-full px-3 py-1.5 absolute left-1/2 -translate-x-1/2"
             style={{ border: '1px solid rgba(200,146,42,0.15)', backgroundColor: 'rgba(255,255,255,0.05)' }}
           >
             <img
@@ -171,17 +165,8 @@ export default function Layout() {
             </Link>
           </div>
 
-          {/* Right: language + staff + mobile burger */}
+          {/* Right: mobile burger */}
           <div className="flex items-center gap-2">
-            <StaffOfficeLink variant="nav" lang={lang} />
-            <button
-              onClick={() => setLang(l => l === 'en' ? 'sw' : 'en')}
-              className="hidden xl:flex px-2 py-1 text-[10px] tracking-widest transition-all duration-200"
-              style={{ border: '1px solid rgba(200,146,42,0.4)', color: '#C8922A', fontFamily: "'DM Mono', monospace" }}
-              title={lang === 'en' ? 'Switch to Kiswahili' : 'Switch to English'}
-            >
-              {lang === 'en' ? 'SW' : 'EN'}
-            </button>
             <button
               className="xl:hidden text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -226,37 +211,11 @@ export default function Layout() {
             >
               {t('Donate Now', 'Changia sasa')}
             </Link>
-            <button
-              type="button"
-              onClick={() => setLang(l => l === 'en' ? 'sw' : 'en')}
-              className="col-span-2 py-3 text-[10px] tracking-[0.2em] uppercase"
-              style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace", border: '1px solid rgba(200,146,42,0.35)' }}
-            >
-              {lang === 'en' ? 'Kiswahili' : 'English'}
-            </button>
-            <StaffOfficeLink variant="drawer" lang={lang} />
           </div>
           <div className="h-safe-bottom" />
         </div>
         {railOn ? <NoticeRail notices={notices} /> : null}
       </nav>
-
-      {/* ── KISWAHILI WELCOME BANNER ─────────────────────────── */}
-      {lang === 'sw' && (
-        <div
-          className={`fixed left-0 right-0 z-40 text-center py-2 text-xs tracking-widest ${
-            railOn
-              ? 'top-[calc(3.5rem+40px)] sm:top-[calc(4rem+40px)]'
-              : 'top-14 sm:top-16'
-          }`}
-          style={{ backgroundColor: '#C8922A', color: '#1C1A18', fontFamily: "'DM Mono', monospace" }}
-        >
-          Karibu sana — {SWAHILI.tagline} &nbsp;·&nbsp;
-          <button onClick={() => setLang('en')} className="underline underline-offset-2 hover:opacity-70 ml-1">
-            English
-          </button>
-        </div>
-      )}
 
       {/* ── PAGE CONTENT ─────────────────────────────────────── */}
       <main style={{ paddingTop: `calc(${lang === 'sw' ? '2.25rem' : '0px'} + ${railPx}px)` }}><Outlet /></main>
@@ -390,8 +349,6 @@ export default function Layout() {
                 © 2026 St. Theresa Parish, Kalimoni. All rights reserved. Est. 1927.
               </div>
               <div className="flex flex-wrap gap-4 sm:gap-6 text-xs items-center" style={{ fontFamily: "'DM Mono', monospace" }}>
-                <StaffOfficeLink variant="footer" lang={lang} />
-                <span style={{ color: '#2A2520' }} aria-hidden>|</span>
                 {[
                   { en: 'News', sw: 'Habari', to: '/blog' },
                   { en: 'Gallery', sw: 'Picha', to: '/gallery' },

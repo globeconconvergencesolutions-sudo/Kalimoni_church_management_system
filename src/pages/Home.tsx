@@ -231,10 +231,20 @@ function PhotoCarousel() {
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(28,10,15,0.85) 0%, rgba(28,10,15,0.2) 55%, transparent 100%)' }} />
         </div>
       ))}
-      <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 md:px-14 pb-8 sm:pb-12">
-        <div className="text-xs tracking-[0.25em] uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Parish Life</div>
-        <h3 className="font-bold text-white mb-1" style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(1.1rem, 3.5vw, 2rem)' }}>{slides[active].caption}</h3>
-        <p className="text-xs sm:text-sm" style={{ color: '#F0E8D8BB' }}>{slides[active].sub}</p>
+      <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 md:px-14 pb-8 sm:pb-12 flex items-end justify-between gap-8">
+        <div className="min-w-0">
+          <div className="text-xs tracking-[0.25em] uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Parish Life</div>
+          <h3 className="font-bold text-white mb-1" style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(1.1rem, 3.5vw, 2rem)' }}>{slides[active].caption}</h3>
+          <p className="text-xs sm:text-sm" style={{ color: '#F0E8D8BB' }}>{slides[active].sub}</p>
+        </div>
+        <div className="hidden lg:block text-right max-w-xs shrink-0 pl-8" style={{ borderLeft: '1px solid rgba(200,146,42,0.3)' }}>
+          <p className="italic text-lg xl:text-xl leading-snug mb-2" style={{ fontFamily: "'Lora', serif", color: '#F0E8D8' }}>
+            "He has sent me to proclaim the good news to the poor."
+          </p>
+          <p className="text-[10px] tracking-[0.2em] uppercase" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
+            Luke 4:18 — Vincentian Motto
+          </p>
+        </div>
       </div>
       <button onClick={prev} className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center transition-all hover:scale-110 active:scale-95" style={{ backgroundColor: 'rgba(28,26,24,0.65)', color: '#E8B84B', border: '1px solid rgba(200,146,42,0.3)' }} aria-label="Previous slide">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
@@ -696,8 +706,8 @@ export default function Home() {
                     {s.value}
                   </div>
                   <div
-                    className="text-[8px] tracking-[0.22em] uppercase"
-                    style={{ color: 'rgba(200,146,42,0.52)', fontFamily: "'DM Mono', monospace" }}
+                    className="text-[10px] sm:text-[11px] tracking-[0.18em] uppercase font-semibold"
+                    style={{ color: '#F0D998', fontFamily: "'DM Mono', monospace" }}
                   >
                     {s.label}
                   </div>
