@@ -1,0 +1,245 @@
+import { createClient } from '@supabase/supabase-js'
+import { v2 as cloudinary } from 'cloudinary'
+import { getSlotDef, GALLERY_FOLDER_SLUGS } from './mediaSlots.js'
+import { cloudinaryCloudName, envFrom, supabaseAnonKey, supabaseUrl } from './parishEnv.js'
+
+export { envFrom }
+
+function configureCloudinary(env) {
+  cloudinary.config({
+    cloud_name: cloudinaryCloudName(env),
+    api_key: env.CLOUDINARY_API_KEY,
+    api_secret: env.CLOUDINARY_API_SECRET,
+  })
+}
+
+async function destroyCloudinaryAsset(publicId, resourceType) {
+  try {
+    await cloudinary.uploader.destroy(publicId, { resource_type: resourceType, invalidate: true })
+  } catch (err) {
+    console.warn('Cloudinary destroy failed:', publicId, err)
+  }
+}
+
+async function persistMediaRow(authed, media, opts) {
+  if (opts.slotKey) {
+    const existing = await authed
+      .from('parish_media')
+      .select('id')
+      .eq('slot_key', opts.slotKey)
+      .maybeSingle()
+    if (existing.error) return { data: null, error: existing.error.message }
+    if (existing.data?.id) {
+      const updated = await authed
+        .from('parish_media')
+        .update(media)
+        .eq('id', existing.data.id)
+        .select('*')
+        .single()
+      return { data: updated.data, error: updated.error?.message ?? null }
+    }
+  }
+  const inserted = await authed.from('parish_media').insert(media).select('*').single()
+  return { data: inserted.data, error: inserted.error?.message ?? null }
+}
+
+export async function authenticateStaff(token, env) {
+  if (!token) {
+    return { status: 401, body: { ok: false, error: 'Sign in required.' } }
+  }
+  const supabaseUrlValue = supabaseUrl(env)
+  const supabaseKey = supabaseAnonKey(env)
+  if (!supabaseUrlValue || !supabaseKey) {
+    return { status: 503, body: { ok: false, error: 'Supabase is not configured.' } }
+  }
+  const authed = createClient(supabaseUrlValue, supabaseKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  })
+  const userRes = await authed.auth.getUser(token)
+  if (!userRes.data.user) {
+    return { status: 401, body: { ok: false, error: 'Session expired. Sign in again.' } }
+  }
+  return { authed }
+}
+
+export async function processMediaDelete(body, token, env) {
+  const staff = await authenticateStaff(token, env)
+  if ('status' in staff) return staff
+  const { authed } = staff
+
+  if (!body.id && !body.slotKey) {
+    return { status: 400, body: { ok: false, error: 'Missing media id or slot key.' } }
+  }
+
+  configureCloudinary(env)
+
+  let query = authed.from('parish_media').select('*')
+  if (body.id) query = query.eq('id', body.id)
+  else query = query.eq('slot_key', body.slotKey)
+  const found = await query.maybeSingle()
+  if (found.error) {
+    return { status: 502, body: { ok: false, error: found.error.message } }
+  }
+  if (!found.data) {
+    return { status: 404, body: { ok: false, error: 'Media item not found.' } }
+  }
+
+  const row = found.data
+  const resourceType = row.media_type === 'video' ? 'video' : 'image'
+
+  const removed = await authed.from('parish_media').delete().eq('id', row.id)
+  if (removed.error) {
+    return { status: 502, body: { ok: false, error: removed.error.message } }
+  }
+
+  if (row.cloudinary_id) {
+    await destroyCloudinaryAsset(row.cloudinary_id, resourceType)
+  }
+
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      deletedId: row.id,
+      slotKey: row.slot_key ?? null,
+      wasSlot: Boolean(row.is_slot),
+    },
+  }
+}
+
+export async function processMediaUpload(body, token, env) {
+  const staff = await authenticateStaff(token, env)
+  if ('status' in staff) return staff
+  const { authed } = staff
+
+  const mimeMatch = /^data:([^;,]+)/.exec(body.dataUrl || '')
+  const mime = mimeMatch?.[1]?.toLowerCase() ?? ''
+  const isImage = mime.startsWith('image/')
+  const isVideo = mime.startsWith('video/')
+  if (!isImage && !isVideo) {
+    return {
+      status: 400,
+      body: {
+        ok: false,
+        error: 'Could not read this file. Try JPG, PNG, WebP, HEIC, MP4, or MOV.',
+      },
+    }
+  }
+  const byteSize =
+    typeof body.fileSize === 'number' && body.fileSize > 0
+      ? body.fileSize
+      : Math.floor(((body.dataUrl?.length ?? 0) - (body.dataUrl?.indexOf(',') ?? 0) - 1) * 0.75)
+  const maxBytes = isVideo ? 100 * 1024 * 1024 : 25 * 1024 * 1024
+  if (byteSize > maxBytes) {
+    const mb = Math.round(maxBytes / (1024 * 1024))
+    return {
+      status: 413,
+      body: {
+        ok: false,
+        error: isVideo
+          ? `Video is too large. Please use a file under about ${mb} MB.`
+          : `Photo is too large. Please use a file under about ${mb} MB.`,
+      },
+    }
+  }
+
+  configureCloudinary(env)
+  const root = (env.CLOUDINARY_ROOT_FOLDER || 'Kalimoni').replace(/^\/+|\/+$/g, '')
+  const resourceType = isVideo ? 'video' : 'image'
+  const mode = body.mode === 'slot' ? 'slot' : 'gallery'
+
+  let folderName = (body.folder || 'gallery/church-life').replace(/[^a-zA-Z0-9/_-]/g, '')
+  let publicId
+  let slotDef
+
+  if (mode === 'slot') {
+    if (!body.slotKey) {
+      return { status: 400, body: { ok: false, error: 'Missing placement key.' } }
+    }
+    slotDef = getSlotDef(body.slotKey)
+    if (!slotDef) {
+      return { status: 400, body: { ok: false, error: 'Unknown placement on the website.' } }
+    }
+    if (slotDef.mediaType === 'image' && isVideo) {
+      return { status: 400, body: { ok: false, error: 'This placement accepts images only.' } }
+    }
+    folderName = slotDef.cloudinaryPath.replace(/\/[^/]+$/, '')
+    publicId = `${root}/${slotDef.cloudinaryPath}`
+  } else {
+    const category = (body.category || 'Church Life').trim()
+    const slug = GALLERY_FOLDER_SLUGS[category] || 'church-life'
+    folderName = `gallery/${slug}`
+  }
+
+  const folder = `${root}/${folderName}`
+
+  try {
+    const uploadOpts = {
+      resource_type: resourceType,
+      overwrite: mode === 'slot',
+      invalidate: mode === 'slot',
+    }
+    if (mode === 'slot' && publicId) {
+      uploadOpts.public_id = publicId
+      uploadOpts.use_filename = false
+      uploadOpts.unique_filename = false
+    } else {
+      uploadOpts.folder = folder
+      uploadOpts.use_filename = true
+      uploadOpts.unique_filename = true
+      uploadOpts.overwrite = false
+    }
+
+    const uploaded = await cloudinary.uploader.upload(body.dataUrl, uploadOpts)
+
+    if (mode === 'slot' && body.slotKey && slotDef) {
+      const media = {
+        cloudinary_id: uploaded.public_id,
+        url: uploaded.secure_url,
+        folder: folderName,
+        title: (body.title || slotDef.label).trim(),
+        category: slotDef.page,
+        alt: (body.alt || slotDef.label).trim(),
+        published: true,
+        sort_order: slotDef.sortOrder,
+        slot_key: body.slotKey,
+        media_type: resourceType,
+        page: slotDef.page,
+        section: slotDef.section,
+        label: slotDef.label,
+        hint: slotDef.hint,
+        caption: (body.caption || slotDef.defaultCaption || '').trim() || null,
+        subtitle: (body.subtitle || slotDef.defaultSubtitle || '').trim() || null,
+        aspect_hint: slotDef.aspect,
+        is_slot: true,
+      }
+      const saved = await persistMediaRow(authed, media, { slotKey: body.slotKey })
+      if (saved.error || !saved.data) {
+        return { status: 502, body: { ok: false, error: saved.error || 'Could not save to the database.' } }
+      }
+      return { status: 200, body: { ok: true, media: saved.data } }
+    }
+
+    const media = {
+      cloudinary_id: uploaded.public_id,
+      url: uploaded.secure_url,
+      folder: folderName,
+      title: (body.title || body.filename || 'Parish media').trim(),
+      category: (body.category || 'Church Life').trim(),
+      alt: (body.alt || body.title || 'Parish media').trim(),
+      published: true,
+      sort_order: 0,
+      media_type: resourceType,
+      is_slot: false,
+    }
+    const saved = await persistMediaRow(authed, media, {})
+    if (saved.error || !saved.data) {
+      await destroyCloudinaryAsset(uploaded.public_id, resourceType)
+      return { status: 502, body: { ok: false, error: saved.error || 'Could not save to the database.' } }
+    }
+    return { status: 200, body: { ok: true, media: saved.data } }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Cloudinary upload failed'
+    return { status: 502, body: { ok: false, error: message } }
+  }
+}
