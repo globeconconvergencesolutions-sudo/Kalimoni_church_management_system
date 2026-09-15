@@ -4,6 +4,8 @@ import type { ParishMedia } from './media'
 import { getSlotDef, GALLERY_FOLDER_SLUGS } from './mediaSlots'
 import { validateParishMediaFile } from './mediaUploadRules'
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
+
 export async function fetchPublishedMedia(): Promise<ParishMedia[]> {
   const supabase = getSupabase()
   if (!supabase) return []
@@ -61,7 +63,7 @@ async function mediaApi<T>(path: string, body: Record<string, unknown>): Promise
   if (!token) return { ok: false, error: 'Please sign in to manage media.' }
   let res: Response
   try {
-    res = await fetch(path, {
+    res = await fetch(`${API_BASE}${path}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -159,7 +161,7 @@ export async function uploadParishMedia(
 
   let res: Response
   try {
-    res = await fetch('/api/media/upload', {
+    res = await fetch(`${API_BASE}/api/media/upload`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

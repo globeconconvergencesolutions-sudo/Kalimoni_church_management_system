@@ -2,9 +2,11 @@ import { getSupabase } from './supabase'
 import { isMissingTable } from './supabaseErrors'
 import type { InboxKind, InboxMessage, InboxPayload, InboxStatus } from './inboxTypes'
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
+
 export async function submitInbox(payload: InboxPayload): Promise<{ ok: boolean; error: string | null; emailSent?: boolean }> {
   try {
-    const res = await fetch('/api/inbox', {
+    const res = await fetch(`${API_BASE}/api/inbox`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

@@ -1,3 +1,5 @@
+const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
+
 export type DemoStkResult = {
   ok: boolean
   demo: true
@@ -39,7 +41,7 @@ export async function sendDemoStk(payload: {
   frequency: string
 }): Promise<DemoStkResult> {
   try {
-    const res = await fetch('/api/mpesa/stk', {
+    const res = await fetch(`${API_BASE}/api/mpesa/stk`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -63,7 +65,7 @@ export async function sendDemoStk(payload: {
 
 export async function confirmDemoStk(checkoutRef: string, paid: boolean): Promise<{ ok: boolean; error: string | null }> {
   try {
-    const res = await fetch('/api/mpesa/confirm', {
+    const res = await fetch(`${API_BASE}/api/mpesa/confirm`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ checkoutRef, paid }),
