@@ -48,7 +48,7 @@ export async function fetchStaffMedia(): Promise<{ media: ParishMedia[]; error: 
 
 export async function saveStaffMediaMeta(
   id: string,
-  patch: Partial<Pick<ParishMedia, 'title' | 'category' | 'alt' | 'published' | 'caption' | 'subtitle'>>,
+  patch: Partial<Pick<ParishMedia, 'title' | 'category' | 'alt' | 'published' | 'caption' | 'subtitle' | 'sort_order' | 'album_id'>>,
 ): Promise<{ ok: boolean; error: string | null }> {
   const supabase = getSupabase()
   if (!supabase) return { ok: false, error: 'Supabase is not configured.' }
@@ -104,6 +104,8 @@ type UploadGallery = {
   title: string
   category: string
   alt?: string
+  caption?: string
+  albumId?: string
 }
 
 type UploadSlot = {
@@ -147,8 +149,14 @@ export async function uploadParishMedia(
   if (meta.mode === 'gallery') {
     body.title = meta.title
     body.category = meta.category
-    body.alt = meta.alt || meta.title
-    body.folder = `gallery/${GALLERY_FOLDER_SLUGS[meta.category] || 'church-life'}`
+    body.alt = meta.alt || meta.caption || meta.title
+    body.caption = meta.caption || meta.alt || meta.title
+    if (meta.albumId) {
+      body.albumId = meta.albumId
+      body.folder = `stories/${meta.albumId}`
+    } else {
+      body.folder = `gallery/${GALLERY_FOLDER_SLUGS[meta.category] || 'church-life'}`
+    }
   } else {
     const def = getSlotDef(meta.slotKey)
     if (!def) return { ok: false, error: 'Unknown placement on the website.' }

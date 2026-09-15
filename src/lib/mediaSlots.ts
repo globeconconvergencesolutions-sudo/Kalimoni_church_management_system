@@ -21,6 +21,7 @@ export const GALLERY_CATEGORIES = [
   'Celebrations',
   'Community Outreach',
   'Youth Activities',
+  'Construction',
 ] as const
 
 export const GALLERY_FOLDER_SLUGS: Record<string, string> = {
@@ -29,6 +30,7 @@ export const GALLERY_FOLDER_SLUGS: Record<string, string> = {
   Celebrations: 'celebrations',
   'Community Outreach': 'community-outreach',
   'Youth Activities': 'youth-activities',
+  Construction: 'construction',
 }
 
 const parishLifeDefaults: Array<{ caption: string; sub: string; fallback: string }> = [

@@ -13,6 +13,7 @@ import Events from './pages/Events'
 import Gallery from './pages/Gallery'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
+import StoryAlbum from './pages/StoryAlbum'
 import Donation from './pages/Donation'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
@@ -74,6 +75,7 @@ export const router = createBrowserRouter([
       { path: 'ministries', Component: Ministries },
       { path: 'events', Component: Events },
       { path: 'gallery', Component: Gallery },
+      { path: 'stories/:slug', Component: StoryAlbum },
       { path: 'blog', Component: Blog },
       { path: 'blog/:slug', Component: BlogPost },
       { path: 'donate', Component: Donation },

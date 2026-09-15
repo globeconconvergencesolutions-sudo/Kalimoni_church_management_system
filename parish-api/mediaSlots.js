@@ -4,6 +4,7 @@ export const GALLERY_CATEGORIES = [
   'Celebrations',
   'Community Outreach',
   'Youth Activities',
+  'Construction',
 ]
 
 export const GALLERY_FOLDER_SLUGS = {
@@ -12,6 +13,7 @@ export const GALLERY_FOLDER_SLUGS = {
   Celebrations: 'celebrations',
   'Community Outreach': 'community-outreach',
   'Youth Activities': 'youth-activities',
+  Construction: 'construction',
 }
 
 const parishLifeDefaults = [

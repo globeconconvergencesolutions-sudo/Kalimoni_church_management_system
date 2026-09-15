@@ -9,6 +9,7 @@ import { computeNextMass } from '../data/massSchedule'
 import { submitInbox } from '../lib/inbox'
 import { parishImage } from '../lib/media'
 import { useSiteMedia } from '../hooks/useSiteMedia'
+import FeaturedStorySpotlight from '../components/FeaturedStorySpotlight'
 
 const HERO_STATS = [
   { value: '1927', label: 'Year Established' },
@@ -776,6 +777,8 @@ export default function Home() {
 
       {/* EVENTS STRIP */}
       <EventsStrip />
+
+      <FeaturedStorySpotlight />
 
       {/* MINISTRIES SLIDER */}
       <MinistriesSlider />

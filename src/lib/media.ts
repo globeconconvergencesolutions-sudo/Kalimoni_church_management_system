@@ -20,6 +20,7 @@ export type ParishMedia = {
   subtitle?: string | null
   aspect_hint?: string | null
   is_slot?: boolean
+  album_id?: string | null
   created_at?: string
 }
 

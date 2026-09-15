@@ -139,10 +139,13 @@ Run each file **once**, in this order:
 4. `20260831_sprint4_giving_media.sql` — donations + `parish_media` table
 5. `20260831_media_slots.sql` — slot columns for site-wide image placements
 6. `20260831_notice_copy_refresh.sql` — copy updates (optional)
+7. `20260915_media_albums.sql` — **Photo Stories** (`media_albums` + `parish_media.album_id`)
 
 **Shortcut for media only:** if `parish_media` does not exist yet, you can run the all-in-one:
 
 - `20260901_media_setup_combined.sql`
+
+Then always run `20260915_media_albums.sql` for stories.
 
 ### Verify media table
 
@@ -327,9 +330,46 @@ Browser (AdminMedia)
 
 ## Production deployment
 
-This is a **single-page application (SPA)**. Direct visits to paths like `/donate`, `/gallery`, or `/admin/media` must be rewritten to `index.html` so React Router can handle them. Without that rule, hosts show their own ugly “Page not found” screen (as on Netlify).
+This is a **single-page application (SPA)**. Direct visits to paths like `/donate`, `/gallery`, `/stories/...`, or `/admin/media` must be rewritten to `index.html` so React Router can handle them.
 
-### Netlify (current live host: gcskalimoni.netlify.app)
+### Host Africa (primary production)
+
+Typical layout:
+
+| Piece | Where it lives |
+|-------|----------------|
+| Built SPA (`pnpm build` → `dist/`) | `public_html` (Apache) |
+| API (`parish-api/`) | Node.js “Other services” app |
+| Env vars | Node app environment + build-time `VITE_*` for the SPA |
+| Database | Supabase (cloud) |
+| Images | Cloudinary |
+
+**Apache SPA fallback** (if not already set) — ensure deep links work:
+
+```apache
+FallbackResource /index.html
+```
+
+Or an `.htaccess` rewrite of non-file routes to `index.html`.
+
+**Deploy checklist for Photo Stories:**
+
+1. In Supabase SQL Editor, run [`supabase/migrations/20260915_media_albums.sql`](supabase/migrations/20260915_media_albums.sql).
+2. Rebuild the SPA: `pnpm build` → upload `dist/` contents to `public_html`.
+3. Copy updated `parish-api/` (especially `mediaApi.js`, `mediaSlots.js`) to the Node service and **restart** the Node app.
+4. Confirm Node env has Cloudinary + Supabase keys (same names as `.env.local`, including `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` or the helpers’ aliases).
+5. Seed construction photos (optional one-shot). Images live in `content/construction-images/`:
+
+```bash
+pnpm seed:construction
+```
+
+6. Or use **Parish Office → Media → Photo stories** to create albums and upload manually.
+7. Smoke-test: `/stories/church-construction-2026`, `/gallery`, homepage featured block, `/admin/media` Stories tab.
+
+Proxy: keep `/api/*` pointing at the Node parish-api (as already configured for media upload).
+
+### Netlify
 
 The repo includes:
 
@@ -342,14 +382,9 @@ The repo includes:
 | Publish directory | `dist` |
 | Node version | 20 (set in `netlify.toml`) |
 
-**After pushing these files, trigger a new deploy** on Netlify. Then test:
-
-- https://gcskalimoni.netlify.app/donate
-- https://gcskalimoni.netlify.app/admin/login
-
 Set environment variables in **Netlify → Site configuration → Environment variables** (same `VITE_*` and `CLOUDINARY_*` keys as `.env.local`).
 
-**Note:** Staff media upload API routes (`/api/media/*`) are set up for **Vercel serverless** in this repo. On Netlify static hosting, uploads will not work until you add [Netlify Functions](https://docs.netlify.com/functions/overview/) or host the API elsewhere. The public site and Supabase-backed content still work.
+**Note:** On Netlify static hosting alone, `/api/media/*` will not run unless you add Netlify Functions. Prefer Host Africa’s Node `parish-api` for uploads.
 
 ### Vercel (alternative)
 
@@ -363,7 +398,7 @@ Set environment variables in **Netlify → Site configuration → Environment va
 
 `vercel.json` rewrites non-API paths to `index.html` (SPA) and preserves `/api/*` serverless functions.
 
-### Required Vercel environment variables
+### Required production environment variables
 
 Set the same variables as `.env.local`:
 
@@ -372,17 +407,33 @@ Set the same variables as `.env.local`:
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
 - `VITE_CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_ROOT_FOLDER` (optional)
+- `VITE_API_BASE_URL` — on Host Africa, leave empty if Apache proxies `/api` to Node; otherwise set to the public API origin
 
-### API routes on Vercel
+### API routes
 
-These files deploy as serverless functions:
+**Host Africa Node (`parish-api/`):**
+
+- `POST /api/media/upload` (supports site slots, gallery, and photo-story `albumId`)
+- `POST /api/media/delete`
+- Inbox + M-Pesa demo routes
+
+**Vercel serverless (optional):**
 
 - `api/media/upload.ts`
 - `api/media/delete.ts`
 
-Without them, the static site works but **staff uploads fail** in production.
+### Photo Stories (albums)
 
-Inbox and M-Pesa demo routes currently exist only in the Vite dev plugins (`server/inboxPlugin.ts`, `server/sprint4Plugin.ts`). Contact form still saves to Supabase directly when the dev inbox route is unavailable.
+Staff manage themed sets under **Parish Office → Media → Photo stories**.
+
+| Public surface | Path |
+|----------------|------|
+| Story page | `/stories/:slug` |
+| Gallery | `/gallery` (category chips + story cards) |
+| Homepage spotlight | Featured album block |
+| Companion article | `/blog/:related_post_slug` |
+
+First construction set: slug `church-construction-2026`, blog `church-construction-progress-2026`.
 
 ---
 
@@ -393,6 +444,7 @@ Inbox and M-Pesa demo routes currently exist only in the Vite dev plugins (`serv
 | `pnpm dev` | Development server |
 | `pnpm build` | Production bundle |
 | `npx tsx scripts/import-cms.mts` | Import static blog/events/Mass data into Supabase |
+| `npx tsx scripts/seed-construction-album.mts` | Upload construction JPEGs + create featured story + blog post |
 
 ---
 
@@ -411,9 +463,9 @@ npx tsc --noEmit
 pnpm build
 ```
 
-### Supabase "relation does not exist"
+### Supabase "relation does not exist" / media_albums missing
 
-Run the migrations in order (see [Database setup](#database-setup-supabase)).
+Run migrations in order, including `20260915_media_albums.sql` for Photo Stories.
 
 ### Media page shows 0 customised slots after upload
 
@@ -422,6 +474,10 @@ Refresh the page or navigate away and back. The media module waits for auth befo
 ### Netlify shows “Page not found” on /donate or other routes
 
 The site is missing the SPA fallback. Ensure `netlify.toml` and `public/_redirects` are in the repo, run `pnpm build`, and redeploy. The built `dist/_redirects` file must be published.
+
+### Host Africa deep links 404
+
+Add Apache `FallbackResource /index.html` (or equivalent rewrite) in `public_html`.
 
 ### CORS or auth errors
 

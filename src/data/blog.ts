@@ -22,6 +22,50 @@ export interface Section {
 
 export const POSTS: BlogPost[] = [
   {
+    slug: 'church-construction-progress-2026',
+    title: 'Building in Faith: Church Construction Progress at Kalimoni',
+    category: 'Parish News',
+    author: 'Parish Communications',
+    date: 'September 2026',
+    readTime: '3 min read',
+    excerpt:
+      'Foundations, formwork, and concrete pours — a photo essay on the ongoing construction works at St. Theresa Parish, Kalimoni.',
+    coverImg: 'photo-1622598453695-4fbaf151aadc',
+    tags: ['Construction', 'Parish Projects', 'Kalimoni', 'Building'],
+    body: [
+      {
+        type: 'paragraph',
+        content:
+          'Across the grounds of St. Theresa Parish, Kalimoni, a new chapter of building is unfolding. Photographs taken on site in September 2026 show foundations, steel cages, timber formwork, and the daily labour of pouring concrete.',
+      },
+      { type: 'heading', content: 'What you are seeing' },
+      {
+        type: 'paragraph',
+        content:
+          'Rebar walls and column cages mark where structural concrete will rise. Marine plywood shutters, braced with timber props, hold the forms true. Cement bags, mixers, and muddy trenches speak to the practical reality of parish building: faith expressed in materials, sweat, and careful craft.',
+      },
+      { type: 'heading', content: 'Follow the progress' },
+      {
+        type: 'paragraph',
+        content:
+          'We have gathered the photographs into a dedicated photo story so the parish family — at home in Kalimoni and across the diaspora — can walk the site with us. Open the Construction filter in the gallery, or visit the full story page for captions beside each image.',
+      },
+      {
+        type: 'list',
+        items: [
+          'Pray for the safety of every worker on site',
+          'Share the photo story with family abroad',
+          'Support the parish building fund when you are able',
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          'May these walls, when finished, house prayer, welcome, and the Vincentian spirit of service to God through service to humanity.',
+      },
+    ],
+  },
+  {
     slug: 'grotto-marian-devotion-2024',
     title: 'The New Grotto: A Centre of Marian Devotion in Kalimoni',
     category: 'Parish News',

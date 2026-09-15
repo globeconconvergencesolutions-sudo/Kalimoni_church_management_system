@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import { fetchPublishedMedia } from '../lib/mediaAdmin'
+import { fetchPublishedAlbums, type MediaAlbum } from '../lib/mediaAlbums'
 import { parishImage, parishVideo, parishVideoPoster, type ParishMedia } from '../lib/media'
 import { useSEO } from '../hooks/useSEO'
 
@@ -37,7 +39,7 @@ function fromMedia(row: ParishMedia): GalleryItem {
     src: row.url || row.cloudinary_id,
     title: row.title,
     category: row.category,
-    desc: row.alt,
+    desc: row.caption || row.alt,
     mediaType: row.media_type,
   }
 }
@@ -48,6 +50,7 @@ export default function Gallery() {
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null)
   const [photos, setPhotos] = useState<GalleryItem[]>(FALLBACK.map(p => ({ ...p, src: p.id, desc: p.desc })))
   const [live, setLive] = useState(false)
+  const [stories, setStories] = useState<MediaAlbum[]>([])
 
   useEffect(() => {
     void fetchPublishedMedia().then(rows => {
@@ -55,6 +58,7 @@ export default function Gallery() {
       setPhotos(rows.map(fromMedia))
       setLive(true)
     })
+    void fetchPublishedAlbums().then(setStories)
   }, [])
 
   const categories = ['All', ...Array.from(new Set(photos.map(p => p.category)))]
@@ -88,6 +92,34 @@ export default function Gallery() {
 
       <section className="py-10 sm:py-14 md:py-16 px-4 sm:px-6 md:px-10 lg:px-16" style={{ backgroundColor: '#FAF6F0' }}>
         <div className="max-w-7xl mx-auto">
+          {stories.length > 0 ? (
+            <div className="mb-10 sm:mb-12">
+              <div className="text-[10px] tracking-[0.22em] uppercase mb-4" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
+                Photo stories
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {stories.map(story => (
+                  <Link
+                    key={story.id}
+                    to={`/stories/${story.slug}`}
+                    className="p-5 transition hover:-translate-y-0.5"
+                    style={{ backgroundColor: '#fff', border: '1px solid #E8DFD0' }}
+                  >
+                    <div className="text-[9px] tracking-widest uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
+                      {story.category}
+                    </div>
+                    <h2 className="text-lg font-bold mb-2" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
+                      {story.title}
+                    </h2>
+                    <p className="text-xs leading-relaxed line-clamp-2" style={{ color: '#6B6259' }}>
+                      {story.summary || 'Open this photo story'}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <div className="flex gap-2 mb-8 sm:mb-10 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
             {categories.map(cat => (
               <button

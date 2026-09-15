@@ -1,10 +1,11 @@
 import { office } from './officeTheme'
 
-type TabId = 'site' | 'gallery'
+type TabId = 'site' | 'gallery' | 'stories'
 
 const TABS: { id: TabId; label: string; short: string }[] = [
   { id: 'site', label: 'Site images', short: 'Site' },
   { id: 'gallery', label: 'Gallery library', short: 'Gallery' },
+  { id: 'stories', label: 'Photo stories', short: 'Stories' },
 ]
 
 export default function MediaCenterTabs({
@@ -21,7 +22,7 @@ export default function MediaCenterTabs({
         style={{ backgroundColor: office.paper, border: `1px solid ${office.line}` }}
       >
         {TABS.map(tab => {
-          const isActive = tab.id === active
+          const isActive = active === tab.id
           return (
             <button
               key={tab.id}
@@ -54,6 +55,15 @@ function TabIcon({ id, active }: { id: TabId; active: boolean }) {
         <rect x="3" y="5" width="18" height="14" rx="1.5" />
         <circle cx="9" cy="10" r="1.5" />
         <path d="M21 16l-5-5-8 8" />
+      </svg>
+    )
+  }
+  if (id === 'stories') {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round">
+        <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+        <path d="M8 7h8M8 11h6" />
       </svg>
     )
   }

@@ -21,10 +21,11 @@ import MediaCenterTabs from '../../components/office/MediaCenterTabs'
 import MediaDropZone from '../../components/office/MediaDropZone'
 import MediaReplaceModal from '../../components/office/MediaReplaceModal'
 import MediaSlotCard from '../../components/office/MediaSlotCard'
+import AdminStoriesPanel from '../../components/office/AdminStoriesPanel'
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 import { office } from '../../components/office/officeTheme'
 
-type Tab = 'site' | 'gallery'
+type Tab = 'site' | 'gallery' | 'stories'
 type PageFilter = 'all' | string
 
 const PAGE_BLURBS: Record<string, string> = {
@@ -270,7 +271,7 @@ export default function AdminMedia() {
       wide
       kicker="House"
       title="Media"
-      lede="Manage every image on the parish website — organised by page, searchable, and ready to replace in one click."
+      lede="Manage site placements, the public gallery, and photo stories such as construction progress."
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <MediaCenterTabs active={tab} onChange={setTab} />
@@ -415,7 +416,7 @@ export default function AdminMedia() {
             </div>
           )}
         </div>
-      ) : (
+      ) : tab === 'gallery' ? (
         <div className="space-y-6">
           {/* Gallery stats */}
           <div
@@ -528,6 +529,8 @@ export default function AdminMedia() {
             </div>
           )}
         </div>
+      ) : (
+        <AdminStoriesPanel />
       )}
 
       {replaceSlot ? (

@@ -151,6 +151,8 @@ export async function processMediaUpload(body, token, env) {
   let folderName = (body.folder || 'gallery/church-life').replace(/[^a-zA-Z0-9/_-]/g, '')
   let publicId
   let slotDef
+  let albumSlug = null
+  let albumCategory = null
 
   if (mode === 'slot') {
     if (!body.slotKey) {
@@ -165,6 +167,21 @@ export async function processMediaUpload(body, token, env) {
     }
     folderName = slotDef.cloudinaryPath.replace(/\/[^/]+$/, '')
     publicId = `${root}/${slotDef.cloudinaryPath}`
+  } else if (body.albumId) {
+    const albumRes = await authed
+      .from('media_albums')
+      .select('id, slug, category')
+      .eq('id', body.albumId)
+      .maybeSingle()
+    if (albumRes.error) {
+      return { status: 502, body: { ok: false, error: albumRes.error.message } }
+    }
+    if (!albumRes.data) {
+      return { status: 404, body: { ok: false, error: 'Photo story not found.' } }
+    }
+    albumSlug = String(albumRes.data.slug).replace(/[^a-zA-Z0-9_-]/g, '')
+    albumCategory = String(albumRes.data.category || 'Construction')
+    folderName = `stories/${albumSlug}`
   } else {
     const category = (body.category || 'Church Life').trim()
     const slug = GALLERY_FOLDER_SLUGS[category] || 'church-life'
@@ -220,23 +237,49 @@ export async function processMediaUpload(body, token, env) {
       return { status: 200, body: { ok: true, media: saved.data } }
     }
 
+    let sortOrder = typeof body.sortOrder === 'number' ? body.sortOrder : 0
+    if (body.albumId) {
+      const countRes = await authed
+        .from('parish_media')
+        .select('id', { count: 'exact', head: true })
+        .eq('album_id', body.albumId)
+      sortOrder = countRes.count ?? 0
+    }
+
     const media = {
       cloudinary_id: uploaded.public_id,
       url: uploaded.secure_url,
       folder: folderName,
       title: (body.title || body.filename || 'Parish media').trim(),
-      category: (body.category || 'Church Life').trim(),
-      alt: (body.alt || body.title || 'Parish media').trim(),
+      category: (body.category || albumCategory || 'Church Life').trim(),
+      alt: (body.alt || body.caption || body.title || 'Parish media').trim(),
+      caption: (body.caption || '').trim() || null,
       published: true,
-      sort_order: 0,
+      sort_order: sortOrder,
       media_type: resourceType,
       is_slot: false,
+      album_id: body.albumId || null,
     }
     const saved = await persistMediaRow(authed, media, {})
     if (saved.error || !saved.data) {
       await destroyCloudinaryAsset(uploaded.public_id, resourceType)
       return { status: 502, body: { ok: false, error: saved.error || 'Could not save to the database.' } }
     }
+
+    if (body.albumId && saved.data.id) {
+      const albumCheck = await authed
+        .from('media_albums')
+        .select('cover_media_id')
+        .eq('id', body.albumId)
+        .maybeSingle()
+      if (!albumCheck.data?.cover_media_id) {
+        await authed
+          .from('media_albums')
+          .update({ cover_media_id: saved.data.id, updated_at: new Date().toISOString() })
+          .eq('id', body.albumId)
+      }
+    }
+
     return { status: 200, body: { ok: true, media: saved.data } }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Cloudinary upload failed'
