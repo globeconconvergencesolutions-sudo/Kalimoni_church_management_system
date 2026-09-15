@@ -21,6 +21,7 @@ export default function MediaReplaceModal({
   subtitle,
   onSubtitle,
   busy,
+  error,
   onClose,
   onSubmit,
   onValidationError,
@@ -34,6 +35,7 @@ export default function MediaReplaceModal({
   subtitle: string
   onSubtitle: (v: string) => void
   busy: boolean
+  error?: string | null
   onClose: () => void
   onSubmit: (e: FormEvent) => void
   onValidationError?: (message: string | null) => void
@@ -102,6 +104,34 @@ export default function MediaReplaceModal({
         </div>
 
         <div className="overflow-y-auto flex-1 p-5 sm:p-6 space-y-5">
+          {error ? (
+            <div
+              className="px-4 py-3 text-sm leading-relaxed"
+              role="alert"
+              style={{
+                backgroundColor: 'rgba(74,16,25,0.08)',
+                borderLeft: `3px solid ${office.wine}`,
+                color: office.burgundy,
+              }}
+            >
+              <strong className="block mb-1" style={{ fontFamily: "'Lora', serif" }}>Could not publish</strong>
+              {error}
+            </div>
+          ) : null}
+
+          {busy ? (
+            <div
+              className="px-4 py-3 text-sm flex items-center gap-3"
+              style={{ backgroundColor: 'rgba(200,146,42,0.1)', border: `1px solid ${office.gold}`, color: office.burgundy }}
+            >
+              <span
+                className="inline-block w-4 h-4 rounded-full border-2 border-t-transparent animate-spin shrink-0"
+                style={{ borderColor: office.gold, borderTopColor: 'transparent' }}
+              />
+              Uploading securely — please keep this window open. Large photos can take a moment.
+            </div>
+          ) : null}
+
           {/* Step indicator */}
           <div className="flex items-center gap-2 text-[10px] tracking-widest uppercase" style={{ fontFamily: "'DM Mono', monospace", color: office.mute }}>
             <StepDot done={step > 1} active={step === 1} n={1} label="Choose file" />
@@ -189,7 +219,13 @@ export default function MediaReplaceModal({
           style={{ borderTop: `1px solid ${office.line}`, backgroundColor: '#fff' }}
         >
           <p className="text-[10px]" style={{ color: office.mute, fontFamily: "'DM Mono', monospace" }}>
-            {file ? 'File ready — click Save to website to publish' : 'Choose a file, then save'}
+            {busy
+              ? 'Publishing…'
+              : error
+                ? 'Fix the issue above, or choose another file'
+                : file
+                  ? 'File ready — click Save to website to publish'
+                  : 'Choose a file, then save'}
           </p>
           <div className="flex gap-2">
             <OfficeButton type="button" variant="ghost" disabled={busy} onClick={onClose}>

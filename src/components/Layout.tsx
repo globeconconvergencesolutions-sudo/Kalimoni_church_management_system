@@ -6,6 +6,7 @@ import NoticeSpotlight from './NoticeSpotlight'
 import PoweredByGlobecon from './PoweredByGlobecon'
 import { useLiveNotices } from '../hooks/useLiveNotices'
 import { NOTICE_RAIL_HEIGHT } from '../lib/noticeTypes'
+import { readMediaSlotFromLocation, scrollToMediaSlot } from '../lib/mediaPreview'
 
 const NAV = [
   { to: '/', en: 'Home', sw: 'Nyumbani' },
@@ -67,8 +68,26 @@ export default function Layout() {
 
   useEffect(() => {
     setMenuOpen(false)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [location.pathname])
+    const slotKey = readMediaSlotFromLocation(location.search, location.hash)
+    if (slotKey) {
+      // Defer so route content can mount; do not force scroll-to-top (that was killing View links)
+      const t = window.setTimeout(() => scrollToMediaSlot(slotKey), 60)
+      return () => window.clearTimeout(t)
+    }
+    if (!location.hash) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      const raw = location.hash.replace(/^#/, '')
+      const t = window.setTimeout(() => {
+        const el = document.getElementById(raw)
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.scrollY - 96
+          window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
+        }
+      }, 80)
+      return () => window.clearTimeout(t)
+    }
+  }, [location.pathname, location.search, location.hash])
 
   useEffect(() => {
     const onScroll = () => {

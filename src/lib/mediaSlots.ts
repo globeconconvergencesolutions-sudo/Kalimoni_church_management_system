@@ -92,6 +92,7 @@ const ministrySlots: MediaSlotDef[] = ministryDefaults.map((m, i) =>
     sortOrder: i + 1,
     mediaType: 'image',
     viewPath: '/ministries',
+    viewHash: `media-slot-ministries__${m.id}`,
   }),
 )
 
@@ -108,6 +109,7 @@ export const MEDIA_SLOT_DEFS: MediaSlotDef[] = [
     sortOrder: 1,
     mediaType: 'image',
     viewPath: '/',
+    viewHash: 'media-slot-home__hero__background',
   }),
   ...homeParishLife,
   ...ministrySlots,
@@ -137,6 +139,7 @@ export const MEDIA_SLOT_DEFS: MediaSlotDef[] = [
     sortOrder: 1,
     mediaType: 'image',
     viewPath: '/about',
+    viewHash: 'media-slot-about__identity',
   }),
   slot({
     key: 'vincentians.hero',
@@ -150,6 +153,7 @@ export const MEDIA_SLOT_DEFS: MediaSlotDef[] = [
     sortOrder: 1,
     mediaType: 'image',
     viewPath: '/vincentians',
+    viewHash: 'media-slot-vincentians__hero',
   }),
   slot({
     key: 'vincentians.quote',
@@ -163,6 +167,7 @@ export const MEDIA_SLOT_DEFS: MediaSlotDef[] = [
     sortOrder: 2,
     mediaType: 'image',
     viewPath: '/vincentians',
+    viewHash: 'media-slot-vincentians__quote',
   }),
   slot({
     key: 'sisters.hero',
@@ -176,6 +181,7 @@ export const MEDIA_SLOT_DEFS: MediaSlotDef[] = [
     sortOrder: 1,
     mediaType: 'image',
     viewPath: '/sisters',
+    viewHash: 'media-slot-sisters__hero',
   }),
   ...sistersTiles.map(t =>
     slot({
@@ -190,6 +196,7 @@ export const MEDIA_SLOT_DEFS: MediaSlotDef[] = [
       sortOrder: t.sort,
       mediaType: 'image',
       viewPath: '/sisters',
+      viewHash: `media-slot-${t.key.replace(/\./g, '__')}`,
     }),
   ),
   slot({
@@ -204,6 +211,7 @@ export const MEDIA_SLOT_DEFS: MediaSlotDef[] = [
     sortOrder: 1,
     mediaType: 'image',
     viewPath: '/history',
+    viewHash: 'media-slot-history__hero',
   }),
   slot({
     key: 'community.hero',
@@ -217,6 +225,7 @@ export const MEDIA_SLOT_DEFS: MediaSlotDef[] = [
     sortOrder: 1,
     mediaType: 'image',
     viewPath: '/community',
+    viewHash: 'media-slot-community__hero',
   }),
   slot({
     key: 'community.gallery-a',
@@ -230,6 +239,7 @@ export const MEDIA_SLOT_DEFS: MediaSlotDef[] = [
     sortOrder: 2,
     mediaType: 'image',
     viewPath: '/community',
+    viewHash: 'media-slot-community__gallery-a',
   }),
   slot({
     key: 'community.gallery-b',
@@ -243,6 +253,7 @@ export const MEDIA_SLOT_DEFS: MediaSlotDef[] = [
     sortOrder: 3,
     mediaType: 'image',
     viewPath: '/community',
+    viewHash: 'media-slot-community__gallery-b',
   }),
 ]
 

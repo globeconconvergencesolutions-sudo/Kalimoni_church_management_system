@@ -72,3 +72,19 @@ img { max-width: 100%; display: block; }
     0 0 0 1px rgba(200, 146, 42, 0.12),
     0 20px 56px -12px rgba(74, 16, 25, 0.18);
 }
+
+@keyframes media-slot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 146, 42, 0.55); }
+  50% { box-shadow: 0 0 0 6px rgba(200, 146, 42, 0.2); }
+}
+
+.media-slot-highlight {
+  outline: 2px solid #C8922A;
+  outline-offset: 4px;
+  animation: media-slot-pulse 1.1s ease-in-out 2;
+  scroll-margin-top: 6rem;
+}
+
+[data-media-slot] {
+  scroll-margin-top: 6rem;
+}

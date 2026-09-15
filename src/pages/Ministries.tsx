@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router'
 import { useSEO } from '../hooks/useSEO'
 import { useSiteMedia } from '../hooks/useSiteMedia'
 
@@ -104,7 +104,14 @@ export default function Ministries() {
   })
   const [active, setActive] = useState('cwa')
   const site = useSiteMedia()
+  const location = useLocation()
   const ministry = MINISTRIES.find(m => m.id === active)!
+
+  useEffect(() => {
+    const slot = new URLSearchParams(location.search).get('mediaSlot') || ''
+    const match = /^ministries\.(.+)$/.exec(slot)
+    if (match && MINISTRIES.some(m => m.id === match[1])) setActive(match[1])
+  }, [location.search])
 
   return (
     <div>
@@ -157,7 +164,12 @@ export default function Ministries() {
 
           {/* Active ministry card */}
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
-            <div className="w-full lg:w-1/2 overflow-hidden" style={{ minHeight: 280 }}>
+            <div
+              id={`media-slot-ministries__${ministry.id}`}
+              data-media-slot={`ministries.${ministry.id}`}
+              className="w-full lg:w-1/2 overflow-hidden"
+              style={{ minHeight: 280 }}
+            >
               <img
                 src={site.src(`ministries.${ministry.id}`, ministry.img, 800, 560)}
                 alt={ministry.name}

@@ -219,6 +219,7 @@ function PhotoCarousel() {
   return (
     <section
       id="parish-life"
+      data-media-slot="home.parish-life.01"
       className="relative overflow-hidden"
       style={{ height: 'clamp(280px, 52vw, 580px)', backgroundColor: '#1C1A18' }}
       onMouseEnter={() => setPaused(true)}
@@ -581,6 +582,8 @@ export default function Home() {
       {/* HERO */}
       <div className="pt-14 sm:pt-16 px-3 sm:px-5 lg:px-8" style={{ backgroundColor: '#0C0306' }}>
       <section
+        id="media-slot-home__hero__background"
+        data-media-slot="home.hero.background"
         className="hero-section relative overflow-hidden rounded-2xl min-h-[90vh]"
         style={{ background: 'linear-gradient(155deg, #0D0408 0%, #2A0810 38%, #1C0A06 72%, #0E0305 100%)' }}
       >
@@ -816,6 +819,7 @@ export default function Home() {
       {/* Mission banner */}
       <section
         id="mission"
+        data-media-slot="home.mission-banner"
         className="py-20 sm:py-24 md:py-28 px-4 sm:px-6 md:px-10 lg:px-16 relative overflow-hidden"
         style={{ backgroundImage: site.bg('home.mission-banner', 'photo-1609234656388-0ff363383899', 1600, 600), backgroundSize: 'cover', backgroundPosition: 'center 30%' }}
       >

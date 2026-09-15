@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import {
+  activateSlotVersion,
   clearSiteSlot,
   deleteStaffMedia,
   fetchStaffMedia,
@@ -17,12 +18,14 @@ import {
   type MediaSlotDef,
 } from '../../lib/mediaSlots'
 import { MEDIA_GALLERY_ACCEPT, mediaUploadHint } from '../../lib/mediaUploadRules'
+import { mediaSlotViewUrl } from '../../lib/mediaPreview'
 import MediaCenterTabs from '../../components/office/MediaCenterTabs'
 import MediaDropZone from '../../components/office/MediaDropZone'
 import MediaReplaceModal from '../../components/office/MediaReplaceModal'
 import MediaSlotCard from '../../components/office/MediaSlotCard'
 import AdminStoriesPanel from '../../components/office/AdminStoriesPanel'
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
+import { useOfficeConfirm } from '../../components/office/useOfficeConfirm'
 import { office } from '../../components/office/officeTheme'
 
 type Tab = 'site' | 'gallery' | 'stories'
@@ -66,9 +69,11 @@ function FilterChip({
 
 export default function AdminMedia() {
   const { ready: sessionReady } = useStaffSession()
+  const { confirm, dialog: confirmDialog } = useOfficeConfirm()
   const [tab, setTab] = useState<Tab>('site')
   const [media, setMedia] = useState<ParishMedia[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [modalError, setModalError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [busySlot, setBusySlot] = useState<string | null>(null)
@@ -84,13 +89,32 @@ export default function AdminMedia() {
   const [gCategory, setGCategory] = useState<string>(GALLERY_CATEGORIES[0])
   const [gFile, setGFile] = useState<File | null>(null)
 
-  const slotMap = useMemo(() => {
-    const map: Record<string, ParishMedia> = {}
+  const versionsBySlot = useMemo(() => {
+    const map: Record<string, ParishMedia[]> = {}
     for (const m of media) {
-      if (m.slot_key) map[m.slot_key] = m
+      if (!m.slot_key) continue
+      if (!map[m.slot_key]) map[m.slot_key] = []
+      map[m.slot_key].push(m)
+    }
+    for (const key of Object.keys(map)) {
+      map[key].sort((a, b) => {
+        const aLive = a.slot_active === true || (a.slot_active == null && a.published)
+        const bLive = b.slot_active === true || (b.slot_active == null && b.published)
+        if (aLive !== bLive) return aLive ? -1 : 1
+        return String(b.created_at || '').localeCompare(String(a.created_at || ''))
+      })
     }
     return map
   }, [media])
+
+  const slotMap = useMemo(() => {
+    const map: Record<string, ParishMedia> = {}
+    for (const [key, list] of Object.entries(versionsBySlot)) {
+      const live = list.find(r => r.slot_active === true || (r.slot_active == null && r.published))
+      if (live) map[key] = live
+    }
+    return map
+  }, [versionsBySlot])
 
   const gallery = useMemo(() => media.filter(m => !m.slot_key && m.is_slot !== true), [media])
   const customizedCount = useMemo(() => Object.keys(slotMap).length, [slotMap])
@@ -142,35 +166,44 @@ export default function AdminMedia() {
     setReplaceCaption(row?.caption || def.defaultCaption || '')
     setReplaceSubtitle(row?.subtitle || def.defaultSubtitle || '')
     setError(null)
+    setModalError(null)
   }
 
   const onReplace = async (e: FormEvent) => {
     e.preventDefault()
-    if (!replaceSlot || !replaceFile) {
-      setError('Choose a file to upload.')
+    if (!replaceSlot) return
+    if (!replaceFile) {
+      setModalError('Choose a photo (or video, if this placement allows it) before saving.')
       return
     }
     setBusy(true)
     setBusySlot(replaceSlot.key)
+    setModalError(null)
     setError(null)
-    const result = await uploadParishMedia(replaceFile, {
-      mode: 'slot',
-      slotKey: replaceSlot.key,
-      caption: replaceCaption,
-      subtitle: replaceSubtitle,
-      alt: replaceCaption || replaceSlot.label,
-    })
-    setBusy(false)
-    setBusySlot(null)
-    if (!result.ok) {
-      setError(result.error)
-      return
+    try {
+      const result = await uploadParishMedia(replaceFile, {
+        mode: 'slot',
+        slotKey: replaceSlot.key,
+        caption: replaceCaption,
+        subtitle: replaceSubtitle,
+        alt: replaceCaption || replaceSlot.label,
+      })
+      if (!result.ok) {
+        setModalError(result.error || 'Upload failed. Nothing was changed on the website.')
+        return
+      }
+      invalidateSiteMediaCache()
+      setSuccess(`${replaceSlot.label} is now live on the website.`)
+      setReplaceSlot(null)
+      setReplaceFile(null)
+      setModalError(null)
+      await load()
+    } catch (err) {
+      setModalError(err instanceof Error ? err.message : 'Unexpected error during upload. Please try again.')
+    } finally {
+      setBusy(false)
+      setBusySlot(null)
     }
-    invalidateSiteMediaCache()
-    setSuccess(`${replaceSlot.label} is now live on the website.`)
-    setReplaceSlot(null)
-    setReplaceFile(null)
-    await load()
   }
 
   const onGalleryUpload = async (e: FormEvent) => {
@@ -181,20 +214,25 @@ export default function AdminMedia() {
     }
     setBusy(true)
     setError(null)
-    const result = await uploadParishMedia(gFile, {
-      mode: 'gallery',
-      title: gTitle || gFile.name,
-      category: gCategory,
-    })
-    setBusy(false)
-    if (!result.ok) {
-      setError(result.error)
-      return
+    try {
+      const result = await uploadParishMedia(gFile, {
+        mode: 'gallery',
+        title: gTitle || gFile.name,
+        category: gCategory,
+      })
+      if (!result.ok) {
+        setError(result.error || 'Gallery upload failed. Nothing was published.')
+        return
+      }
+      setSuccess(`"${gTitle || gFile.name}" added to the gallery.`)
+      setGTitle('')
+      setGFile(null)
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unexpected error during gallery upload.')
+    } finally {
+      setBusy(false)
     }
-    setSuccess(`"${gTitle || gFile.name}" added to the gallery.`)
-    setGTitle('')
-    setGFile(null)
-    await load()
   }
 
   const handleGalleryToggle = async (item: ParishMedia) => {
@@ -209,17 +247,26 @@ export default function AdminMedia() {
   }
 
   const handleGalleryRemove = async (item: ParishMedia) => {
-    if (!window.confirm(`Remove "${item.title}" from the gallery and Cloudinary?`)) return
+    const ok = await confirm({
+      title: 'Remove from gallery?',
+      description: `"${item.title}" will be deleted from the gallery and from Cloudinary. This cannot be undone.`,
+      confirmLabel: 'Remove',
+      tone: 'danger',
+    })
+    if (!ok) return
     setError(null)
     setBusy(true)
-    const result = await deleteStaffMedia(item.id)
-    setBusy(false)
-    if (!result.ok) {
-      setError(result.error)
-      return
+    try {
+      const result = await deleteStaffMedia(item.id)
+      if (!result.ok) {
+        setError(result.error || 'Could not remove this item.')
+        return
+      }
+      setSuccess(`"${item.title}" removed.`)
+      await load()
+    } finally {
+      setBusy(false)
     }
-    setSuccess(`"${item.title}" removed.`)
-    await load()
   }
 
   const handleResetCaptions = async (def: MediaSlotDef, row: ParishMedia) => {
@@ -237,19 +284,77 @@ export default function AdminMedia() {
     await load()
   }
 
-  const handleSlotRevert = async (def: MediaSlotDef) => {
-    if (!window.confirm(`Revert "${def.label}" to the default image on the public site?`)) return
+  const handleMakeLive = async (def: MediaSlotDef, row: ParishMedia) => {
     setError(null)
     setBusySlot(def.key)
-    const result = await clearSiteSlot(def.key)
-    setBusySlot(null)
-    if (!result.ok) {
-      setError(result.error)
+    try {
+      const result = await activateSlotVersion(def.key, row.id)
+      if (!result.ok) {
+        setError(result.error || 'Could not make this version live.')
+        return
+      }
+      invalidateSiteMediaCache()
+      setSuccess(`"${def.label}" now shows this previous upload on the site.`)
+      await load()
+    } finally {
+      setBusySlot(null)
+    }
+  }
+
+  const handleRemoveVersion = async (def: MediaSlotDef, row: ParishMedia) => {
+    const ok = await confirm({
+      title: 'Delete this version?',
+      description: `Remove this previous upload for "${def.label}" from Cloudinary. The live site image is not affected.`,
+      confirmLabel: 'Delete version',
+      tone: 'danger',
+    })
+    if (!ok) return
+    setError(null)
+    setBusySlot(def.key)
+    try {
+      const result = await deleteStaffMedia(row.id)
+      if (!result.ok) {
+        setError(result.error || 'Could not delete this version.')
+        return
+      }
+      setSuccess('Previous upload removed.')
+      await load()
+    } finally {
+      setBusySlot(null)
+    }
+  }
+
+  const handleSlotRevert = async (def: MediaSlotDef) => {
+    const versions = versionsBySlot[def.key] || []
+    if (versions.length === 0) {
+      setSuccess(`"${def.label}" is already using the default image — nothing to revert.`)
       return
     }
-    invalidateSiteMediaCache()
-    setSuccess(`${def.label} reverted to the default.`)
-    await load()
+    const ok = await confirm({
+      title: 'Use site default?',
+      description: `"${def.label}" will show the built-in default on the public site. Your previous uploads stay in this card so you can make one live again anytime.`,
+      confirmLabel: 'Use default',
+      tone: 'danger',
+    })
+    if (!ok) return
+    setError(null)
+    setBusySlot(def.key)
+    try {
+      const result = await clearSiteSlot(def.key)
+      if (!result.ok) {
+        setError(result.error || 'Could not revert this placement.')
+        return
+      }
+      invalidateSiteMediaCache()
+      setSuccess(
+        result.alreadyClear
+          ? `"${def.label}" was already on the default image.`
+          : `${def.label} now uses the site default. Previous uploads are still in the card history.`,
+      )
+      await load()
+    } finally {
+      setBusySlot(null)
+    }
   }
 
   const onGalleryFile = (file: File | null) => {
@@ -261,10 +366,7 @@ export default function AdminMedia() {
     }
   }
 
-  const viewUrl = (def: MediaSlotDef) => {
-    const hash = def.viewHash ? `#${def.viewHash}` : ''
-    return `${def.viewPath}${hash}`
-  }
+  const viewUrl = (def: MediaSlotDef) => mediaSlotViewUrl(def.key)
 
   return (
     <OfficePage
@@ -359,7 +461,7 @@ export default function AdminMedia() {
           </div>
 
           <p className="text-xs leading-relaxed" style={{ color: office.mute }}>
-            Each card matches an exact place on the public site. Upload replaces what parishioners see — carousel captions can be edited when you replace.
+            Each card matches an exact place on the public site. Replace keeps previous uploads in a small history slider — you can make an older one live again anytime.
           </p>
 
           {/* Page filter chips */}
@@ -386,21 +488,24 @@ export default function AdminMedia() {
           {filteredSlots.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
               {filteredSlots.map(def => {
+                const versions = versionsBySlot[def.key] || []
                 const row = slotMap[def.key]
                 return (
                   <MediaSlotCard
                     key={def.key}
                     def={def}
-                    row={row}
+                    versions={versions}
                     busy={busySlot === def.key}
                     onReplace={() => openReplace(def)}
                     onView={() => window.open(viewUrl(def), '_blank', 'noopener,noreferrer')}
                     onResetCaptions={
                       row && def.defaultCaption
-                        ? () => { void handleResetCaptions(def, row) }
+                        ? liveRow => { void handleResetCaptions(def, liveRow) }
                         : undefined
                     }
-                    onRevert={row ? () => { void handleSlotRevert(def) } : undefined}
+                    onRevert={versions.length ? () => { void handleSlotRevert(def) } : undefined}
+                    onMakeLive={row => { void handleMakeLive(def, row) }}
+                    onRemoveVersion={row => { void handleRemoveVersion(def, row) }}
                   />
                 )
               })}
@@ -538,17 +643,27 @@ export default function AdminMedia() {
           def={replaceSlot}
           row={slotMap[replaceSlot.key]}
           file={replaceFile}
-          onFile={setReplaceFile}
+          onFile={file => {
+            setReplaceFile(file)
+            if (file) setModalError(null)
+          }}
           caption={replaceCaption}
           onCaption={setReplaceCaption}
           subtitle={replaceSubtitle}
           onSubtitle={setReplaceSubtitle}
           busy={busy}
-          onClose={() => !busy && setReplaceSlot(null)}
+          error={modalError}
+          onClose={() => {
+            if (busy) return
+            setReplaceSlot(null)
+            setModalError(null)
+          }}
           onSubmit={e => { void onReplace(e) }}
-          onValidationError={setError}
+          onValidationError={msg => setModalError(msg)}
         />
       ) : null}
+
+      {confirmDialog}
     </OfficePage>
   )
 }

@@ -44,7 +44,11 @@ export default function About() {
       {/* IDENTITY */}
       <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-10 lg:px-16" style={{ backgroundColor: '#FAF6F0' }}>
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row lg:gap-16 items-start">
-          <div className="w-full lg:w-1/2 mb-8 lg:mb-0 relative">
+            <div
+              id="media-slot-about__identity"
+              data-media-slot="about.identity"
+              className="w-full lg:w-1/2 mb-8 lg:mb-0 relative"
+            >
             <div
               className="absolute -inset-0 opacity-0"
               style={{ boxShadow: '0 0 0 1px rgba(200,146,42,0.15)' }}

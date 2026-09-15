@@ -1,84 +1,146 @@
-import { useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { mediaDeliverySrc, parishVideo, type ParishMedia } from '../../lib/media'
 import type { MediaSlotDef } from '../../lib/mediaSlots'
 import { office } from './officeTheme'
 
+function isLive(row?: ParishMedia) {
+  if (!row) return false
+  if (typeof row.slot_active === 'boolean') return row.slot_active && row.published
+  return row.published
+}
+
 export default function MediaSlotCard({
   def,
-  row,
+  versions,
   busy,
   onReplace,
   onView,
   onResetCaptions,
   onRevert,
+  onMakeLive,
+  onRemoveVersion,
 }: {
   def: MediaSlotDef
-  row?: ParishMedia
+  /** Newest first — all uploads for this placement */
+  versions: ParishMedia[]
   busy?: boolean
   onReplace: () => void
   onView: () => void
-  onResetCaptions?: () => void
+  onResetCaptions?: (row: ParishMedia) => void
   onRevert?: () => void
+  onMakeLive?: (row: ParishMedia) => void
+  onRemoveVersion?: (row: ParishMedia) => void
 }) {
-  const fileRef = useRef<HTMLInputElement>(null)
-  const src = mediaDeliverySrc(row, def.fallback, 640, 400)
-  const isCustom = Boolean(row)
+  const liveIndex = Math.max(0, versions.findIndex(isLive))
+  const [index, setIndex] = useState(liveIndex)
+  const row = versions[index]
+  const live = versions.find(isLive)
+  const isCustom = versions.length > 0
+  const viewingLive = Boolean(row && isLive(row))
   const pageLabel = def.page.charAt(0).toUpperCase() + def.page.slice(1)
+  const src = mediaDeliverySrc(row, def.fallback, 640, 400)
+
+  useEffect(() => {
+    setIndex(Math.max(0, versions.findIndex(isLive)))
+  }, [versions])
+
+  const prev = () => setIndex(i => (i - 1 + Math.max(versions.length, 1)) % Math.max(versions.length, 1))
+  const next = () => setIndex(i => (i + 1) % Math.max(versions.length, 1))
 
   return (
     <article
-      className="overflow-hidden transition-shadow duration-200 hover:shadow-lg group"
+      className="overflow-hidden transition-shadow duration-200 hover:shadow-lg"
       style={{ backgroundColor: '#fff', border: `1px solid ${office.line}` }}
     >
       <div className="relative" style={{ aspectRatio: '16/10', backgroundColor: '#E8DFD0' }}>
         {row?.media_type === 'video' ? (
           <video src={parishVideo(row.cloudinary_id || row.url, 640)} className="absolute inset-0 w-full h-full object-cover" muted playsInline />
+        ) : src ? (
+          <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
-          <img src={src} alt={def.label} className="absolute inset-0 w-full h-full object-cover" />
+          <img
+            src={mediaDeliverySrc(undefined, def.fallback, 640, 400)}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover opacity-80"
+          />
         )}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: 'linear-gradient(to top, rgba(28,8,15,0.82) 0%, rgba(28,8,15,0.15) 45%, transparent 100%)' }}
-        />
 
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
           {isCustom ? (
             <span
-              className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full"
-              style={{ backgroundColor: office.wine, color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}
+              className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2 py-1"
+              style={{
+                backgroundColor: viewingLive ? 'rgba(74,16,25,0.92)' : 'rgba(28,26,24,0.72)',
+                color: viewingLive ? '#E8B84B' : '#F0E8D8',
+                fontFamily: "'DM Mono', monospace",
+              }}
             >
-              <CloudIcon />
-              Live
+              {viewingLive ? 'Live on site' : 'Previous upload'}
             </span>
           ) : (
             <span
-              className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full"
-              style={{ backgroundColor: 'rgba(28,26,24,0.55)', color: '#F0E8D8', fontFamily: "'DM Mono', monospace" }}
+              className="text-[9px] font-bold uppercase tracking-wider px-2 py-1"
+              style={{ backgroundColor: 'rgba(28,26,24,0.65)', color: '#F0E8D8', fontFamily: "'DM Mono', monospace" }}
             >
-              Default
+              Site default
             </span>
           )}
-          {def.mediaType === 'video' ? (
-            <span
-              className="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full"
-              style={{ backgroundColor: 'rgba(200,146,42,0.9)', color: '#1C1A18', fontFamily: "'DM Mono', monospace" }}
-            >
-              Video
-            </span>
-          ) : null}
         </div>
 
-        <div className="absolute bottom-3 left-3 right-3">
-          <p className="text-white font-semibold text-sm leading-snug drop-shadow-sm" style={{ fontFamily: "'Lora', serif" }}>
-            {def.label}
-          </p>
-          <p className="text-white/75 text-[10px] tracking-wide mt-0.5 capitalize" style={{ fontFamily: "'DM Mono', monospace" }}>
-            {pageLabel} · {def.section.replace(/-/g, ' ')}
-          </p>
-        </div>
+        {versions.length > 1 ? (
+          <>
+            <button
+              type="button"
+              onClick={prev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center"
+              style={{ backgroundColor: 'rgba(12,3,6,0.55)', color: '#FAF6F0', border: 'none' }}
+              aria-label="Previous version"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center"
+              style={{ backgroundColor: 'rgba(12,3,6,0.55)', color: '#FAF6F0', border: 'none' }}
+              aria-label="Next version"
+            >
+              ›
+            </button>
+            <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+              {versions.map((v, i) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => setIndex(i)}
+                  className="rounded-full"
+                  style={{
+                    width: i === index ? 16 : 7,
+                    height: 7,
+                    backgroundColor: i === index ? office.gold : 'rgba(255,255,255,0.55)',
+                    border: 'none',
+                    transition: 'width 0.2s ease',
+                  }}
+                  aria-label={`Version ${i + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        ) : null}
       </div>
 
       <div className="p-4 space-y-3">
+        <div>
+          <p className="font-semibold text-sm leading-snug" style={{ fontFamily: "'Lora', serif", color: office.burgundy }}>
+            {def.label}
+          </p>
+          <p className="text-[10px] tracking-wide mt-0.5 capitalize" style={{ color: office.mute, fontFamily: "'DM Mono', monospace" }}>
+            {pageLabel} · {def.section.replace(/-/g, ' ')}
+            {versions.length > 0 ? ` · ${index + 1}/${versions.length}` : ''}
+            {live && versions.length > 1 ? ' · history kept' : ''}
+          </p>
+        </div>
+
         <p className="text-xs leading-relaxed line-clamp-2" style={{ color: office.mute }}>
           {def.hint}
         </p>
@@ -95,6 +157,18 @@ export default function MediaSlotCard({
         <div className="text-[10px] tracking-widest uppercase" style={{ color: office.gold, fontFamily: "'DM Mono', monospace" }}>
           {def.aspect} recommended
         </div>
+
+        {row && !viewingLive && onMakeLive ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onMakeLive(row)}
+            className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 text-[10px] tracking-widest uppercase min-h-[40px] disabled:opacity-50"
+            style={{ backgroundColor: office.gold, color: '#1C1A18', fontFamily: "'DM Mono', monospace", border: 'none' }}
+          >
+            Make this live on site
+          </button>
+        ) : null}
 
         <div className="flex flex-col sm:flex-row gap-2 pt-1">
           <button
@@ -116,11 +190,14 @@ export default function MediaSlotCard({
             <ExternalIcon />
             View
           </button>
-          {isCustom && onResetCaptions && def.defaultCaption ? (
+        </div>
+
+        <div className="flex flex-wrap gap-2 items-center">
+          {live && onResetCaptions && def.defaultCaption ? (
             <button
               type="button"
-              onClick={onResetCaptions}
-              className="text-[10px] tracking-widest uppercase min-h-[40px] px-2"
+              onClick={() => onResetCaptions(live)}
+              className="text-[10px] tracking-widest uppercase min-h-[36px] px-2"
               style={{ color: office.mute, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
             >
               Reset text
@@ -131,25 +208,26 @@ export default function MediaSlotCard({
               type="button"
               onClick={onRevert}
               disabled={busy}
-              className="text-[10px] tracking-widest uppercase min-h-[40px] px-2"
+              className="text-[10px] tracking-widest uppercase min-h-[36px] px-2"
               style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
             >
-              Revert
+              Use site default
+            </button>
+          ) : null}
+          {row && !viewingLive && onRemoveVersion ? (
+            <button
+              type="button"
+              onClick={() => onRemoveVersion(row)}
+              disabled={busy}
+              className="text-[10px] tracking-widest uppercase min-h-[36px] px-2"
+              style={{ color: office.mute, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
+            >
+              Delete this version
             </button>
           ) : null}
         </div>
-
-        <input ref={fileRef} type="file" className="hidden" tabIndex={-1} aria-hidden />
       </div>
     </article>
-  )
-}
-
-function CloudIcon() {
-  return (
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" />
-    </svg>
   )
 }
 

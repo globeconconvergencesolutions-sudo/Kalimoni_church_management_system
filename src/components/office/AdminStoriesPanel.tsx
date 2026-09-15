@@ -13,12 +13,14 @@ import { deleteStaffMedia, saveStaffMediaMeta, uploadParishMedia } from '../../l
 import { parishImage, type ParishMedia } from '../../lib/media'
 import MediaDropZone from './MediaDropZone'
 import { OfficeAlert, OfficeButton } from './OfficePage'
+import { useOfficeConfirm } from './useOfficeConfirm'
 import { office } from './officeTheme'
 import { MEDIA_IMAGE_ACCEPT, mediaUploadHint } from '../../lib/mediaUploadRules'
 
 type View = { mode: 'list' } | { mode: 'edit'; albumId: string | null }
 
 export default function AdminStoriesPanel() {
+  const { confirm, dialog: confirmDialog } = useOfficeConfirm()
   const [view, setView] = useState<View>({ mode: 'list' })
   const [albums, setAlbums] = useState<MediaAlbum[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -61,6 +63,7 @@ export default function AdminStoriesPanel() {
     <div className="space-y-6">
       {error ? <OfficeAlert tone="error">{error}</OfficeAlert> : null}
       {success ? <OfficeAlert tone="ok">{success}</OfficeAlert> : null}
+      {confirmDialog}
 
       <div
         className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
@@ -141,17 +144,25 @@ export default function AdminStoriesPanel() {
                   variant="ghost"
                   disabled={busy}
                   onClick={() => {
-                    if (!window.confirm(`Delete story "${album.title}"? Photos stay in the gallery library.`)) return
-                    setBusy(true)
-                    void deleteStaffAlbum(album.id).then(result => {
+                    void (async () => {
+                      const ok = await confirm({
+                        title: 'Delete this story?',
+                        description: `"${album.title}" will be removed from Photo Stories. Photos stay in the gallery library.`,
+                        confirmLabel: 'Delete story',
+                        tone: 'danger',
+                      })
+                      if (!ok) return
+                      setBusy(true)
+                      setError(null)
+                      const result = await deleteStaffAlbum(album.id)
                       setBusy(false)
                       if (!result.ok) {
-                        setError(result.error)
+                        setError(result.error || 'Could not delete this story.')
                         return
                       }
                       setSuccess('Story deleted.')
                       void loadAlbums()
-                    })
+                    })()
                   }}
                 >
                   Delete
@@ -174,6 +185,7 @@ function AlbumEditor({
   onBack: () => void
   onSaved: (msg: string) => void
 }) {
+  const { confirm, dialog: confirmDialog } = useOfficeConfirm()
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [summary, setSummary] = useState('')
@@ -289,6 +301,7 @@ function AlbumEditor({
 
   return (
     <div className="space-y-6">
+      {confirmDialog}
       <button
         type="button"
         onClick={onBack}
@@ -532,11 +545,18 @@ function AlbumEditor({
                         className="text-[10px] tracking-widest uppercase min-h-[32px] px-2"
                         style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
                         onClick={() => {
-                          if (!window.confirm(`Remove "${item.title}" from Cloudinary and this story?`)) return
-                          void deleteStaffMedia(item.id).then(r => {
-                            if (!r.ok) setError(r.error)
+                          void (async () => {
+                            const ok = await confirm({
+                              title: 'Remove this photo?',
+                              description: `"${item.title}" will be deleted from Cloudinary and this story. This cannot be undone.`,
+                              confirmLabel: 'Remove',
+                              tone: 'danger',
+                            })
+                            if (!ok) return
+                            const r = await deleteStaffMedia(item.id)
+                            if (!r.ok) setError(r.error || 'Could not remove this photo.')
                             else void load(id)
-                          })
+                          })()
                         }}
                       >
                         Remove

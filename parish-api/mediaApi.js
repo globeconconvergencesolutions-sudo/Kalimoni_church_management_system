@@ -21,26 +21,66 @@ async function destroyCloudinaryAsset(publicId, resourceType) {
   }
 }
 
+const MAX_SLOT_VERSIONS = 8
+
 async function persistMediaRow(authed, media, opts) {
-  if (opts.slotKey) {
-    const existing = await authed
-      .from('parish_media')
-      .select('id')
-      .eq('slot_key', opts.slotKey)
-      .maybeSingle()
-    if (existing.error) return { data: null, error: existing.error.message }
-    if (existing.data?.id) {
-      const updated = await authed
+  if (!opts.slotKey) {
+    const inserted = await authed.from('parish_media').insert(media).select('*').single()
+    return { data: inserted.data, error: inserted.error?.message ?? null }
+  }
+
+  const retire = await authed
+    .from('parish_media')
+    .update({ slot_active: false, published: false })
+    .eq('slot_key', opts.slotKey)
+    .eq('slot_active', true)
+  if (retire.error) {
+    if (/slot_active/i.test(retire.error.message)) {
+      const existing = await authed
         .from('parish_media')
-        .update(media)
-        .eq('id', existing.data.id)
-        .select('*')
-        .single()
-      return { data: updated.data, error: updated.error?.message ?? null }
+        .select('id')
+        .eq('slot_key', opts.slotKey)
+        .maybeSingle()
+      if (existing.error) return { data: null, error: existing.error.message }
+      if (existing.data?.id) {
+        const updated = await authed
+          .from('parish_media')
+          .update(media)
+          .eq('id', existing.data.id)
+          .select('*')
+          .single()
+        return { data: updated.data, error: updated.error?.message ?? null }
+      }
+      const inserted = await authed.from('parish_media').insert(media).select('*').single()
+      return { data: inserted.data, error: inserted.error?.message ?? null }
+    }
+    return { data: null, error: retire.error.message }
+  }
+
+  const row = { ...media, slot_active: true, published: true, is_slot: true, slot_key: opts.slotKey }
+  const inserted = await authed.from('parish_media').insert(row).select('*').single()
+  if (inserted.error) return { data: null, error: inserted.error.message }
+
+  const versions = await authed
+    .from('parish_media')
+    .select('id, cloudinary_id, media_type, slot_active, created_at')
+    .eq('slot_key', opts.slotKey)
+    .order('created_at', { ascending: false })
+  if (!versions.error && versions.data && versions.data.length > MAX_SLOT_VERSIONS) {
+    const drop = versions.data.slice(MAX_SLOT_VERSIONS)
+    for (const old of drop) {
+      if (old.slot_active) continue
+      await authed.from('parish_media').delete().eq('id', old.id)
+      if (old.cloudinary_id) {
+        await destroyCloudinaryAsset(
+          old.cloudinary_id,
+          old.media_type === 'video' ? 'video' : 'image',
+        )
+      }
     }
   }
-  const inserted = await authed.from('parish_media').insert(media).select('*').single()
-  return { data: inserted.data, error: inserted.error?.message ?? null }
+
+  return { data: inserted.data, error: null }
 }
 
 export async function authenticateStaff(token, env) {
@@ -73,15 +113,61 @@ export async function processMediaDelete(body, token, env) {
 
   configureCloudinary(env)
 
-  let query = authed.from('parish_media').select('*')
-  if (body.id) query = query.eq('id', body.id)
-  else query = query.eq('slot_key', body.slotKey)
-  const found = await query.maybeSingle()
+  if (body.slotKey && !body.id) {
+    const listed = await authed.from('parish_media').select('*').eq('slot_key', body.slotKey)
+    if (listed.error) return { status: 502, body: { ok: false, error: listed.error.message } }
+    const rows = listed.data ?? []
+    if (rows.length === 0) {
+      return {
+        status: 200,
+        body: { ok: true, alreadyClear: true, slotKey: body.slotKey, wasSlot: true },
+      }
+    }
+
+    if (body.purge) {
+      for (const row of rows) {
+        await authed.from('parish_media').delete().eq('id', row.id)
+        if (row.cloudinary_id) {
+          await destroyCloudinaryAsset(
+            row.cloudinary_id,
+            row.media_type === 'video' ? 'video' : 'image',
+          )
+        }
+      }
+      return { status: 200, body: { ok: true, purged: true, slotKey: body.slotKey, wasSlot: true } }
+    }
+
+    const deactivated = await authed
+      .from('parish_media')
+      .update({ slot_active: false, published: false })
+      .eq('slot_key', body.slotKey)
+    if (deactivated.error) {
+      if (/slot_active/i.test(deactivated.error.message)) {
+        for (const row of rows) {
+          await authed.from('parish_media').delete().eq('id', row.id)
+          if (row.cloudinary_id) {
+            await destroyCloudinaryAsset(
+              row.cloudinary_id,
+              row.media_type === 'video' ? 'video' : 'image',
+            )
+          }
+        }
+        return { status: 200, body: { ok: true, slotKey: body.slotKey, wasSlot: true } }
+      }
+      return { status: 502, body: { ok: false, error: deactivated.error.message } }
+    }
+    return {
+      status: 200,
+      body: { ok: true, deactivated: true, slotKey: body.slotKey, wasSlot: true, keptVersions: rows.length },
+    }
+  }
+
+  const found = await authed.from('parish_media').select('*').eq('id', body.id).maybeSingle()
   if (found.error) {
     return { status: 502, body: { ok: false, error: found.error.message } }
   }
   if (!found.data) {
-    return { status: 404, body: { ok: false, error: 'Media item not found.' } }
+    return { status: 404, body: { ok: false, error: 'Media item not found. It may already have been removed.' } }
   }
 
   const row = found.data
@@ -103,6 +189,7 @@ export async function processMediaDelete(body, token, env) {
       deletedId: row.id,
       slotKey: row.slot_key ?? null,
       wasSlot: Boolean(row.is_slot),
+      alreadyClear: false,
     },
   }
 }
@@ -166,7 +253,7 @@ export async function processMediaUpload(body, token, env) {
       return { status: 400, body: { ok: false, error: 'This placement accepts images only.' } }
     }
     folderName = slotDef.cloudinaryPath.replace(/\/[^/]+$/, '')
-    publicId = `${root}/${slotDef.cloudinaryPath}`
+    publicId = `${root}/${slotDef.cloudinaryPath}/${Date.now()}`
   } else if (body.albumId) {
     const albumRes = await authed
       .from('media_albums')
@@ -193,7 +280,7 @@ export async function processMediaUpload(body, token, env) {
   try {
     const uploadOpts = {
       resource_type: resourceType,
-      overwrite: mode === 'slot',
+      overwrite: false,
       invalidate: mode === 'slot',
     }
     if (mode === 'slot' && publicId) {
@@ -204,7 +291,6 @@ export async function processMediaUpload(body, token, env) {
       uploadOpts.folder = folder
       uploadOpts.use_filename = true
       uploadOpts.unique_filename = true
-      uploadOpts.overwrite = false
     }
 
     const uploaded = await cloudinary.uploader.upload(body.dataUrl, uploadOpts)
@@ -218,6 +304,7 @@ export async function processMediaUpload(body, token, env) {
         category: slotDef.page,
         alt: (body.alt || slotDef.label).trim(),
         published: true,
+        slot_active: true,
         sort_order: slotDef.sortOrder,
         slot_key: body.slotKey,
         media_type: resourceType,
@@ -232,9 +319,18 @@ export async function processMediaUpload(body, token, env) {
       }
       const saved = await persistMediaRow(authed, media, { slotKey: body.slotKey })
       if (saved.error || !saved.data) {
-        return { status: 502, body: { ok: false, error: saved.error || 'Could not save to the database.' } }
+        await destroyCloudinaryAsset(uploaded.public_id, resourceType)
+        return {
+          status: 502,
+          body: {
+            ok: false,
+            stored: false,
+            storeError: saved.error || 'Could not save to the database. The upload was rolled back.',
+            error: saved.error || 'Could not save to the database. The upload was rolled back.',
+          },
+        }
       }
-      return { status: 200, body: { ok: true, media: saved.data } }
+      return { status: 200, body: { ok: true, media: saved.data, stored: true } }
     }
 
     let sortOrder = typeof body.sortOrder === 'number' ? body.sortOrder : 0
