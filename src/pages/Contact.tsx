@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useSEO } from '../hooks/useSEO'
 import { useMassSchedule } from '../hooks/useMassSchedule'
 import { submitInbox } from '../lib/inbox'
+import ParishLocationMap from '../components/ParishLocationMap'
+import { PARISH_LOCATION, parishOpenInMapsUrl, formatCoordinates } from '../data/parishLocation'
 
 const OFFICE_HOURS = [
   { day: 'Monday – Friday', hours: '8:00 AM – 5:00 PM EAT' },
@@ -162,21 +164,25 @@ export default function Contact() {
             <div className="p-5 sm:p-6" style={{ backgroundColor: '#F0E8D8' }}>
               <div className="text-xs tracking-widest uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Parish Location</div>
               <div className="flex flex-col gap-1.5 text-sm" style={{ color: '#4A3A30' }}>
-                <div><strong>St. Theresa Catholic Church</strong></div>
-                <div>P.O. BOX 141, Kalimoni 01001</div>
-                <div>Juja, Kiambu County, Kenya</div>
-                <div className="pt-1" style={{ color: '#6B6259' }}>Ruiru Deanery</div>
-                <div style={{ color: '#6B6259' }}>Catholic Archdiocese of Nairobi</div>
+                <div><strong>{PARISH_LOCATION.name}</strong></div>
+                {PARISH_LOCATION.lines.map(line => (
+                  <div key={line}>{line}</div>
+                ))}
+                <div className="pt-1" style={{ color: '#6B6259' }}>{PARISH_LOCATION.deanery}</div>
+                <div style={{ color: '#6B6259' }}>{PARISH_LOCATION.diocese}</div>
+                <div className="text-[10px] pt-1 tracking-wide" style={{ color: '#8A7A70', fontFamily: "'DM Mono', monospace" }}>
+                  {formatCoordinates()}
+                </div>
                 <div className="pt-2 flex flex-col gap-1.5">
-                  <a href="tel:+254704358594" className="flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style={{ color: '#6B1A2A' }}>
+                  <a href={`tel:${PARISH_LOCATION.phoneTel}`} className="flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style={{ color: '#6B1A2A' }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.25 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z" /></svg>
-                    +254 704 358594
+                    {PARISH_LOCATION.phone}
                   </a>
-                  <a href="mailto:sttheresakalimoniparish@gmail.com" className="flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style={{ color: '#6B1A2A' }}>
+                  <a href={`mailto:${PARISH_LOCATION.email}`} className="flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style={{ color: '#6B1A2A' }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
-                    sttheresakalimoniparish@gmail.com
+                    {PARISH_LOCATION.email}
                   </a>
-                  <a href="https://maps.app.goo.gl/YsuSCqxiaqpSj78L8" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style={{ color: '#6B1A2A' }}>
+                  <a href={parishOpenInMapsUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style={{ color: '#6B1A2A' }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 2C8.686 2 6 4.686 6 8c0 5.25 6 13 6 13s6-7.75 6-13c0-3.314-2.686-6-6-6z" /><circle cx="12" cy="8" r="2.5" /></svg>
                     View on Google Maps
                   </a>
@@ -216,52 +222,7 @@ export default function Contact() {
           </div>
         </div>
       </section>
-      {/* GOOGLE MAPS EMBED */}
-      <section className="px-4 sm:px-6 md:px-10 lg:px-16 pb-12 sm:pb-16" style={{ backgroundColor: '#FAF6F0' }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Find Us</div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-5" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>How to Get Here</h2>
-          <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
-            <div className="w-full md:w-2/3 overflow-hidden" style={{ height: 'clamp(260px, 40vw, 400px)' }}>
-              <iframe
-                title="St. Theresa Parish Kalimoni Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.6!2d37.01!3d-1.10!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f3fa000000001%3A0x1!2sKalimoni%2C+Juja%2C+Kenya!5e0!3m2!1sen!2ske!4v1"
-                width="100%"
-                height="100%"
-                style={{ border: 0, display: 'block' }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
-            <div className="w-full md:w-1/3 flex flex-col gap-3">
-              <div className="p-4 sm:p-5 text-sm flex-1" style={{ backgroundColor: '#F0E8D8' }}>
-                <div className="text-xs tracking-widest uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Getting There</div>
-                <div className="flex flex-col gap-2.5" style={{ color: '#4A3A30' }}>
-                  <div className="flex items-start gap-2">
-                    <span className="shrink-0 mt-0.5 text-xs" style={{ color: '#C8922A' }}>✦</span>
-                    <span>From Thika Road: take the Juja exit, proceed towards Kalimoni market. The church is clearly visible from the main road.</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="shrink-0 mt-0.5 text-xs" style={{ color: '#C8922A' }}>✦</span>
-                    <span>Matatu routes from Nairobi: 145 (Thika Road) then connect to Juja/Kalimoni.</span>
-                  </div>
-                </div>
-              </div>
-              <a
-                href="https://maps.app.goo.gl/YsuSCqxiaqpSj78L8"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 py-3.5 text-sm font-bold tracking-wide transition-all hover:brightness-110 min-h-[48px]"
-                style={{ backgroundColor: '#6B1A2A', color: '#F0E8D8', fontFamily: "'Lora', serif" }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 2C8.686 2 6 4.686 6 8c0 5.25 6 13 6 13s6-7.75 6-13c0-3.314-2.686-6-6-6z" /><circle cx="12" cy="8" r="2.5" /></svg>
-                Open in Google Maps
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ParishLocationMap />
     </div>
   )
 }

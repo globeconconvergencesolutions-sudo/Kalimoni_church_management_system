@@ -3,6 +3,7 @@ import { Outlet, NavLink, useLocation, Link } from 'react-router'
 import officialLogo from '../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
 import NoticeRail from './NoticeRail'
 import NoticeSpotlight from './NoticeSpotlight'
+import PoweredByGlobecon from './PoweredByGlobecon'
 import { useLiveNotices } from '../hooks/useLiveNotices'
 import { NOTICE_RAIL_HEIGHT } from '../lib/noticeTypes'
 
@@ -364,6 +365,7 @@ export default function Layout() {
                     {t(en, sw)}
                   </Link>
                 ))}
+                <PoweredByGlobecon variant="footer" />
               </div>
             </div>
 
@@ -381,6 +383,8 @@ export default function Layout() {
       </footer>
 
       {/* ── FLOATING ACTIONS ─────────────────────────────────── */}
+
+      <PoweredByGlobecon variant="fixed" />
 
       {/* WhatsApp FAB */}
       <a
