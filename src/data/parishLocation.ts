@@ -1,14 +1,14 @@
 /** Canonical parish location — used on Contact, footer, and map embeds. */
 export const PARISH_LOCATION = {
-  name: 'St. Theresa Catholic Church',
-  shortName: 'St. Theresa Parish, Kalimoni',
+  name: 'St. Theresa Kalimoni Parish',
+  shortName: 'St. Theresa Kalimoni Parish',
   lines: ['P.O. BOX 141, Kalimoni 01001', 'Juja, Kiambu County, Kenya'],
   deanery: 'Ruiru Deanery',
   diocese: 'Catholic Archdiocese of Nairobi',
   phone: '+254 704 358594',
   phoneTel: '+254704358594',
   email: 'sttheresakalimoniparish@gmail.com',
-  /** From Google Maps place: St. Theresa Catholic Church, Kalimoni */
+  /** Google Maps place listing still uses Catholic Church, Kalimoni coordinates */
   lat: -1.1164494,
   lng: 37.0202428,
   placeId: '0x182f478004ba089d:0x1e8ecd1d9f5d3e4c',
@@ -17,7 +17,7 @@ export const PARISH_LOCATION = {
 
 export function parishGoogleMapsEmbedUrl(): string {
   const { lat, lng, name } = PARISH_LOCATION
-  const q = encodeURIComponent(`${lat},${lng} (${name}, Kalimoni)`)
+  const q = encodeURIComponent(`${lat},${lng} (${name})`)
   // Keyless Google Maps embed pinned to the parish coordinates
   return `https://www.google.com/maps?q=${q}&z=17&hl=en&output=embed`
 }
@@ -33,7 +33,7 @@ export function parishOpenInMapsUrl(): string {
 
 export function parishAppleMapsUrl(): string {
   const { lat, lng, name } = PARISH_LOCATION
-  return `https://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(name + ', Kalimoni')}`
+  return `https://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(name)}`
 }
 
 export function formatCoordinates(): string {

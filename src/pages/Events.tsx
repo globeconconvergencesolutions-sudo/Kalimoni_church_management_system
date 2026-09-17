@@ -7,7 +7,7 @@ import { useMassSchedule } from '../hooks/useMassSchedule'
 export default function Events() {
   useSEO({
     title: 'Events Calendar',
-    description: 'Upcoming events, feast days, and parish activities at St. Theresa Parish, Kalimoni. Mass schedule, holy days of obligation, and ministry gatherings.',
+    description: 'Upcoming events, feast days, and parish activities at St. Theresa Kalimoni Parish. Mass schedule, holy days of obligation, and ministry gatherings.',
     path: '/events',
   })
   const [activeMonth, setActiveMonth] = useState('All')
@@ -37,7 +37,7 @@ export default function Events() {
           </h1>
           <p className="text-sm sm:text-base max-w-xl leading-relaxed" style={{ color: '#F0E8D8AA' }}>
             Upcoming feast days, holy days, ministry gatherings, and parish celebrations
-            at St. Theresa Catholic Church, Kalimoni.
+            at St. Theresa Kalimoni Parish.
           </p>
         </div>
       </section>

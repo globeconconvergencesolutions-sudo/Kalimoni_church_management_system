@@ -1,6 +1,6 @@
-# St. Theresa Parish, Kalimoni — Parish Website & Office
+# St. Theresa Kalimoni Parish — Parish Website & Office
 
-A React parish website and staff **Parish Office** for **St. Theresa Catholic Church, Kalimoni** (Juja, Kiambu County, Kenya). The public site shares Mass times, news, events, galleries, and giving information. Staff sign in to manage notices, content, media, inbox messages, and donation records.
+A React parish website and staff **Parish Office** for **St. Theresa Kalimoni Parish** (Juja, Kiambu County, Kenya). The public site shares Mass times, news, events, galleries, and giving information. Staff sign in to manage notices, content, media, inbox messages, and donation records.
 
 This repository is actively developed. Some features are production-ready; others are demo or in progress. This README is written so a new developer can clone, configure, run, and deploy without prior context.
 
@@ -496,7 +496,7 @@ Confirm `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` match your Supabase pro
 
 ## Parish
 
-**St. Theresa Parish, Kalimoni**  
+**St. Theresa Kalimoni Parish**  
 P.O. Box 141, Kalimoni 01001, Kenya  
 *Service to God through service to humanity.*
 

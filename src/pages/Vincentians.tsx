@@ -28,7 +28,7 @@ const PILLARS = [
 export default function Vincentians() {
   useSEO({
     title: 'Vincentian Fathers',
-    description: 'The Vincentian Congregation has served St. Theresa Parish, Kalimoni since 2000 through evangelisation, celebration, charity, and leadership.',
+    description: 'The Vincentian Congregation has served St. Theresa Kalimoni Parish since 2000 through evangelisation, celebration, charity, and leadership.',
     path: '/vincentians',
   })
   const [activePillar, setActivePillar] = useState('evangelisation')
@@ -60,7 +60,7 @@ export default function Vincentians() {
             "He has sent me to proclaim the good news to the poor." — Luke 4:18
           </blockquote>
           <p className="text-sm sm:text-base max-w-xl leading-relaxed" style={{ color: '#F0E8D8AA' }}>
-            The Vincentian Congregation has served St. Theresa Parish, Kalimoni since 2000,
+            The Vincentian Congregation has served St. Theresa Kalimoni Parish since 2000,
             bringing missionary zeal, pastoral care, and the spirit of St. Vincent de Paul.
           </p>
         </div>

@@ -12,7 +12,7 @@ const MINISTRIES = [
     color: '#6B1A2A',
     accent: '#E8B84B',
     img: 'photo-1609234656388-0ff363383899',
-    desc: 'The Catholic Women Association is the backbone of St. Theresa Parish. These women of deep faith serve God through prayer, charity, and tireless community service — from the chapel to the hospital ward.',
+    desc: 'The Catholic Women Association is the backbone of St. Theresa Kalimoni Parish. These women of deep faith serve God through prayer, charity, and tireless community service — from the chapel to the hospital ward.',
     highlights: [
       'Led the consecration of the Divine Mercy Chapel (2025)',
       'Weekly Rosary groups and Marian devotion',
@@ -66,7 +66,7 @@ const MINISTRIES = [
     color: '#2A1A4A',
     accent: '#E8B84B',
     img: 'photo-1547496613-4e19af6736dc',
-    desc: "YSC is St. Theresa's vibrant youth ministry — where young people encounter Christ in a community of joy, discipleship, and service. YSC members are the future of the parish and the Church.",
+    desc: "YSC is St. Theresa Kalimoni Parish's vibrant youth ministry — where young people encounter Christ in a community of joy, discipleship, and service. YSC members are the future of the parish and the Church.",
     highlights: [
       'Erected the Way of the Cross crucifix at Good Friday 2025',
       'Lively choir and liturgical music ministry',
@@ -99,7 +99,7 @@ const MINISTRIES = [
 export default function Ministries() {
   useSEO({
     title: 'Parish Ministries',
-    description: 'Discover the ministries of St. Theresa Parish, Kalimoni — CWA, CMA, YCA, YSC, and PMC. Serving God through service to each other since 1927.',
+    description: 'Discover the ministries of St. Theresa Kalimoni Parish — CWA, CMA, YCA, YSC, and PMC. Serving God through service to each other since 1927.',
     path: '/ministries',
   })
   const [active, setActive] = useState('cwa')
@@ -132,7 +132,7 @@ export default function Ministries() {
             <em className="not-italic" style={{ color: '#E8B84B' }}>Serving Each Other</em>
           </h1>
           <p className="text-sm sm:text-base max-w-xl leading-relaxed" style={{ color: '#F0E8D8AA' }}>
-            St. Theresa Parish, Kalimoni is alive with lay ministries that bring faith into action —
+            St. Theresa Kalimoni Parish is alive with lay ministries that bring faith into action —
             from the youngest child to the most experienced elder, there is a place for everyone.
           </p>
         </div>

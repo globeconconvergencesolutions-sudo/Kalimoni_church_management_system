@@ -1,6 +1,6 @@
-St. Theresa Parish, Kalimoni
+St. Theresa Kalimoni Parish
 About 
-St. Theresa Parish, Kalimoni is located in Kalimoni, Juja, Kiambu County, Kenya. It's within the Ruiru Deanery of the Catholic Archdiocese of Nairobi.
+St. Theresa Kalimoni Parish is located in Kalimoni, Juja, Kiambu County, Kenya. It's within the Ruiru Deanery of the Catholic Archdiocese of Nairobi.
 Our Vision:
 Our Mission:
 
@@ -34,9 +34,9 @@ On February 11, 1968, it was elevated to the status of a society of pontifical r
 The Vincentians in Kenya
 The Vincentian Missionaries arrived in Kenya in the late 1990s. True to the spirit of St. Vincent, they dedicated themselves to pastoral care, retreats, missions, and social outreach.
 The Vincentians in Kalimoni
-In 1999, the Vincentian Congregation came to St. Theresa Parish, Kalimoni, where they served under the then parish priest, Fr. Gogan H.G.F. In 2000, when Fr. Gogan left for his holiday and unfortunately fell ill, making it impossible for him to return to Kenya, the Bishop entrusted the parish to the Vincentian Congregation.
+In 1999, the Vincentian Congregation came to St. Theresa Kalimoni Parish, where they served under the then parish priest, Fr. Gogan H.G.F. In 2000, when Fr. Gogan left for his holiday and unfortunately fell ill, making it impossible for him to return to Kenya, the Bishop entrusted the parish to the Vincentian Congregation.
 Under the leadership of Fr. James Edavazhira, V.C., the Vincentians officially took charge, bringing with them a renewed missionary zeal that has shaped the spiritual, pastoral, and social life of the parish.
-Since then, the Vincentian Fathers have faithfully walked with the Christian community of St. Theresa Parish, Kalimoni, embodying the spirit of St. Vincent de Paul: service to God through service to humanity. Their mission here has been marked by evangelisation, joyful celebrations, works of charity, and a strong spirit of leadership and unity. 
+Since then, the Vincentian Fathers have faithfully walked with the Christian community of St. Theresa Kalimoni Parish, embodying the spirit of St. Vincent de Paul: service to God through service to humanity. Their mission here has been marked by evangelisation, joyful celebrations, works of charity, and a strong spirit of leadership and unity. 
 1.	Evangelisation: Nurturing the Faithful: The Vincentians’ primary mission in Kalimoni has been to deepen the faith of Christians through the word and sacraments.
 	Daily Eucharistic & Sacraments
 	Recollections and Retreats

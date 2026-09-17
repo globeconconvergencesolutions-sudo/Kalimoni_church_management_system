@@ -20,7 +20,7 @@ const inputStyle = {
 } as const
 
 export default function Contact() {
-  useSEO({ title: 'Contact Us', description: 'Get in touch with St. Theresa Parish, Kalimoni. We welcome messages from parishioners, Kenyan diaspora, and international partners worldwide.', path: '/contact' })
+  useSEO({ title: 'Contact Us', description: 'Get in touch with St. Theresa Kalimoni Parish. We welcome messages from parishioners, Kenyan diaspora, and international partners worldwide.', path: '/contact' })
   const { list: massSchedule } = useMassSchedule()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')

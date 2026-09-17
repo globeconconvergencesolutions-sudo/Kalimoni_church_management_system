@@ -5,7 +5,7 @@ import { usePublishedPosts } from '../hooks/usePublishedPosts'
 import { parishImage } from '../lib/media'
 
 export default function Blog() {
-  useSEO({ title: 'Blog & News', description: 'Stories, reflections, and news from St. Theresa Parish, Kalimoni — parish life, community celebrations, faith formation, and more.', path: '/blog' })
+  useSEO({ title: 'Blog & News', description: 'Stories, reflections, and news from St. Theresa Kalimoni Parish — parish life, community celebrations, faith formation, and more.', path: '/blog' })
   const { posts } = usePublishedPosts()
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
@@ -38,7 +38,7 @@ export default function Blog() {
             <em className="not-italic" style={{ color: '#E8B84B' }}>Service & Community</em>
           </h1>
           <p className="text-sm sm:text-base max-w-xl leading-relaxed mb-8" style={{ color: '#F0E8D8AA' }}>
-            News, reflections, and stories from the heart of St. Theresa Parish, Kalimoni —
+            News, reflections, and stories from the heart of St. Theresa Kalimoni Parish —
             for our community here and our friends around the world.
           </p>
           {/* Search */}

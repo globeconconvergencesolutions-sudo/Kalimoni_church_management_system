@@ -16,7 +16,7 @@ export default function ParishLogo({ size = 40, variant = 'mark', className = ''
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className={className}
-        aria-label="St. Theresa Parish Kalimoni logo"
+        aria-label="St. Theresa Kalimoni Parish logo"
       >
         {/* Shield background */}
         <path
@@ -54,7 +54,7 @@ export default function ParishLogo({ size = 40, variant = 'mark', className = ''
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
-      aria-label="St. Theresa Parish Kalimoni"
+      aria-label="St. Theresa Kalimoni Parish"
     >
       {/* Shield mark */}
       <path d="M40 4 L72 16 L72 46 C72 61 56 73 40 77 C24 73 8 61 8 46 L8 16 Z" fill="#6B1A2A" />

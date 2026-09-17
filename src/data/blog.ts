@@ -29,14 +29,14 @@ export const POSTS: BlogPost[] = [
     date: 'September 2026',
     readTime: '3 min read',
     excerpt:
-      'Foundations, formwork, and concrete pours — a photo essay on the ongoing construction works at St. Theresa Parish, Kalimoni.',
+      'Foundations, formwork, and concrete pours — a photo essay on the ongoing construction works at St. Theresa Kalimoni Parish.',
     coverImg: 'photo-1622598453695-4fbaf151aadc',
     tags: ['Construction', 'Parish Projects', 'Kalimoni', 'Building'],
     body: [
       {
         type: 'paragraph',
         content:
-          'Across the grounds of St. Theresa Parish, Kalimoni, a new chapter of building is unfolding. Photographs taken on site in September 2026 show foundations, steel cages, timber formwork, and the daily labour of pouring concrete.',
+          'Across the grounds of St. Theresa Kalimoni Parish, a new chapter of building is unfolding. Photographs taken on site in September 2026 show foundations, steel cages, timber formwork, and the daily labour of pouring concrete.',
       },
       { type: 'heading', content: 'What you are seeing' },
       {
@@ -73,11 +73,11 @@ export const POSTS: BlogPost[] = [
     date: 'December 2024',
     readTime: '4 min read',
     excerpt:
-      'In December 2024, a newly constructed Grotto was consecrated on the grounds of St. Theresa Parish — a landmark project driven entirely by the Catholic Men Association.',
+      'In December 2024, a newly constructed Grotto was consecrated on the grounds of St. Theresa Kalimoni Parish — a landmark project driven entirely by the Catholic Men Association.',
     coverImg: 'photo-1633368516160-feaa83f981dd',
     tags: ['Marian Devotion', 'CMA', 'Parish Projects', 'Prayer'],
     body: [
-      { type: 'paragraph', content: 'In December 2024, a beautiful new Grotto was consecrated on the grounds of St. Theresa Parish, Kalimoni — a project that stands as a testament to the faith and dedication of the Catholic Men Association (CMA). From the very first stone laid to the final consecration ceremony, every step of the project was conceived, funded, and completed by the men of the parish.' },
+      { type: 'paragraph', content: 'In December 2024, a beautiful new Grotto was consecrated on the grounds of St. Theresa Kalimoni Parish — a project that stands as a testament to the faith and dedication of the Catholic Men Association (CMA). From the very first stone laid to the final consecration ceremony, every step of the project was conceived, funded, and completed by the men of the parish.' },
       { type: 'heading', content: 'A Vision Born in Prayer' },
       { type: 'paragraph', content: 'The idea for the Grotto emerged during one of the CMA\'s regular meetings, where members expressed a desire to create a dedicated space for Marian devotion and personal prayer within the parish grounds. The Blessed Virgin Mary holds a special place in the hearts of Kalimoni\'s faithful, and the Grotto was envisioned as a place where parishioners could come to pray the Rosary, seek intercession, and simply sit in quiet contemplation.' },
       { type: 'quote', content: '"We wanted to build something that would outlast us — a place where our children and grandchildren would come to pray." — CMA Member, Kalimoni Parish' },
@@ -102,7 +102,7 @@ export const POSTS: BlogPost[] = [
     coverImg: 'photo-1625702929485-984787146d49',
     tags: ['CWA', 'Divine Mercy', 'Chapel', 'Women of Faith'],
     body: [
-      { type: 'paragraph', content: 'On a radiant morning in February 2025, the faithful of St. Theresa Parish, Kalimoni, gathered in joyful celebration as the newly built Divine Mercy Chapel was consecrated. This sacred space — funded and built through the tireless effort of the Catholic Women Association (CWA) — now stands as one of the most significant spiritual landmarks in the parish\'s modern history.' },
+      { type: 'paragraph', content: 'On a radiant morning in February 2025, the faithful of St. Theresa Kalimoni Parish, gathered in joyful celebration as the newly built Divine Mercy Chapel was consecrated. This sacred space — funded and built through the tireless effort of the Catholic Women Association (CWA) — now stands as one of the most significant spiritual landmarks in the parish\'s modern history.' },
       { type: 'heading', content: 'The Chaplet That Became a Chapel' },
       { type: 'paragraph', content: 'The Divine Mercy devotion has long had deep roots in Kalimoni. For years, the CWA has led the Chaplet of Divine Mercy every Friday afternoon, drawing scores of parishioners into a rhythm of mercy-seeking prayer. It was from this living devotion that the vision for a dedicated chapel emerged — a permanent home for the image of the Merciful Jesus and a quiet space for personal encounter with the compassion of God.' },
       { type: 'quote', content: '"Jesus, I trust in You." — The words inscribed beneath the Divine Mercy image, now at the heart of the chapel.' },
@@ -146,11 +146,11 @@ export const POSTS: BlogPost[] = [
     date: 'October 2022',
     readTime: '6 min read',
     excerpt:
-      'From 15 in 2002 to 72 in 2022, the Jumuiyas of St. Theresa Parish tell the story of a church that lives not in pews alone, but in homes, neighbourhoods, and hearts.',
+      'From 15 in 2002 to 72 in 2022, the Jumuiyas of St. Theresa Kalimoni Parish tell the story of a church that lives not in pews alone, but in homes, neighbourhoods, and hearts.',
     coverImg: 'photo-1781263378197-9ea12f94b827',
     tags: ['Jumuiyas', 'SCC', 'Community', 'Parish Growth'],
     body: [
-      { type: 'paragraph', content: 'In the Catholic tradition of East Africa, the parish does not end at the church door. It extends into every street, every compound, every home where a group of faithful gather around the word of God. These gatherings — known as Small Christian Communities (SCCs) or Jumuiyas in Swahili — are the lifeblood of St. Theresa Parish, Kalimoni.' },
+      { type: 'paragraph', content: 'In the Catholic tradition of East Africa, the parish does not end at the church door. It extends into every street, every compound, every home where a group of faithful gather around the word of God. These gatherings — known as Small Christian Communities (SCCs) or Jumuiyas in Swahili — are the lifeblood of St. Theresa Kalimoni Parish.' },
       { type: 'heading', content: 'What Is a Jumuiya?' },
       { type: 'paragraph', content: 'A Jumuiya is a small group of Catholic families living in the same neighbourhood who come together regularly — usually weekly — to pray, read scripture, discuss their faith, and support one another in practical ways. They celebrate together, mourn together, and serve together. In Kalimoni, each Jumuiya has its own identity, its own feast day, and its own unique personality shaped by the people within it.' },
       { type: 'quote', content: '"The Jumuiya is where the Church becomes real. It is where faith becomes life." — Vincentian Father, Kalimoni Parish' },
@@ -170,11 +170,11 @@ export const POSTS: BlogPost[] = [
     date: 'January 2025',
     readTime: '7 min read',
     excerpt:
-      'As the Vincentian Congregation marks 25 years of service at St. Theresa Parish, we reflect on the journey from that first handover in 2000 to the thriving community of today.',
+      'As the Vincentian Congregation marks 25 years of service at St. Theresa Kalimoni Parish, we reflect on the journey from that first handover in 2000 to the thriving community of today.',
     coverImg: 'photo-1609234656381-73e732808098',
     tags: ['Vincentians', 'Anniversary', 'History', 'Parish Mission'],
     body: [
-      { type: 'paragraph', content: 'Twenty-five years ago, when Fr. James Edavazhira VC first stood at the altar of St. Theresa Parish, Kalimoni, the parish had 15 Jumuiyas and a modestly staffed dispensary. Today, it has 72 Jumuiyas, a Level 4 hospital, a comprehensive school, three daughter parishes, and a community built on a foundation of deep faith and generous service. The transformation is a testament to the Vincentian spirit: proclaiming the good news to the poor through word, sacrament, and action.' },
+      { type: 'paragraph', content: 'Twenty-five years ago, when Fr. James Edavazhira VC first stood at the altar of St. Theresa Kalimoni Parish, the parish had 15 Jumuiyas and a modestly staffed dispensary. Today, it has 72 Jumuiyas, a Level 4 hospital, a comprehensive school, three daughter parishes, and a community built on a foundation of deep faith and generous service. The transformation is a testament to the Vincentian spirit: proclaiming the good news to the poor through word, sacrament, and action.' },
       { type: 'heading', content: 'The Arrival: 1999–2000' },
       { type: 'paragraph', content: 'The story begins in 1999, when the Vincentian Congregation came to Kalimoni to assist Fr. Gogan of the Holy Ghost Fathers. When Fr. Gogan fell ill and was unable to return, the Archbishop of Nairobi entrusted the parish fully to the Vincentians in 2000. Fr. James Edavazhira VC accepted the challenge with characteristic humility and missionary zeal.' },
       { type: 'quote', content: '"The Vincentian mission is not about replacing what came before — it is about building on foundations laid by those who walked before us." — Fr. James Edavazhira VC, First Vincentian Parish Priest, Kalimoni' },
@@ -194,15 +194,15 @@ export const POSTS: BlogPost[] = [
     date: 'May 2025',
     readTime: '4 min read',
     excerpt:
-      'Each morning before Mass, a group of faithful kneel at the Grotto and pray the Rosary. This quiet, daily act encapsulates something essential about the soul of St. Theresa Parish.',
+      'Each morning before Mass, a group of faithful kneel at the Grotto and pray the Rosary. This quiet, daily act encapsulates something essential about the soul of St. Theresa Kalimoni Parish.',
     coverImg: 'photo-1637309830727-a6a12b3f43f8',
     tags: ['Rosary', 'Marian Devotion', 'Prayer', 'Spirituality'],
     body: [
       { type: 'paragraph', content: 'Before the sun has fully risen over Kalimoni, before the parish offices open and the school gates swing wide, a small group of the faithful are already kneeling at the Grotto. Their lips move in unison through the familiar mysteries of the Rosary — Joyful, Luminous, Sorrowful, and Glorious — their voices a quiet murmur beneath the African dawn.' },
-      { type: 'paragraph', content: 'This scene, replicated in homes, Jumuiya gatherings, and hospital corridors across the parish, points to something essential about the spiritual identity of St. Theresa Parish, Kalimoni: a deep, embodied devotion to Our Lady that has shaped every generation of the faithful here.' },
+      { type: 'paragraph', content: 'This scene, replicated in homes, Jumuiya gatherings, and hospital corridors across the parish, points to something essential about the spiritual identity of St. Theresa Kalimoni Parish: a deep, embodied devotion to Our Lady that has shaped every generation of the faithful here.' },
       { type: 'heading', content: 'Marian Devotion Through the Ages' },
       { type: 'paragraph', content: 'From the earliest days of the parish\'s founding by the Holy Ghost Fathers in 1912, the Blessed Virgin Mary has occupied a central place in Kalimoni\'s Catholic life. The parish\'s patron — St. Theresa — is herself associated with deep Marian devotion, and her intercession has been invoked across more than a century of parish life.' },
-      { type: 'quote', content: '"The Rosary is the Gospel on a string. Every bead is a moment with Jesus, seen through the eyes of His mother." — Parish Priest, St. Theresa Parish' },
+      { type: 'quote', content: '"The Rosary is the Gospel on a string. Every bead is a moment with Jesus, seen through the eyes of His mother." — Parish Priest, St. Theresa Kalimoni Parish' },
       { type: 'image', src: 'photo-1606860512248-65d100981198', alt: 'Hands holding a rosary', caption: 'A parishioner holds their rosary after morning prayer at the Grotto.' },
       { type: 'heading', content: 'The October Challenge' },
       { type: 'paragraph', content: 'Every October — the month of the Rosary — the parish challenges every Jumuiya to pray the Rosary together at least once a week. By the end of October 2024, all 72 Jumuiyas had reported completing the challenge, some multiple times. The Grotto, consecrated just months later, was in many ways the fruit of that month of prayer.' },

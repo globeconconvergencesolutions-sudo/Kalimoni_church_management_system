@@ -113,7 +113,7 @@ export default function AdminInbox() {
             </div>
             <div className="flex flex-wrap gap-2 mt-3">
               <a
-                href={`mailto:${m.email}?subject=${encodeURIComponent(`Re: ${m.subject || 'St. Theresa Parish'}`)}`}
+                href={`mailto:${m.email}?subject=${encodeURIComponent(`Re: ${m.subject || 'St. Theresa Kalimoni Parish'}`)}`}
                 className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px] flex items-center"
                 style={{ border: '1px solid #C8922A', color: '#6B1A2A', fontFamily: "'DM Mono', monospace" }}
               >

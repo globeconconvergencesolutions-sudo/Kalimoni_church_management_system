@@ -71,7 +71,7 @@ create policy "staff_delete_notices"
 
 insert into public.notices (title, body, severity, pin, published)
 select
-  'Karibu — welcome to St. Theresa Parish',
+  'Karibu — welcome to St. Theresa Kalimoni Parish',
   'Sunday Mass at 7:30 AM and 9:30 AM. Join us in Kalimoni, Juja — all are welcome in Christ.',
   'info',
   true,

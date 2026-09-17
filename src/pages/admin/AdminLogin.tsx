@@ -80,7 +80,7 @@ export default function AdminLogin() {
           </div>
           <img
             src={officialLogo}
-            alt="St. Theresa Catholic Church Kalimoni"
+            alt="St. Theresa Kalimoni Parish"
             className="rounded-full object-contain mb-8"
             style={{ width: 88, height: 88, backgroundColor: '#fff', boxShadow: `0 0 0 2px ${office.gold}` }}
           />
@@ -88,7 +88,7 @@ export default function AdminLogin() {
             Parish<br />office
           </h1>
           <p className="text-sm max-w-sm leading-relaxed" style={{ color: 'rgba(240,232,216,0.62)' }}>
-            For clergy, secretaries, and the communications team of St. Theresa Parish, Kalimoni —
+            For clergy, secretaries, and the communications team of St. Theresa Kalimoni Parish —
             notices, Mass times, the calendar, and the inbox gathered in one quiet house.
           </p>
         </div>
@@ -101,12 +101,12 @@ export default function AdminLogin() {
         <div className="lg:hidden flex flex-col items-center mb-10">
           <img
             src={officialLogo}
-            alt="St. Theresa Parish"
+            alt="St. Theresa Kalimoni Parish"
             className="rounded-full object-contain mb-4"
             style={{ width: 72, height: 72, backgroundColor: '#fff', boxShadow: `0 0 0 2px ${office.gold}` }}
           />
           <div className="text-[10px] tracking-[0.28em] uppercase" style={{ color: office.gold, fontFamily: "'DM Mono', monospace" }}>
-            St. Theresa · Kalimoni
+            St. Theresa Kalimoni Parish
           </div>
         </div>
         <form onSubmit={e => { void onSubmit(e) }} className="w-full max-w-md mx-auto">

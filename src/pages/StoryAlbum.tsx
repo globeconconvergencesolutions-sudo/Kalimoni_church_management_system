@@ -24,7 +24,7 @@ export default function StoryAlbum() {
 
   useSEO({
     title: album?.title || 'Photo story',
-    description: album?.summary || 'A photo story from St. Theresa Parish, Kalimoni.',
+    description: album?.summary || 'A photo story from St. Theresa Kalimoni Parish.',
     path: `/stories/${slug}`,
   })
 

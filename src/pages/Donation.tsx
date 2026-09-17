@@ -43,7 +43,7 @@ const PAYMENT_METHODS = [
     ),
     fields: [
       { label: 'Bank Name', value: 'Kenya Commercial Bank (KCB)', note: '' },
-      { label: 'Account Name', value: 'St. Theresa Parish Kalimoni', note: '' },
+      { label: 'Account Name', value: 'St. Theresa Kalimoni Parish', note: '' },
       { label: 'Account Number', value: '1234567890', note: '(to be confirmed)' },
       { label: 'Branch', value: 'Juja Branch', note: '' },
       { label: 'Swift Code', value: 'KCBLKENX', note: '(international transfers)' },
@@ -219,7 +219,7 @@ const CURRENCIES = [
 ]
 
 export default function Donation() {
-  useSEO({ title: 'Donate', description: 'Support the mission of St. Theresa Parish, Kalimoni. Fund the hospital, school, church building, and community outreach — donations accepted in KES, USD, GBP, EUR and more.', path: '/donate' })
+  useSEO({ title: 'Donate', description: 'Support the mission of St. Theresa Kalimoni Parish. Fund the hospital, school, church building, and community outreach — donations accepted in KES, USD, GBP, EUR and more.', path: '/donate' })
   const [selectedCause, setSelectedCause] = useState('hospital')
   const [amount, setAmount] = useState(1000)
   const [customAmount, setCustomAmount] = useState('')

@@ -39,7 +39,7 @@ export default function AdminDashboard() {
     <OfficePage
       kicker="Parish house"
       title="Peace be with you"
-      lede="Welcome to the working table for St. Theresa Parish, Kalimoni."
+      lede="Welcome to the working table for St. Theresa Kalimoni Parish."
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
         {cards.map(card => (

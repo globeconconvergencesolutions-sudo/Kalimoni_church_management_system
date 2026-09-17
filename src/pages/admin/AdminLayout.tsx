@@ -167,7 +167,7 @@ export default function AdminLayout() {
           />
           <div>
             <div className="text-[9px] tracking-[0.2em] uppercase" style={{ color: office.gold, fontFamily: "'DM Mono', monospace" }}>
-              St. Theresa
+              St. Theresa Kalimoni
             </div>
             <div className="text-white font-semibold text-sm leading-tight" style={{ fontFamily: "'Lora', serif" }}>
               Parish office

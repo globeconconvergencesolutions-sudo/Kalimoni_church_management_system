@@ -53,7 +53,7 @@ const PHOTO_SLIDES = [
   { img: 'photo-1622598453695-4fbaf151aadc', caption: 'Parish Community at Sunday Eucharist', sub: 'Joyful worship at the heart of Kalimoni' },
   { img: 'photo-1720186576697-24c1496a07e1', caption: 'A Faith Community United in Prayer', sub: 'Every Sunday, hundreds gather in praise' },
   { img: 'photo-1563902341721-029085ad9347', caption: 'Serving God, Serving Humanity', sub: 'The Vincentian spirit lived out daily' },
-  { img: 'photo-1759178124741-8d3a8aaab778', caption: 'St. Theresa Parish, Kalimoni', sub: 'A sacred home since 1912' },
+  { img: 'photo-1759178124741-8d3a8aaab778', caption: 'St. Theresa Kalimoni Parish', sub: 'A sacred home since 1912' },
   { img: 'photo-1494548162494-384bba4ab999', caption: 'Light at the End of Every Day', sub: 'Hope, faith, and community guide our way' },
 ]
 
@@ -68,11 +68,11 @@ const MINISTRIES = [
   { to: '/ministries', label: 'Catholic Women Association', desc: 'CWA — women of faith shaping parish life through service, devotion, and community care.', img: 'photo-1609234656388-0ff363383899', accent: '#C8922A', tag: 'CWA' },
   { to: '/ministries', label: 'Catholic Men Association', desc: 'CMA — men united in prayer, charity, and building up the physical and spiritual parish.', img: 'photo-1622598453695-4fbaf151aadc', accent: '#6B1A2A', tag: 'CMA' },
   { to: '/ministries', label: 'Young Catholic Adults', desc: 'YCA — faith-filled young adults growing in discipleship, fellowship, and apostolic service.', img: 'photo-1781263378223-1e09658a7567', accent: '#4A3A10', tag: 'YCA' },
-  { to: '/ministries', label: 'Youths Serving Christ', desc: 'YSC — the vibrant youth ministry of St. Theresa, alive in worship, outreach, and joy.', img: 'photo-1547496613-4e19af6736dc', accent: '#1A3A4A', tag: 'YSC' },
+  { to: '/ministries', label: 'Youths Serving Christ', desc: 'YSC — the vibrant youth ministry of St. Theresa Kalimoni Parish, alive in worship, outreach, and joy.', img: 'photo-1547496613-4e19af6736dc', accent: '#1A3A4A', tag: 'YSC' },
 ]
 
 const TESTIMONIALS = [
-  { quote: "St. Theresa Parish has been the anchor of our family for over twenty years. The Vincentian Fathers do not merely preach — they live the Gospel with us, side by side.", name: 'Wambui N.', role: 'Parish Council Member, Kalimoni', initial: 'W' },
+  { quote: "St. Theresa Kalimoni Parish has been the anchor of our family for over twenty years. The Vincentian Fathers do not merely preach — they live the Gospel with us, side by side.", name: 'Wambui N.', role: 'Parish Council Member, Kalimoni', initial: 'W' },
   { quote: "Even from thousands of miles away in the UK, I keep faith with my home parish. Knowing the Sisters are caring for the sick and the school is nurturing our children gives me deep peace.", name: 'Joseph M.', role: 'Kenyan Diaspora, United Kingdom', initial: 'J' },
   { quote: "The 72 Jumuiyas are the heartbeat of this parish. Our small community prays together, supports each other in need, and walks together with Christ.", name: 'Mercy A.', role: 'Jumuiya Leader, Ruiru Deanery', initial: 'M' },
   { quote: "The Grotto built by our men's association has become the most visited corner of the parish grounds. It reminds us that prayer is the foundation of every good work.", name: 'Peter K.', role: 'Catholic Men Association, Kalimoni', initial: 'P' },
@@ -552,7 +552,7 @@ function NewsletterCTA() {
 
 export default function Home() {
   useSEO({
-    title: 'St. Theresa Parish, Kalimoni',
+    title: 'St. Theresa Kalimoni Parish',
     description: 'Catholic parish serving Kalimoni, Juja, Kiambu County, Kenya since 1912. 72 Jumuiyas, Vincentian Fathers, HHCJ Sisters, Kalimoni Hospital, and Parish School.',
     path: '/',
   })
@@ -638,24 +638,23 @@ export default function Home() {
               className="font-bold text-white"
               style={{
                 fontFamily: "'Lora', serif",
-                fontSize: 'clamp(3.6rem, 10.5vw, 7.8rem)',
-                lineHeight: 0.91,
-                letterSpacing: '-0.036em',
+                fontSize: 'clamp(2.8rem, 8.5vw, 6.2rem)',
+                lineHeight: 0.94,
+                letterSpacing: '-0.032em',
               }}
             >
-              <span className="block">St.</span>
-              <span className="block">Theresa</span>
+              <span className="block">St. Theresa</span>
               <em
                 className="block not-italic font-normal"
-                style={{ color: '#E8B84B', fontSize: '119px', lineHeight: 1.0 }}
+                style={{ color: '#E8B84B', fontSize: '0.72em', lineHeight: 1.05 }}
               >
-                Parish,
+                Kalimoni
               </em>
               <span
                 className="block font-light"
-                style={{ color: 'rgba(255,255,255,0.26)', fontSize: '0.64em', lineHeight: 1.28 }}
+                style={{ color: 'rgba(255,255,255,0.42)', fontSize: '0.58em', lineHeight: 1.2, letterSpacing: '0.02em' }}
               >
-                Kalimoni
+                Parish
               </span>
             </h1>
           </div>
@@ -835,7 +834,7 @@ export default function Home() {
             "Service to God through<br className="hidden sm:block" /> service to humanity."
           </blockquote>
           <p className="text-xs tracking-[0.2em] uppercase mb-8 sm:mb-10" style={{ color: 'rgba(200,146,42,0.7)', fontFamily: "'DM Mono', monospace" }}>
-            Guiding St. Theresa Parish, Kalimoni since 2000
+            Guiding St. Theresa Kalimoni Parish since 2000
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center">
             <Link

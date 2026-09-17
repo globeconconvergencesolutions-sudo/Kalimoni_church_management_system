@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-const SITE_NAME = 'St. Theresa Parish, Kalimoni'
+const SITE_NAME = 'St. Theresa Kalimoni Parish'
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1759178124741-8d3a8aaab778?w=1200&h=630&fit=crop&auto=format'
 const BASE_URL = 'https://sttheresakalimoni.org'
 

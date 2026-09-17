@@ -31,7 +31,7 @@ export default class AppErrorBoundary extends Component<Props, State> {
             className="text-[10px] tracking-[0.28em] uppercase mb-4"
             style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}
           >
-            St. Theresa · Kalimoni
+            St. Theresa Kalimoni Parish
           </div>
           <h1 className="text-3xl font-bold mb-3" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
             {details.title}

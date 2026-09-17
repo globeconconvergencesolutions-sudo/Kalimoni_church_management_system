@@ -131,19 +131,19 @@ export default function Layout() {
         <div className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-14 sm:h-16">
 
           {/* Logo — always visible */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0" aria-label="St. Theresa Parish Home">
+          <Link to="/" className="flex items-center gap-2.5 shrink-0" aria-label="St. Theresa Kalimoni Parish Home">
             <img
               src={officialLogo}
-              alt="St. Theresa Catholic Church Kalimoni"
+              alt="St. Theresa Kalimoni Parish"
               className="xl:hidden object-contain rounded-full"
               style={{ width: 42, height: 42, backgroundColor: '#fff', boxShadow: '0 0 0 1.5px rgba(200,146,42,0.4)' }}
             />
             <div className="flex flex-col leading-tight">
               <span className="text-[9px] tracking-[0.18em] uppercase" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
-                {lang === 'sw' ? 'Kanisa · Kalimoni' : 'Catholic Church · Kalimoni'}
+                {lang === 'sw' ? 'Kanisa Katoliki' : 'Catholic Church'}
               </span>
               <span className="text-white font-semibold text-sm leading-tight" style={{ fontFamily: "'Lora', serif" }}>
-                St. Theresa
+                St. Theresa Kalimoni Parish
               </span>
             </div>
           </Link>
@@ -257,7 +257,7 @@ export default function Layout() {
               <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight" style={{ fontFamily: "'Lora', serif" }}>
                 {t('Support the Mission', 'Saidia utume')}
                 <br className="hidden sm:block" />
-                {t(' of St. Theresa Parish', ' wa Parokia ya St. Theresa')}
+                {t(' of St. Theresa Kalimoni Parish', ' wa Parokia ya St. Theresa Kalimoni')}
               </h2>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
@@ -289,13 +289,13 @@ export default function Layout() {
                 <div className="flex items-center gap-3 mb-4">
                   <img
                     src={officialLogo}
-                    alt="St. Theresa Catholic Church Kalimoni"
+                    alt="St. Theresa Kalimoni Parish"
                     className="object-contain rounded-full shrink-0"
                     style={{ width: 52, height: 52, backgroundColor: '#fff', boxShadow: '0 0 0 1.5px rgba(200,146,42,0.35)' }}
                   />
                   <div>
                     <div className="text-[10px] tracking-[0.2em] uppercase" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>{t('Catholic Church · Est. 1927', 'Kanisa Katoliki · 1927')}</div>
-                    <div className="text-white font-semibold text-sm" style={{ fontFamily: "'Lora', serif" }}>St. Theresa, Kalimoni</div>
+                    <div className="text-white font-semibold text-sm" style={{ fontFamily: "'Lora', serif" }}>St. Theresa Kalimoni Parish</div>
                   </div>
                 </div>
                 <p className="text-sm leading-relaxed mb-6 max-w-xs" style={{ color: '#5A4E48' }}>
@@ -366,7 +366,7 @@ export default function Layout() {
             {/* Bottom row */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center justify-between">
               <div className="text-xs leading-relaxed" style={{ color: '#3A3530', fontFamily: "'DM Mono', monospace" }}>
-                © 2026 St. Theresa Parish, Kalimoni. All rights reserved. Est. 1927.
+                © 2026 St. Theresa Kalimoni Parish. All rights reserved. Est. 1927.
               </div>
               <div className="flex flex-wrap gap-4 sm:gap-6 text-xs items-center" style={{ fontFamily: "'DM Mono', monospace" }}>
                 {[
@@ -407,7 +407,7 @@ export default function Layout() {
 
       {/* WhatsApp FAB */}
       <a
-        href="https://wa.me/254704358594?text=Hello%20St.%20Theresa%20Parish%2C%20Kalimoni.%20I%20would%20like%20to%20get%20in%20touch."
+        href="https://wa.me/254704358594?text=Hello%20St.%20Theresa%20Kalimoni%20Parish.%20I%20would%20like%20to%20get%20in%20touch."
         target="_blank"
         rel="noopener noreferrer"
         className="fixed z-40 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"

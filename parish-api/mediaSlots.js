@@ -20,7 +20,7 @@ const parishLifeDefaults = [
   { caption: 'Parish Community at Sunday Eucharist', sub: 'Joyful worship at the heart of Kalimoni', fallback: 'photo-1622598453695-4fbaf151aadc' },
   { caption: 'A Faith Community United in Prayer', sub: 'Every Sunday, hundreds gather in praise', fallback: 'photo-1720186576697-24c1496a07e1' },
   { caption: 'Serving God, Serving Humanity', sub: 'The Vincentian spirit lived out daily', fallback: 'photo-1563902341721-029085ad9347' },
-  { caption: 'St. Theresa Parish, Kalimoni', sub: 'A sacred home since 1912', fallback: 'photo-1759178124741-8d3a8aaab778' },
+  { caption: 'St. Theresa Kalimoni Parish', sub: 'A sacred home since 1912', fallback: 'photo-1759178124741-8d3a8aaab778' },
   { caption: 'Light at the End of Every Day', sub: 'Hope, faith, and community guide our way', fallback: 'photo-1494548162494-384bba4ab999' },
 ]
 

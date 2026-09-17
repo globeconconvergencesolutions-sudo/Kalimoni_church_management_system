@@ -88,7 +88,7 @@ export default function BlogPost() {
 
   useSEO({
     title: post?.title ?? 'Article',
-    description: post?.excerpt ?? 'Parish news from St. Theresa Parish, Kalimoni.',
+    description: post?.excerpt ?? 'Parish news from St. Theresa Kalimoni Parish.',
     path: `/blog/${slug ?? ''}`,
   })
 
@@ -214,7 +214,7 @@ export default function BlogPost() {
             {/* About the parish */}
             <div className="p-5 sm:p-6" style={{ backgroundColor: '#6B1A2A' }}>
               <div className="text-xs tracking-widest uppercase mb-3" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>About the Parish</div>
-              <h3 className="text-lg font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>St. Theresa Parish, Kalimoni</h3>
+              <h3 className="text-lg font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>St. Theresa Kalimoni Parish</h3>
               <p className="text-xs leading-relaxed mb-4" style={{ color: '#F0E8D8AA' }}>
                 Located in Juja, Kiambu County, Kenya — serving the faithful since 1912 through the Vincentian Congregation and HHCJ Sisters.
               </p>

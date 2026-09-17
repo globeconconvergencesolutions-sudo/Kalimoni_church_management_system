@@ -11,7 +11,7 @@ const PILLARS = [
 
 export default function About() {
   const site = useSiteMedia()
-  useSEO({ title: 'About Us', description: 'Learn about the vision, mission, and identity of St. Theresa Parish, Kalimoni — a Catholic community in Juja, Kiambu County, Kenya, serving since 1912.', path: '/about' })
+  useSEO({ title: 'About Us', description: 'Learn about the vision, mission, and identity of St. Theresa Kalimoni Parish — a Catholic community in Juja, Kiambu County, Kenya, serving since 1912.', path: '/about' })
   return (
     <div>
       {/* HERO */}
@@ -34,7 +34,7 @@ export default function About() {
             A Living Church<br />in the Heart of Juja
           </h1>
           <p className="text-sm sm:text-base md:text-lg max-w-xl leading-relaxed" style={{ color: '#F0E8D8AA' }}>
-            St. Theresa Parish, Kalimoni has been a beacon of faith, hope, and charity in
+            St. Theresa Kalimoni Parish has been a beacon of faith, hope, and charity in
             Kiambu County, Kenya, since the Holy Ghost Fathers arrived in 1912.
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function About() {
               Faith Rooted in<br />East African Soil
             </h2>
             <p className="text-sm sm:text-base leading-relaxed mb-4" style={{ color: '#4A3A30' }}>
-              St. Theresa Parish, Kalimoni is located in <strong>Kalimoni, Juja, Kiambu County, Kenya</strong>,
+              St. Theresa Kalimoni Parish is located in <strong>Kalimoni, Juja, Kiambu County, Kenya</strong>,
               within the <strong>Ruiru Deanery</strong> of the Catholic Archdiocese of Nairobi.
             </p>
             <p className="text-sm sm:text-base leading-relaxed mb-4" style={{ color: '#4A3A30' }}>
@@ -137,7 +137,7 @@ export default function About() {
               Fr. Josephh Shijo
             </h2>
             <p className="text-sm sm:text-base leading-relaxed mb-4" style={{ color: '#4A3A30' }}>
-              Fr. Josephh Shijo serves as the Parish Priest of St. Theresa Catholic Church, Kalimoni,
+              Fr. Josephh Shijo serves as the Parish Priest of St. Theresa Kalimoni Parish,
               under the <strong>Vincentian Congregation</strong> within the Catholic Archdiocese of Nairobi.
             </p>
             <p className="text-sm sm:text-base leading-relaxed mb-5" style={{ color: '#4A3A30' }}>
@@ -166,7 +166,7 @@ export default function About() {
                 { label: 'Congregation', value: 'Vincentian (C.M.)' },
                 { label: 'Archdiocese', value: 'Nairobi' },
                 { label: 'Deanery', value: 'Ruiru' },
-                { label: 'Parish', value: 'St. Theresa, Kalimoni' },
+                { label: 'Parish', value: 'St. Theresa Kalimoni Parish' },
               ].map(({ label, value }) => (
                 <div key={label} className="p-4" style={{ backgroundColor: '#F0E8D8' }}>
                   <div className="text-[10px] tracking-widest uppercase mb-1" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>{label}</div>
@@ -217,7 +217,7 @@ export default function About() {
             </h2>
             <div className="flex flex-col gap-3">
               {[
-                ['Parish', 'St. Theresa Parish, Kalimoni'],
+                ['Parish', 'St. Theresa Kalimoni Parish'],
                 ['Deanery', 'Ruiru Deanery'],
                 ['Archdiocese', 'Catholic Archdiocese of Nairobi'],
                 ['County', 'Kiambu County, Kenya'],

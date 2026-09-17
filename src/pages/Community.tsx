@@ -30,7 +30,7 @@ const OUTSTATIONS = [
 export default function Community() {
   useSEO({
     title: 'Our Community',
-    description: '72 Jumuiyas, ministries, outstations, and parish celebrations that make St. Theresa Parish, Kalimoni a living community of faith.',
+    description: '72 Jumuiyas, ministries, outstations, and parish celebrations that make St. Theresa Kalimoni Parish a living community of faith.',
     path: '/community',
   })
   const maxCount = Math.max(...GROWTH_DATA.map(d => d.count))
@@ -179,7 +179,7 @@ export default function Community() {
           <div className="w-full lg:w-1/2 flex flex-col gap-3">
             <img
               src={site.src('community.gallery-a', 'photo-1781263378223-1e09658a7567', 700, 500)}
-              alt="Community celebration at St. Theresa Parish"
+              alt="Community celebration at St. Theresa Kalimoni Parish"
               className="w-full object-cover"
               style={{ height: 'clamp(200px, 40vw, 280px)', backgroundColor: '#D0C4B0' }}
             />

@@ -10,12 +10,12 @@ const ERAS = [
       { year: 1927, text: 'Kalimoni is elevated to full parish status, becoming one of the earliest parishes in the region.' },
       { year: '1927–1999', text: 'The parish grows steadily under the Holy Ghost Fathers, giving birth to many parishes that now form the Ruiru and Thika Deaneries.' },
     ],
-    context: 'The Holy Ghost Fathers (Spiritans) were among the pioneering Catholic missionaries in East Africa. Their arrival in Kalimoni preceded the widespread expansion of the Church inland, making St. Theresa one of the earliest rural parishes in what is now the Archdiocese of Nairobi.',
+    context: 'The Holy Ghost Fathers (Spiritans) were among the pioneering Catholic missionaries in East Africa. Their arrival in Kalimoni preceded the widespread expansion of the Church inland, making St. Theresa Kalimoni Parish one of the earliest rural parishes in what is now the Archdiocese of Nairobi.',
   },
   {
     id: 'vincentian', period: '2000–2015', label: 'The Vincentian Era', color: '#6B1A2A',
     events: [
-      { year: 1999, text: 'The Vincentian Congregation arrives at St. Theresa Parish, initially serving alongside Fr. Gogan H.G.F. of the Holy Ghost Fathers.' },
+      { year: 1999, text: 'The Vincentian Congregation arrives at St. Theresa Kalimoni Parish, initially serving alongside Fr. Gogan H.G.F. of the Holy Ghost Fathers.' },
       { year: 2000, text: 'When Fr. Gogan fell ill, the Bishop entrusted the parish to the Vincentians. Fr. James Edavazhira VC becomes the pioneering parish priest.' },
       { year: 2000, text: 'HHCJ Sisters arrive — Sr. Evangeline Gitonga and Sr. Theresa Barnie — taking over the dispensary.' },
       { year: 2002, text: 'Parish has 15 Jumuiyas (Small Christian Communities).' },
@@ -46,7 +46,7 @@ const DAUGHTERS = [
 export default function History() {
   useSEO({
     title: 'Our History',
-    description: 'From a 1912 Holy Ghost Fathers mission to a thriving parish of 72 Jumuiyas — the story of St. Theresa Parish, Kalimoni.',
+    description: 'From a 1912 Holy Ghost Fathers mission to a thriving parish of 72 Jumuiyas — the story of St. Theresa Kalimoni Parish.',
     path: '/history',
   })
   const [activeEra, setActiveEra] = useState('founding')

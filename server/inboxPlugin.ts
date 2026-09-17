@@ -97,14 +97,14 @@ function visitorEmail(payload: InboxPayload): { subject: string; text: string; h
         ? 'You are on the parish news list. We will write when there is something worth sharing.'
         : payload.kind === 'giving'
           ? 'Thank you for your generosity. This note is not a payment receipt — please complete giving via the M-Pesa or bank details on the donate page. The office will follow up if needed.'
-          : 'Thank you for writing to St. Theresa Parish, Kalimoni. We will reply as soon as we can.'
+          : 'Thank you for writing to St. Theresa Kalimoni Parish. We will reply as soon as we can.'
   return {
-    subject: 'St. Theresa Parish, Kalimoni — we received your message',
-    text: `Dear ${payload.name || 'friend'},\n\n${thanks}\n\nPeace,\nSt. Theresa Parish, Kalimoni`,
+    subject: 'St. Theresa Kalimoni Parish — we received your message',
+    text: `Dear ${payload.name || 'friend'},\n\n${thanks}\n\nPeace,\nSt. Theresa Kalimoni Parish`,
     html: `<div style="font-family:Georgia,serif;color:#1C1A18">
   <p>Dear ${escapeHtml(payload.name || 'friend')},</p>
   <p>${escapeHtml(thanks)}</p>
-  <p>Peace,<br/>St. Theresa Parish, Kalimoni</p>
+  <p>Peace,<br/>St. Theresa Kalimoni Parish</p>
 </div>`,
   }
 }
@@ -180,7 +180,7 @@ export function parishInboxPlugin(env: Record<string, string>): Plugin {
         })
         const office = officeEmail(payload, notifyTo)
         await transporter.sendMail({
-          from: `"St. Theresa Parish Kalimoni" <${gmailUser}>`,
+          from: `"St. Theresa Kalimoni Parish" <${gmailUser}>`,
           to: notifyTo,
           replyTo: payload.email,
           subject: office.subject,
@@ -189,7 +189,7 @@ export function parishInboxPlugin(env: Record<string, string>): Plugin {
         })
         const visitor = visitorEmail(payload)
         await transporter.sendMail({
-          from: `"St. Theresa Parish Kalimoni" <${gmailUser}>`,
+          from: `"St. Theresa Kalimoni Parish" <${gmailUser}>`,
           to: payload.email,
           replyTo: notifyTo,
           subject: visitor.subject,

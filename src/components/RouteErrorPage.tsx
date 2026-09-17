@@ -40,7 +40,7 @@ export default function RouteErrorPage({ scope = 'public' }: RouteErrorPageProps
           className="text-[10px] tracking-[0.28em] uppercase mb-4"
           style={{ color: gold, fontFamily: "'DM Mono', monospace" }}
         >
-          {details.kind === 'not_found' ? '404' : 'St. Theresa · Kalimoni'}
+          {details.kind === 'not_found' ? '404' : 'St. Theresa Kalimoni Parish'}
         </div>
         <h1 className="text-3xl font-bold mb-3" style={{ fontFamily: "'Lora', serif", color: wine }}>
           {details.title}
