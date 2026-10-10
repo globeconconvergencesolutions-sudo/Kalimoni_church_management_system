@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { fetchFeaturedAlbum, type MediaAlbumWithCover } from '../lib/mediaAlbums'
-import { parishImage } from '../lib/media'
+import { parishImage, parishVideoPoster } from '../lib/media'
 
 export default function FeaturedStorySpotlight() {
   const [album, setAlbum] = useState<MediaAlbumWithCover | null>(null)
@@ -13,7 +13,9 @@ export default function FeaturedStorySpotlight() {
   if (!album) return null
 
   const cover = album.cover
-    ? parishImage(album.cover.cloudinary_id || album.cover.url, 1200, 800)
+    ? album.cover.media_type === 'video'
+      ? parishVideoPoster(album.cover.cloudinary_id || album.cover.url, 1200, 800)
+      : parishImage(album.cover.cloudinary_id || album.cover.url, 1200, 800)
     : ''
 
   return (
@@ -30,6 +32,14 @@ export default function FeaturedStorySpotlight() {
           >
             {album.category}
           </span>
+          {album.cover?.media_type === 'video' ? (
+            <span
+              className="absolute bottom-4 right-4 text-[9px] tracking-widest uppercase px-2.5 py-1"
+              style={{ backgroundColor: 'rgba(200,146,42,0.95)', color: '#1C1A18', fontFamily: "'DM Mono', monospace" }}
+            >
+              Includes video
+            </span>
+          ) : null}
         </div>
         <div className="order-1 lg:order-2">
           <div className="text-[10px] tracking-[0.28em] uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
@@ -52,7 +62,7 @@ export default function FeaturedStorySpotlight() {
               className="inline-flex items-center px-6 py-3 text-sm font-semibold min-h-[48px]"
               style={{ backgroundColor: '#6B1A2A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
             >
-              See the photos
+              See photos & videos
             </Link>
             {album.related_post_slug ? (
               <Link

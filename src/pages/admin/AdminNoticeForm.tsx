@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import { createNotice, fetchNotice, updateNotice } from '../../lib/notices'
 import { getSupabase } from '../../lib/supabase'
 import type { NoticeDraft, NoticeSeverity } from '../../lib/noticeTypes'
-import OfficePage, { OfficeButton } from '../../components/office/OfficePage'
+import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 import { office } from '../../components/office/officeTheme'
 
 function toLocalInput(iso: string | null): string {
@@ -108,6 +108,7 @@ export default function AdminNoticeForm() {
       lede="A few clear words for the bar under the parish menu."
       back={{ to: '/admin/notices', label: 'All notices' }}
     >
+      {error ? <OfficeAlert tone="error">{error}</OfficeAlert> : null}
       <form onSubmit={e => { void onSubmit(e) }} className="flex flex-col gap-4 max-w-2xl">
         <label className="text-xs" style={{ color: '#6B6259' }}>Title</label>
         <input
@@ -165,8 +166,7 @@ export default function AdminNoticeForm() {
             />
           </div>
         </div>
-        {error ? <p className="text-sm" style={{ color: office.wine }}>{error}</p> : null}
-        <OfficeButton type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save notice'}</OfficeButton>
+        <OfficeButton type="submit" disabled={busy}>{busy ? 'Saving…' : isNew ? 'Publish notice' : 'Save changes'}</OfficeButton>
       </form>
     </OfficePage>
   )

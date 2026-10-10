@@ -135,7 +135,7 @@ export const POSTS: BlogPost[] = [
       { type: 'image', src: 'photo-1547471080-7cc2caa01a7e', alt: 'Golden hour at Kalimoni', caption: 'The parish grounds at golden hour — where the new crucifix now stands as a landmark of faith.' },
       { type: 'heading', content: 'The Moment It All Came Together' },
       { type: 'paragraph', content: 'As the crowd arrived at the crucifix on Good Friday, there was a long moment of silence. Hundreds of parishioners — young and old — stood before the cross under an open sky. The passion reading was proclaimed, prayers were offered, and the youth who had built it knelt in the front row.' },
-      { type: 'paragraph', content: 'Parish Priest Fr. [Name] VC commended the youth for their initiative, calling the crucifix "a sign that the next generation is not abandoning the faith — they are carrying it forward, quite literally, on their shoulders."' },
+      { type: 'paragraph', content: 'Parish Priest Rev. Fr. Joseph Shijo commended the youth for their initiative, calling the crucifix "a sign that the next generation is not abandoning the faith — they are carrying it forward, quite literally, on their shoulders."' },
     ],
   },
   {
@@ -202,7 +202,7 @@ export const POSTS: BlogPost[] = [
       { type: 'paragraph', content: 'This scene, replicated in homes, Jumuiya gatherings, and hospital corridors across the parish, points to something essential about the spiritual identity of St. Theresa Kalimoni Parish: a deep, embodied devotion to Our Lady that has shaped every generation of the faithful here.' },
       { type: 'heading', content: 'Marian Devotion Through the Ages' },
       { type: 'paragraph', content: 'From the earliest days of the parish\'s founding by the Holy Ghost Fathers in 1912, the Blessed Virgin Mary has occupied a central place in Kalimoni\'s Catholic life. The parish\'s patron — St. Theresa — is herself associated with deep Marian devotion, and her intercession has been invoked across more than a century of parish life.' },
-      { type: 'quote', content: '"The Rosary is the Gospel on a string. Every bead is a moment with Jesus, seen through the eyes of His mother." — Parish Priest, St. Theresa Kalimoni Parish' },
+      { type: 'quote', content: '"The Rosary is the Gospel on a string. Every bead is a moment with Jesus, seen through the eyes of His mother." — Rev. Fr. Joseph Shijo, Parish Priest, St. Theresa Kalimoni Parish' },
       { type: 'image', src: 'photo-1606860512248-65d100981198', alt: 'Hands holding a rosary', caption: 'A parishioner holds their rosary after morning prayer at the Grotto.' },
       { type: 'heading', content: 'The October Challenge' },
       { type: 'paragraph', content: 'Every October — the month of the Rosary — the parish challenges every Jumuiya to pray the Rosary together at least once a week. By the end of October 2024, all 72 Jumuiyas had reported completing the challenge, some multiple times. The Grotto, consecrated just months later, was in many ways the fruit of that month of prayer.' },

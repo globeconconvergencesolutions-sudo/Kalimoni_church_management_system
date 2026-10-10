@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { deleteNotice, fetchAllNotices } from '../../lib/notices'
+import { deleteNotice, fetchAllNotices, updateNotice } from '../../lib/notices'
 import type { Notice } from '../../lib/noticeTypes'
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
+import { useOfficeConfirm } from '../../components/office/useOfficeConfirm'
 import { office } from '../../components/office/officeTheme'
 
 export default function AdminNotices() {
+  const { confirm, dialog: confirmDialog } = useOfficeConfirm()
   const [notices, setNotices] = useState<Notice[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [ok, setOk] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
 
   const load = async () => {
@@ -20,17 +23,50 @@ export default function AdminNotices() {
     void load()
   }, [])
 
-  const onDelete = async (id: string) => {
-    if (!window.confirm('Remove this notice from the website?')) return
-    setBusyId(id)
-    const err = await deleteNotice(id)
+  const onTogglePublish = async (n: Notice) => {
+    setBusyId(n.id)
+    setError(null)
+    setOk(null)
+    const result = await updateNotice(n.id, {
+      title: n.title,
+      body: n.body,
+      severity: n.severity,
+      pin: n.pin,
+      starts_at: n.starts_at,
+      ends_at: n.ends_at,
+      published: !n.published,
+    })
+    setBusyId(null)
+    if (result.error) {
+      setError(result.error)
+      return
+    }
+    setOk(n.published ? 'Notice unpublished.' : 'Notice published.')
+    await load()
+  }
+
+  const onDelete = async (n: Notice) => {
+    const okConfirm = await confirm({
+      title: 'Remove this notice?',
+      description: `"${n.title}" will disappear from the notice bar. This cannot be undone.`,
+      confirmLabel: 'Remove',
+      tone: 'danger',
+    })
+    if (!okConfirm) return
+    setBusyId(n.id)
+    setError(null)
+    setOk(null)
+    const err = await deleteNotice(n.id)
     setBusyId(null)
     if (err) {
       setError(err)
       return
     }
+    setOk('Notice removed.')
     await load()
   }
+
+  const liveCount = notices.filter(n => n.published).length
 
   return (
     <OfficePage
@@ -39,7 +75,14 @@ export default function AdminNotices() {
       lede="Words parishioners see at the top of the website. Urgent notices also open in a welcome greeting."
       action={<OfficeButton to="/admin/notices/new">New notice</OfficeButton>}
     >
-      {error ? <OfficeAlert>{error}</OfficeAlert> : null}
+      {confirmDialog}
+      {error ? <OfficeAlert tone="error">{error}</OfficeAlert> : null}
+      {ok ? <OfficeAlert tone="ok">{ok}</OfficeAlert> : null}
+
+      <p className="text-xs mb-4" style={{ color: office.mute }}>
+        {notices.length} notice{notices.length === 1 ? '' : 's'} · {liveCount} live on the site
+      </p>
+
       {notices.length === 0 && !error ? (
         <p className="text-sm" style={{ color: office.mute }}>No notices yet. Write the first one for Sunday.</p>
       ) : (
@@ -57,9 +100,26 @@ export default function AdminNotices() {
                 <div className="font-semibold text-lg" style={{ fontFamily: "'Lora', serif", color: office.burgundy }}>{n.title}</div>
                 {n.body ? <p className="text-sm mt-1 line-clamp-2" style={{ color: office.mute }}>{n.body}</p> : null}
               </div>
-              <div className="flex gap-2 shrink-0">
+              <div className="flex flex-wrap gap-2 shrink-0">
                 <Link to={`/admin/notices/${n.id}`} className="px-3 py-2 text-[10px] uppercase tracking-widest min-h-[44px] flex items-center" style={{ border: `1px solid ${office.gold}`, color: office.wine, fontFamily: "'DM Mono', monospace" }}>Edit</Link>
-                <button type="button" disabled={busyId === n.id} onClick={() => { void onDelete(n.id) }} className="px-3 py-2 text-[10px] uppercase tracking-widest min-h-[44px]" style={{ color: office.wine, fontFamily: "'DM Mono', monospace" }}>Remove</button>
+                <button
+                  type="button"
+                  disabled={busyId === n.id}
+                  onClick={() => { void onTogglePublish(n) }}
+                  className="px-3 py-2 text-[10px] uppercase tracking-widest min-h-[44px]"
+                  style={{ border: `1px solid ${office.gold}`, color: office.wine, fontFamily: "'DM Mono', monospace", background: '#fff' }}
+                >
+                  {n.published ? 'Unpublish' : 'Publish'}
+                </button>
+                <button
+                  type="button"
+                  disabled={busyId === n.id}
+                  onClick={() => { void onDelete(n) }}
+                  className="px-3 py-2 text-[10px] uppercase tracking-widest min-h-[44px]"
+                  style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
+                >
+                  Remove
+                </button>
               </div>
             </div>
           ))}

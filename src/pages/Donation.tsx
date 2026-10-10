@@ -44,15 +44,16 @@ const PAYMENT_METHODS = [
     fields: [
       { label: 'Bank Name', value: 'Kenya Commercial Bank (KCB)', note: '' },
       { label: 'Account Name', value: 'St. Theresa Kalimoni Parish', note: '' },
-      { label: 'Account Number', value: '1234567890', note: '(to be confirmed)' },
+      { label: 'Account Number', value: 'Request from the parish office', note: '' },
       { label: 'Branch', value: 'Juja Branch', note: '' },
       { label: 'Swift Code', value: 'KCBLKENX', note: '(international transfers)' },
     ],
     steps: [
+      'Email sttheresakalimoniparish@gmail.com for the current account number',
       'Use your bank app or visit any KCB branch',
-      'Quote account name and number above',
-      'For international: use Swift code KCBLKENX',
-      'Email receipt to sttheresakalimoniparish@gmail.com',
+      'Quote the account name and number provided by the parish',
+      'For international transfers: use Swift code KCBLKENX',
+      'Email your receipt to sttheresakalimoniparish@gmail.com',
     ],
   },
   {
@@ -67,20 +68,18 @@ const PAYMENT_METHODS = [
       </svg>
     ),
     fields: [
-      { label: 'PayPal Email', value: 'sttheresakalimoniparish@gmail.com', note: '(to be confirmed)' },
-      { label: 'PayPal.Me', value: 'paypal.me/StTheresaKalimoni', note: '(to be set up)' },
+      { label: 'PayPal Email', value: 'sttheresakalimoniparish@gmail.com', note: '' },
     ],
     steps: [
       'Log in to your PayPal account',
       'Send to: sttheresakalimoniparish@gmail.com',
-      'Or use PayPal.me link above',
-      'Select "Friends & Family" to avoid fees',
-      'Add cause name in the note field',
+      'Select "Friends & Family" where available to avoid fees',
+      'Add the cause name in the note field',
     ],
   },
   {
     id: 'stripe',
-    label: 'Stripe / Card',
+    label: 'Card Payment',
     tag: 'Credit & Debit Cards',
     bg: '#635BFF',
     labelColor: '#C8C4FF',
@@ -91,14 +90,12 @@ const PAYMENT_METHODS = [
     ),
     fields: [
       { label: 'Cards Accepted', value: 'Visa · Mastercard · Amex', note: '' },
-      { label: 'Processing', value: 'Secure 3D-authenticated payment', note: '' },
-      { label: 'Setup Status', value: 'Integration pending', note: '(contact parish)' },
+      { label: 'Arranged through', value: 'Parish office', note: '' },
     ],
     steps: [
-      'Stripe card payment will be available soon',
-      'For now: use M-Pesa, PayPal, or Bank Transfer',
-      'Contact the parish for card payment arrangements',
-      'Email: sttheresakalimoniparish@gmail.com',
+      'Email sttheresakalimoniparish@gmail.com to arrange a card payment',
+      'Or use M-Pesa, PayPal, or bank transfer above',
+      'Include your name, amount, and the cause you wish to support',
     ],
   },
   {
@@ -114,14 +111,14 @@ const PAYMENT_METHODS = [
       </svg>
     ),
     fields: [
-      { label: 'Receiver Name', value: 'Fr. Josephh Shijo', note: '(parish account)' },
+      { label: 'Receiver Name', value: 'Rev. Fr. Joseph Shijo', note: '(parish account)' },
       { label: 'Country', value: 'Kenya', note: '' },
       { label: 'City', value: 'Juja / Kalimoni', note: '' },
       { label: 'Phone', value: '+254 704 358594', note: '(for confirmation)' },
     ],
     steps: [
       'Visit westernunion.com or your nearest WU agent',
-      'Send to: Fr. Josephh Shijo, Kenya',
+      'Send to: Rev. Fr. Joseph Shijo, Kenya',
       'Call +254 704 358594 to confirm transfer details',
       'Email MTCN reference to sttheresakalimoniparish@gmail.com',
       'Funds available for collection within minutes',

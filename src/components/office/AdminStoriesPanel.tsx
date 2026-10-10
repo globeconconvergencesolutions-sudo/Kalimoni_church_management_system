@@ -10,12 +10,12 @@ import {
   type MediaAlbum,
 } from '../../lib/mediaAlbums'
 import { deleteStaffMedia, saveStaffMediaMeta, uploadParishMedia } from '../../lib/mediaAdmin'
-import { parishImage, type ParishMedia } from '../../lib/media'
+import { parishImage, parishVideoPoster, type ParishMedia } from '../../lib/media'
 import MediaDropZone from './MediaDropZone'
 import { OfficeAlert, OfficeButton } from './OfficePage'
 import { useOfficeConfirm } from './useOfficeConfirm'
 import { office } from './officeTheme'
-import { MEDIA_IMAGE_ACCEPT, mediaUploadHint } from '../../lib/mediaUploadRules'
+import { MEDIA_GALLERY_ACCEPT, mediaUploadHint } from '../../lib/mediaUploadRules'
 
 type View = { mode: 'list' } | { mode: 'edit'; albumId: string | null }
 
@@ -253,22 +253,25 @@ function AlbumEditor({
     }
     setId(result.album.id)
     setSlug(result.album.slug)
-    onSaved(id ? 'Story details saved.' : 'Story created — you can upload photos now.')
+    onSaved(id ? 'Story details saved.' : 'Story created — you can upload photos and videos now.')
     await load(result.album.id)
   }
 
   const uploadSelected = async () => {
     if (!id) {
-      setError('Save the story details first, then upload photos.')
+      setError('Save the story details first, then upload media.')
       return
     }
     if (!uploadFiles.length) {
-      setError('Choose at least one photo.')
+      setError('Choose at least one photo or video.')
       return
     }
     setBusy(true)
     setError(null)
+    let photos = 0
+    let videos = 0
     for (const file of uploadFiles) {
+      const isVid = file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(file.name)
       const base = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim()
       const itemTitle = base ? base.charAt(0).toUpperCase() + base.slice(1) : title
       const caption = pendingCaption.trim() || itemTitle
@@ -286,11 +289,18 @@ function AlbumEditor({
         await load(id)
         return
       }
+      if (isVid) videos += 1
+      else photos += 1
     }
+    const n = uploadFiles.length
     setUploadFiles([])
     setPendingCaption('')
     setBusy(false)
-    onSaved(`${uploadFiles.length} photo${uploadFiles.length === 1 ? '' : 's'} added to the story.`)
+    const parts = [
+      photos ? `${photos} photo${photos === 1 ? '' : 's'}` : '',
+      videos ? `${videos} video${videos === 1 ? '' : 's'}` : '',
+    ].filter(Boolean)
+    onSaved(`${parts.join(' + ') || `${n} item${n === 1 ? '' : 's'}`} added to the story.`)
     await load(id)
   }
 
@@ -424,16 +434,27 @@ function AlbumEditor({
 
       {id ? (
         <div className="p-5 sm:p-6 space-y-4" style={{ backgroundColor: '#fff', border: `1px solid ${office.line}` }}>
-          <p className="text-[10px] tracking-[0.2em] uppercase" style={{ color: office.gold, fontFamily: "'DM Mono', monospace" }}>
-            Photos in this story
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+            <div>
+              <p className="text-[10px] tracking-[0.2em] uppercase" style={{ color: office.gold, fontFamily: "'DM Mono', monospace" }}>
+                Media in this story
+              </p>
+              <p className="text-xs mt-1" style={{ color: office.mute }}>
+                {items.filter(i => i.media_type !== 'video').length} photo{items.filter(i => i.media_type !== 'video').length === 1 ? '' : 's'}
+                {' · '}
+                {items.filter(i => i.media_type === 'video').length} video{items.filter(i => i.media_type === 'video').length === 1 ? '' : 's'}
+                {' · photos stay in the story grid; videos show with a play badge'}
+              </p>
+            </div>
+          </div>
           <MediaDropZone
             file={null}
             onFile={onDropZoneFile}
-            accept={MEDIA_IMAGE_ACCEPT}
-            label="Drop photos here (you can add several)"
-            hint={mediaUploadHint(false)}
+            accept={MEDIA_GALLERY_ACCEPT}
+            label="Drop photos or videos here (you can add several)"
+            hint={mediaUploadHint(true)}
             disabled={busy}
+            allowVideo
             onValidationError={setError}
           />
           {uploadFiles.length > 0 ? (
@@ -461,116 +482,132 @@ function AlbumEditor({
           ) : null}
 
           {items.length === 0 ? (
-            <p className="text-sm" style={{ color: office.mute }}>No photos yet.</p>
+            <p className="text-sm" style={{ color: office.mute }}>No media yet — add photos or videos above.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {items.map(item => (
-                <div key={item.id} className="overflow-hidden" style={{ border: `1px solid ${office.line}` }}>
-                  <div className="relative" style={{ aspectRatio: '16/10', backgroundColor: '#E8DFD0' }}>
-                    <img
-                      src={parishImage(item.cloudinary_id || item.url, 480, 300)}
-                      alt={item.alt || item.title}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    {coverId === item.id ? (
+              {items.map(item => {
+                const video = item.media_type === 'video'
+                const thumb = video
+                  ? parishVideoPoster(item.cloudinary_id || item.url, 480, 300)
+                  : parishImage(item.cloudinary_id || item.url, 480, 300)
+                return (
+                  <div key={item.id} className="overflow-hidden" style={{ border: `1px solid ${office.line}` }}>
+                    <div className="relative" style={{ aspectRatio: '16/10', backgroundColor: '#E8DFD0' }}>
+                      <img
+                        src={thumb}
+                        alt={item.alt || item.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
                       <span
-                        className="absolute top-2 left-2 text-[9px] tracking-widest uppercase px-2 py-0.5"
-                        style={{ backgroundColor: office.wine, color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}
+                        className="absolute top-2 right-2 text-[9px] tracking-widest uppercase px-2 py-0.5"
+                        style={{
+                          backgroundColor: video ? 'rgba(200,146,42,0.95)' : 'rgba(28,26,24,0.65)',
+                          color: video ? '#1C1A18' : '#F0E8D8',
+                          fontFamily: "'DM Mono', monospace",
+                        }}
                       >
-                        Cover
+                        {video ? 'Video' : 'Photo'}
                       </span>
-                    ) : null}
-                  </div>
-                  <div className="p-3 space-y-2">
-                    <input
-                      defaultValue={item.title}
-                      onBlur={e => {
-                        const titleValue = e.target.value.trim()
-                        if (!titleValue || titleValue === item.title) return
-                        void saveStaffMediaMeta(item.id, { title: titleValue }).then(r => {
-                          if (!r.ok) setError(r.error)
-                          else void load(id)
-                        })
-                      }}
-                      className="w-full px-2 py-2 text-sm"
-                      style={office.field}
-                    />
-                    <textarea
-                      defaultValue={item.caption || item.alt || ''}
-                      rows={2}
-                      onBlur={e => {
-                        const caption = e.target.value.trim()
-                        if (caption === (item.caption || item.alt || '')) return
-                        void saveStaffMediaMeta(item.id, { caption, alt: caption }).then(r => {
-                          if (!r.ok) setError(r.error)
-                          else void load(id)
-                        })
-                      }}
-                      className="w-full px-2 py-2 text-xs"
-                      style={office.field}
-                      placeholder="Short description"
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        className="text-[10px] tracking-widest uppercase min-h-[32px] px-2"
-                        style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: `1px solid ${office.gold}` }}
-                        onClick={() => {
-                          void setAlbumCover(id, item.id).then(r => {
-                            if (!r.ok) setError(r.error)
-                            else {
-                              setCoverId(item.id)
-                              onSaved('Cover image updated.')
-                            }
-                          })
-                        }}
-                      >
-                        Set cover
-                      </button>
-                      <button
-                        type="button"
-                        className="text-[10px] tracking-widest uppercase min-h-[32px] px-2"
-                        style={{ color: office.mute, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
-                        onClick={() => {
-                          void saveStaffMediaMeta(item.id, { published: !item.published }).then(r => {
+                      {coverId === item.id ? (
+                        <span
+                          className="absolute top-2 left-2 text-[9px] tracking-widest uppercase px-2 py-0.5"
+                          style={{ backgroundColor: office.wine, color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}
+                        >
+                          Cover
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="p-3 space-y-2">
+                      <input
+                        defaultValue={item.title}
+                        onBlur={e => {
+                          const titleValue = e.target.value.trim()
+                          if (!titleValue || titleValue === item.title) return
+                          void saveStaffMediaMeta(item.id, { title: titleValue }).then(r => {
                             if (!r.ok) setError(r.error)
                             else void load(id)
                           })
                         }}
-                      >
-                        {item.published ? 'Unpublish' : 'Publish'}
-                      </button>
-                      <button
-                        type="button"
-                        className="text-[10px] tracking-widest uppercase min-h-[32px] px-2"
-                        style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
-                        onClick={() => {
-                          void (async () => {
-                            const ok = await confirm({
-                              title: 'Remove this photo?',
-                              description: `"${item.title}" will be deleted from Cloudinary and this story. This cannot be undone.`,
-                              confirmLabel: 'Remove',
-                              tone: 'danger',
+                        className="w-full px-2 py-2 text-sm"
+                        style={office.field}
+                      />
+                      <textarea
+                        defaultValue={item.caption || item.alt || ''}
+                        rows={2}
+                        onBlur={e => {
+                          const caption = e.target.value.trim()
+                          if (caption === (item.caption || item.alt || '')) return
+                          void saveStaffMediaMeta(item.id, { caption, alt: caption }).then(r => {
+                            if (!r.ok) setError(r.error)
+                            else void load(id)
+                          })
+                        }}
+                        className="w-full px-2 py-2 text-xs"
+                        style={office.field}
+                        placeholder="Short description"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="text-[10px] tracking-widest uppercase min-h-[32px] px-2"
+                          style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: `1px solid ${office.gold}` }}
+                          onClick={() => {
+                            void setAlbumCover(id, item.id).then(r => {
+                              if (!r.ok) setError(r.error)
+                              else {
+                                setCoverId(item.id)
+                                onSaved(video ? 'Cover set (video poster will show on the public site).' : 'Cover image updated.')
+                              }
                             })
-                            if (!ok) return
-                            const r = await deleteStaffMedia(item.id)
-                            if (!r.ok) setError(r.error || 'Could not remove this photo.')
-                            else void load(id)
-                          })()
-                        }}
-                      >
-                        Remove
-                      </button>
+                          }}
+                        >
+                          Set cover
+                        </button>
+                        <button
+                          type="button"
+                          className="text-[10px] tracking-widest uppercase min-h-[32px] px-2"
+                          style={{ color: office.mute, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
+                          onClick={() => {
+                            void saveStaffMediaMeta(item.id, { published: !item.published }).then(r => {
+                              if (!r.ok) setError(r.error)
+                              else void load(id)
+                            })
+                          }}
+                        >
+                          {item.published ? 'Unpublish' : 'Publish'}
+                        </button>
+                        <button
+                          type="button"
+                          className="text-[10px] tracking-widest uppercase min-h-[32px] px-2"
+                          style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
+                          onClick={() => {
+                            void (async () => {
+                              const ok = await confirm({
+                                title: video ? 'Remove this video?' : 'Remove this photo?',
+                                description: `"${item.title}" will be deleted from Cloudinary and this story. This cannot be undone.`,
+                                confirmLabel: 'Remove',
+                                tone: 'danger',
+                              })
+                              if (!ok) return
+                              const r = await deleteStaffMedia(item.id)
+                              if (!r.ok) setError(r.error || 'Could not remove this item.')
+                              else void load(id)
+                            })()
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
       ) : (
         <p className="text-sm" style={{ color: office.mute }}>
-          Save the story details above before uploading photos.
+          Save the story details above before uploading photos or videos.
         </p>
       )}
     </div>

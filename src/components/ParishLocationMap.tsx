@@ -85,7 +85,7 @@ export default function ParishLocationMap({
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="shrink-0 mt-1 text-[8px]" style={{ color: '#C8922A' }}>●</span>
-                  <span>Matatu from Nairobi: route 145 (Thika Road), then connect to Juja / Kalimoni.</span>
+                  <span>Matatu from Nairobi: route 237 (Thika Road), then connect to Juja / Kalimoni.</span>
                 </li>
               </ul>
             </div>

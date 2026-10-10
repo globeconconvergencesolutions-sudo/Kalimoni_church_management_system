@@ -129,7 +129,7 @@ export default function Events() {
                   <span style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace", fontSize: '0.7rem' }}>{m.times}</span>
                 </div>
               ))}
-              <div className="mt-3 text-xs" style={{ color: '#F0E8D8AA', fontFamily: "'DM Mono', monospace" }}>Fr. Joseph Shijo — Parish Priest</div>
+              <div className="mt-3 text-xs" style={{ color: '#F0E8D8AA', fontFamily: "'DM Mono', monospace" }}>Rev. Fr. Joseph Shijo — Parish Priest</div>
             </div>
 
             {/* Contact info */}

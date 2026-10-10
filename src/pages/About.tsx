@@ -98,9 +98,6 @@ export default function About() {
                 To be a vibrant, Christ-centred community that transforms lives through faith,
                 service, and the witness of love — reaching every home in Kalimoni and beyond.
               </p>
-              <div className="mt-4 px-3 py-2 text-[10px] tracking-widest" style={{ backgroundColor: 'rgba(232,184,75,0.12)', border: '1px dashed rgba(232,184,75,0.4)', color: '#E8B84B88', fontFamily: "'DM Mono', monospace" }}>
-                ✎ Official statement to be confirmed by parish leadership
-              </div>
             </div>
             <div className="p-6 sm:p-8 relative" style={{ backgroundColor: '#4A3A10' }}>
               <div className="text-xs tracking-[0.25em] uppercase mb-4" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>Our Mission</div>
@@ -108,20 +105,6 @@ export default function About() {
               <p className="text-sm leading-relaxed" style={{ color: '#F0E8D8BB' }}>
                 To evangelise, serve the poor, nurture Small Christian Communities, and build
                 a parish family united in worship, charity, and joyful celebration of life.
-              </p>
-              <div className="mt-4 px-3 py-2 text-[10px] tracking-widest" style={{ backgroundColor: 'rgba(232,184,75,0.12)', border: '1px dashed rgba(232,184,75,0.4)', color: '#E8B84B88', fontFamily: "'DM Mono', monospace" }}>
-                ✎ Official statement to be confirmed by parish leadership
-              </div>
-            </div>
-          </div>
-          {/* Core Values placeholder */}
-          <div className="p-5 sm:p-6 flex items-start gap-3" style={{ backgroundColor: '#F0E8D8', border: '1px dashed #C8922A55' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8922A" strokeWidth="2" strokeLinecap="round" className="mt-0.5 shrink-0"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>
-            <div>
-              <div className="text-xs tracking-widest uppercase mb-1" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Core Values — Awaiting Content</div>
-              <p className="text-sm" style={{ color: '#8A7A70' }}>
-                The parish core values will appear here once confirmed by Fr. Josephh Shijo and the parish leadership team.
-                Please contact the parish office at <a href="mailto:sttheresakalimoniparish@gmail.com" className="underline hover:text-burgundy" style={{ color: '#6B1A2A' }}>sttheresakalimoniparish@gmail.com</a> to provide this content.
               </p>
             </div>
           </div>
@@ -134,20 +117,16 @@ export default function About() {
           <div className="w-full lg:w-5/12 mb-8 lg:mb-0">
             <div className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Parish Priest</div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
-              Fr. Josephh Shijo
+              Rev. Fr. Joseph Shijo
             </h2>
             <p className="text-sm sm:text-base leading-relaxed mb-4" style={{ color: '#4A3A30' }}>
-              Fr. Josephh Shijo serves as the Parish Priest of St. Theresa Kalimoni Parish,
+              Rev. Fr. Joseph Shijo serves as the Parish Priest of St. Theresa Kalimoni Parish,
               under the <strong>Vincentian Congregation</strong> within the Catholic Archdiocese of Nairobi.
             </p>
-            <p className="text-sm sm:text-base leading-relaxed mb-5" style={{ color: '#4A3A30' }}>
+            <p className="text-sm sm:text-base leading-relaxed" style={{ color: '#4A3A30' }}>
               Guided by the Vincentian motto — <em>"He has sent me to proclaim the good news to the poor"</em> (Luke 4:18) —
-              Fr. Shijo leads the parish community in evangelisation, pastoral care, and service to all 72 Jumuiyas.
+              Rev. Fr. Shijo leads the parish community in evangelisation, pastoral care, and service to all 72 Jumuiyas.
             </p>
-            <div className="p-4 text-xs flex items-start gap-2.5" style={{ backgroundColor: '#F0E8D8', border: '1px dashed #C8922A55', fontFamily: "'DM Mono', monospace", color: '#8A7A70' }}>
-              <span style={{ color: '#C8922A' }}>✎</span>
-              <span>Priest biography and photo to be provided by the parish. Contact <a href="mailto:sttheresakalimoniparish@gmail.com" className="underline" style={{ color: '#6B1A2A' }}>sttheresakalimoniparish@gmail.com</a> to submit.</span>
-            </div>
           </div>
           <div className="w-full lg:w-7/12">
             {/* Quote & key info */}
@@ -158,7 +137,7 @@ export default function About() {
                 of every member of this parish community.
               </blockquote>
               <cite className="text-xs tracking-widest uppercase not-italic" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
-                — Fr. Josephh Shijo, Parish Priest
+                — Rev. Fr. Joseph Shijo, Parish Priest
               </cite>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

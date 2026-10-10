@@ -268,7 +268,8 @@ export async function processMediaUpload(body, token, env) {
     }
     albumSlug = String(albumRes.data.slug).replace(/[^a-zA-Z0-9_-]/g, '')
     albumCategory = String(albumRes.data.category || 'Construction')
-    folderName = `stories/${albumSlug}`
+    // Keep photos and videos in separate Cloudinary folders for lasting organisation.
+    folderName = isVideo ? `stories/${albumSlug}/videos` : `stories/${albumSlug}`
   } else {
     const category = (body.category || 'Church Life').trim()
     const slug = GALLERY_FOLDER_SLUGS[category] || 'church-life'
@@ -335,11 +336,32 @@ export async function processMediaUpload(body, token, env) {
 
     let sortOrder = typeof body.sortOrder === 'number' ? body.sortOrder : 0
     if (body.albumId) {
-      const countRes = await authed
-        .from('parish_media')
-        .select('id', { count: 'exact', head: true })
-        .eq('album_id', body.albumId)
-      sortOrder = countRes.count ?? 0
+      if (isVideo) {
+        // Videos live in a diary block after photos (sort ≥ 1000), easy to extend.
+        const VIDEO_SORT_BASE = 1000
+        const maxVideo = await authed
+          .from('parish_media')
+          .select('sort_order')
+          .eq('album_id', body.albumId)
+          .eq('media_type', 'video')
+          .order('sort_order', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        const prev = maxVideo.data?.sort_order
+        sortOrder =
+          typeof prev === 'number' && prev >= VIDEO_SORT_BASE ? prev + 1 : VIDEO_SORT_BASE
+      } else {
+        const maxPhoto = await authed
+          .from('parish_media')
+          .select('sort_order')
+          .eq('album_id', body.albumId)
+          .neq('media_type', 'video')
+          .order('sort_order', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        const prev = maxPhoto.data?.sort_order
+        sortOrder = typeof prev === 'number' ? Math.min(prev + 1, 999) : 0
+      }
     }
 
     const media = {

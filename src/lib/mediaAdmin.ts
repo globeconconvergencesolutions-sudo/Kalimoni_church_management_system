@@ -210,15 +210,19 @@ export async function uploadParishMedia(
     }
   }
 
+  const isVideo = file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(file.name)
+
   // Rough guard: base64 ~33% larger; many hosts reject huge JSON bodies.
-  if (dataUrl.length > 18 * 1024 * 1024) {
+  // Seed script handles large construction videos; admin path is for shorter clips.
+  const maxDataUrl = isVideo ? 40 * 1024 * 1024 : 18 * 1024 * 1024
+  if (dataUrl.length > maxDataUrl) {
     return {
       ok: false,
-      error: 'This file is too large to upload safely. Compress the photo (aim under ~12 MB) and try again.',
+      error: isVideo
+        ? 'This video is too large for admin upload (aim under ~25 MB). Compress it, or ask a developer to run the construction video seed script.'
+        : 'This file is too large to upload safely. Compress the photo (aim under ~12 MB) and try again.',
     }
   }
-
-  const isVideo = file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(file.name)
 
   const body: Record<string, unknown> = {
     dataUrl,

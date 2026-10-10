@@ -16,7 +16,7 @@ const ERAS = [
     id: 'vincentian', period: '2000–2015', label: 'The Vincentian Era', color: '#6B1A2A',
     events: [
       { year: 1999, text: 'The Vincentian Congregation arrives at St. Theresa Kalimoni Parish, initially serving alongside Fr. Gogan H.G.F. of the Holy Ghost Fathers.' },
-      { year: 2000, text: 'When Fr. Gogan fell ill, the Bishop entrusted the parish to the Vincentians. Fr. James Edavazhira VC becomes the pioneering parish priest.' },
+      { year: 2000, text: 'When Fr. Gogan fell ill, the Bishop entrusted the parish to the Vincentians. Fr. James Edavazhira VC becomes the pioneering Parish Priest.' },
       { year: 2000, text: 'HHCJ Sisters arrive — Sr. Evangeline Gitonga and Sr. Theresa Barnie — taking over the dispensary.' },
       { year: 2002, text: 'Parish has 15 Jumuiyas (Small Christian Communities).' },
       { year: 2006, text: 'Sr. Juliana Mose joins and begins growing the dispensary into a full hospital.' },

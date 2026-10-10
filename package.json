@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "format": "oxfmt",
-    "seed:construction": "pnpm exec tsx scripts/seed-construction-album.mts"
+    "seed:construction": "pnpm exec tsx scripts/seed-construction-album.mts",
+    "seed:construction-videos": "pnpm exec tsx scripts/seed-construction-videos.mts",
+    "deploy:pack": "pnpm exec tsx scripts/pack-hostafrica.mts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",

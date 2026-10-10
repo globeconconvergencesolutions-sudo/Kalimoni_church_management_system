@@ -68,7 +68,7 @@ const MINISTRIES = [
     img: 'photo-1547496613-4e19af6736dc',
     desc: "YSC is St. Theresa Kalimoni Parish's vibrant youth ministry — where young people encounter Christ in a community of joy, discipleship, and service. YSC members are the future of the parish and the Church.",
     highlights: [
-      'Erected the Way of the Cross crucifix at Good Friday 2025',
+      'Erected the Way of the Cross crucifix on Good Friday 2025',
       'Lively choir and liturgical music ministry',
       'School outreach and peer evangelisation',
       'Annual YSC camp and spiritual formation weekend',
@@ -252,7 +252,7 @@ export default function Ministries() {
             <div className="text-xs tracking-[0.25em] uppercase mb-2" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Get Involved</div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white" style={{ fontFamily: "'Lora', serif" }}>Find Your Ministry</h2>
             <p className="text-sm mt-2 max-w-md" style={{ color: '#F0E8D8AA' }}>
-              Contact the parish office or speak to Fr. Joseph Shijo after any Mass to discover where your gifts are needed.
+              Contact the parish office or speak to Rev. Fr. Joseph Shijo after any Mass to discover where your gifts are needed.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
