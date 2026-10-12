@@ -1,4 +1,4 @@
-import officialLogo from '../../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
+import officialLogo from '../../imports/parish-logo.webp'
 import { office } from './officeTheme'
 
 export default function ParishLoader({

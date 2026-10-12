@@ -3,7 +3,7 @@ import { Navigate, NavLink, Outlet, Link, useNavigate, useLocation } from 'react
 import type { Session } from '@supabase/supabase-js'
 import { getSupabase } from '../../lib/supabase'
 import { isSupabaseConfigured } from '../../lib/env'
-import officialLogo from '../../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
+import officialLogo from '../../imports/parish-logo.webp'
 import { office } from '../../components/office/officeTheme'
 import ParishLoader from '../../components/office/ParishLoader'
 import {

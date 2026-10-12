@@ -124,12 +124,12 @@ export default function BlogPost() {
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 md:px-10 pb-12 sm:pb-16">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-xs mb-6" style={{ color: '#8A7A70', fontFamily: "'DM Mono', monospace" }}>
-            <Link to="/" className="hover:text-gold transition-colors" style={{ color: '#8A7A70' }}>Home</Link>
-            <span>/</span>
-            <Link to="/blog" className="hover:text-gold transition-colors" style={{ color: '#8A7A70' }}>Blog</Link>
-            <span>/</span>
-            <span style={{ color: '#C8922A' }} className="truncate max-w-[180px]">{post.title}</span>
+          <nav className="flex items-center gap-2 text-xs mb-6 min-w-0" style={{ color: '#8A7A70', fontFamily: "'DM Mono', monospace" }}>
+            <Link to="/" className="hover:text-gold transition-colors shrink-0" style={{ color: '#8A7A70' }}>Home</Link>
+            <span className="shrink-0">/</span>
+            <Link to="/blog" className="hover:text-gold transition-colors shrink-0" style={{ color: '#8A7A70' }}>Blog</Link>
+            <span className="shrink-0">/</span>
+            <span style={{ color: '#C8922A' }} className="truncate min-w-0">{post.title}</span>
           </nav>
 
           {/* Category badge */}

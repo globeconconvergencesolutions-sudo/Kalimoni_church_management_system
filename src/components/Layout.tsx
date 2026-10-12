@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Outlet, NavLink, useLocation, Link } from 'react-router'
-import officialLogo from '../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
+import officialLogo from '../imports/parish-logo.webp'
 import NoticeRail from './NoticeRail'
 import NoticeSpotlight from './NoticeSpotlight'
 import PoweredByGlobecon from './PoweredByGlobecon'
@@ -143,27 +143,28 @@ export default function Layout() {
           backgroundColor: scrolled ? 'rgba(16,4,8,0.97)' : 'rgba(74,16,25,0.88)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
+          paddingTop: 'var(--safe-top)',
           boxShadow: scrolled
             ? '0 1px 0 rgba(200,146,42,0.2), 0 8px 48px rgba(0,0,0,0.5)'
             : '0 1px 0 rgba(200,146,42,0.06)',
         }}
       >
         {/* ── unified centred band ── */}
-        <div className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-14 sm:h-16">
+        <div className="relative max-w-7xl mx-auto flex items-center justify-between gap-2 px-4 sm:px-6 lg:px-8 h-14 sm:h-16">
 
-          {/* Logo — always visible */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0" aria-label="St. Theresa Kalimoni Parish Home">
+          {/* Logo — truncate brand on narrow phones so burger never collides */}
+          <Link to="/" className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1 xl:flex-none xl:shrink-0 pr-2" aria-label="St. Theresa Kalimoni Parish Home">
             <img
               src={officialLogo}
               alt="St. Theresa Kalimoni Parish"
-              className="xl:hidden object-contain rounded-full"
-              style={{ width: 42, height: 42, backgroundColor: '#fff', boxShadow: '0 0 0 1.5px rgba(200,146,42,0.4)' }}
+              className="xl:hidden object-contain rounded-full shrink-0"
+              style={{ width: 40, height: 40, backgroundColor: '#fff', boxShadow: '0 0 0 1.5px rgba(200,146,42,0.4)' }}
             />
-            <div className="flex flex-col leading-tight">
-              <span className="text-[9px] tracking-[0.18em] uppercase" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
+            <div className="flex flex-col leading-tight min-w-0">
+              <span className="text-[9px] tracking-[0.18em] uppercase truncate" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
                 {lang === 'sw' ? 'Kanisa Katoliki' : 'Catholic Church'}
               </span>
-              <span className="text-white font-semibold text-sm leading-tight" style={{ fontFamily: "'Lora', serif" }}>
+              <span className="text-white font-semibold text-[13px] sm:text-sm leading-tight truncate" style={{ fontFamily: "'Lora', serif" }}>
                 St. Theresa Kalimoni Parish
               </span>
             </div>
@@ -228,19 +229,19 @@ export default function Layout() {
           </div>
         </div>
 
-        {/* Mobile drawer */}
+        {/* Mobile drawer — capped to viewport so short phones can still scroll */}
         <div
-          className={`xl:hidden overflow-y-auto transition-all duration-300 ${menuOpen ? 'max-h-[600px]' : 'max-h-0'}`}
+          className={`xl:hidden overflow-y-auto overscroll-contain transition-all duration-300 ${menuOpen ? 'max-h-[min(70dvh,560px)]' : 'max-h-0'}`}
           style={{ backgroundColor: '#3A0C14' }}
         >
-          <div className="px-4 sm:px-6 py-3 grid grid-cols-2 gap-1">
+          <div className="px-4 sm:px-6 py-3 grid grid-cols-2 gap-1.5">
             {NAV.map(({ en, sw, to }) => (
               <NavLink
                 key={to}
                 to={to}
                 end={to === '/'}
                 className={({ isActive }) =>
-                  `py-3 px-3 text-sm tracking-wide border transition-colors duration-150 ${
+                  `py-3 px-3 text-sm tracking-wide border transition-colors duration-150 min-h-[48px] flex items-center ${
                     isActive ? 'text-yellow-300 border-yellow-900 bg-yellow-900/10' : 'text-white/80 border-white/10 hover:text-white hover:bg-white/5'
                   }`
                 }
@@ -252,7 +253,7 @@ export default function Layout() {
             {siteFeatures.publicDonate ? (
               <Link
                 to="/donate"
-                className="col-span-2 mt-2 py-3.5 text-center text-sm font-bold tracking-widest uppercase min-h-[44px] flex items-center justify-center"
+                className="col-span-2 mt-2 py-3.5 text-center text-sm font-bold tracking-widest uppercase min-h-[48px] flex items-center justify-center"
                 style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
               >
                 {t('Donate Now', 'Changia sasa')}
@@ -260,7 +261,7 @@ export default function Layout() {
             ) : (
               <Link
                 to="/contact"
-                className="col-span-2 mt-2 py-3.5 text-center text-sm font-bold tracking-widest uppercase min-h-[44px] flex items-center justify-center"
+                className="col-span-2 mt-2 py-3.5 text-center text-sm font-bold tracking-widest uppercase min-h-[48px] flex items-center justify-center"
                 style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
               >
                 {t('Get in Touch', 'Wasiliana nasi')}
@@ -307,11 +308,11 @@ export default function Layout() {
                 )}
               </h2>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
               {siteFeatures.publicDonate ? (
                 <Link
                   to="/donate"
-                  className="px-7 py-3.5 font-bold text-sm tracking-wide transition-all hover:brightness-110 active:scale-95 text-center min-h-[48px] flex items-center justify-center"
+                  className="px-7 py-3.5 font-bold text-sm tracking-wide transition-all hover:brightness-110 active:scale-95 text-center min-h-[48px] flex items-center justify-center w-full sm:w-auto"
                   style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
                 >
                   {t('Donate Now', 'Changia sasa')}
@@ -319,7 +320,7 @@ export default function Layout() {
               ) : null}
               <Link
                 to="/contact"
-                className="px-7 py-3.5 font-medium text-sm tracking-wide border transition-all hover:bg-white/10 text-center min-h-[48px] flex items-center justify-center"
+                className="px-7 py-3.5 font-medium text-sm tracking-wide border transition-all hover:bg-white/10 text-center min-h-[48px] flex items-center justify-center w-full sm:w-auto"
                 style={{
                   border: siteFeatures.publicDonate
                     ? '1px solid rgba(240,232,216,0.35)'
@@ -377,12 +378,12 @@ export default function Layout() {
                       <span>{phoneDisplay}</span>
                     </a>
                   ) : null}
-                  <a href="mailto:sttheresakalimoniparish@gmail.com" className="flex items-start gap-2.5 hover:text-white transition-colors">
+                  <a href="mailto:sttheresakalimoniparish@gmail.com" className="flex items-start gap-2.5 hover:text-white transition-colors min-w-0">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8922A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                       <polyline points="22,6 12,13 2,6" />
                     </svg>
-                    <span>sttheresakalimoniparish@gmail.com</span>
+                    <span className="break-all">sttheresakalimoniparish@gmail.com</span>
                   </a>
                   <a href="https://www.facebook.com/profile.php?id=61552240605615" target="_blank" rel="noopener noreferrer" className="flex items-start gap-2.5 hover:text-white transition-colors">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="#C8922A" className="mt-0.5 shrink-0">
@@ -464,10 +465,8 @@ export default function Layout() {
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed z-40 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
+          className={`fixed z-40 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 ${showBackTop ? 'fab-safe-raised' : 'fab-safe'}`}
           style={{
-            bottom: showBackTop ? '5.5rem' : '1.5rem',
-            right: '1.25rem',
             width: 52,
             height: 52,
             backgroundColor: '#25D366',
@@ -487,10 +486,8 @@ export default function Layout() {
       {/* Back to top */}
       <button
         onClick={scrollToTop}
-        className="fixed z-40 flex items-center justify-center"
+        className="fixed z-40 flex items-center justify-center fab-safe"
         style={{
-          bottom: '1.5rem',
-          right: '1.25rem',
           width: 44,
           height: 44,
           backgroundColor: '#4A1019',

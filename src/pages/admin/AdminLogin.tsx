@@ -2,7 +2,7 @@ import { useState, useEffect, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { getSupabase } from '../../lib/supabase'
 import { isSupabaseConfigured } from '../../lib/env'
-import officialLogo from '../../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
+import officialLogo from '../../imports/parish-logo.webp'
 import { office } from '../../components/office/officeTheme'
 import ParishLoader from '../../components/office/ParishLoader'
 

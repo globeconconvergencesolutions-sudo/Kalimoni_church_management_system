@@ -143,9 +143,9 @@ export default function Events() {
                     {parishPhoneDisplay()}
                   </a>
                 ) : null}
-                <a href={`mailto:${PARISH_LOCATION.email}`} className="flex items-center gap-2 hover:underline" style={{ color: '#6B1A2A' }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
-                  {PARISH_LOCATION.email}
+                <a href={`mailto:${PARISH_LOCATION.email}`} className="flex items-start gap-2 hover:underline min-w-0" style={{ color: '#6B1A2A' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="mt-0.5 shrink-0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+                  <span className="break-all">{PARISH_LOCATION.email}</span>
                 </a>
                 <a href="https://maps.app.goo.gl/YsuSCqxiaqpSj78L8" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:underline" style={{ color: '#6B1A2A' }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 2C8.686 2 6 4.686 6 8c0 5.25 6 13 6 13s6-7.75 6-13c0-3.314-2.686-6-6-6z" /><circle cx="12" cy="8" r="2.5" /></svg>

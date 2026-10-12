@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type TouchEvent as RTouchEvent, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { useSEO } from '../hooks/useSEO'
-import officialLogo from '../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
+import officialLogo from '../imports/parish-logo.webp'
 import { usePublishedPosts } from '../hooks/usePublishedPosts'
 import { usePublishedEvents } from '../hooks/usePublishedEvents'
 import { useMassSchedule } from '../hooks/useMassSchedule'
@@ -101,16 +101,15 @@ function NextMassStrip() {
       className="px-4 sm:px-6 md:px-10 lg:px-16 py-3 sm:py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4"
       style={{ backgroundColor: '#1C1A18', borderBottom: '1px solid rgba(200,146,42,0.15)' }}
     >
-      <div className="flex items-center gap-3">
-        {/* Live indicator */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 min-w-0">
         <span
           className="block w-2.5 h-2.5 rounded-full shrink-0"
           style={{ backgroundColor: massInfo.isImminent ? '#E8B84B' : '#C8922A' }}
         />
-        <span className="text-xs tracking-[0.2em] uppercase" style={{ color: '#8A7A70', fontFamily: "'DM Mono', monospace" }}>
+        <span className="text-xs tracking-[0.2em] uppercase shrink-0" style={{ color: '#8A7A70', fontFamily: "'DM Mono', monospace" }}>
           Next Mass
         </span>
-        <span className="text-sm font-semibold" style={{ color: '#F0E8D8', fontFamily: "'Lora', serif" }}>
+        <span className="text-sm font-semibold min-w-0" style={{ color: '#F0E8D8', fontFamily: "'Lora', serif" }}>
           {massInfo.displayDay} · {massInfo.time}
         </span>
         {massInfo.isImminent && (
@@ -119,10 +118,10 @@ function NextMassStrip() {
           </span>
         )}
       </div>
-      <div className="flex items-center gap-4 text-xs" style={{ color: '#5A4E48', fontFamily: "'DM Mono', monospace" }}>
-        <span className="hidden sm:inline">Sun 7:30·9:30 AM &nbsp;·&nbsp; Mon/Wed 6 PM &nbsp;·&nbsp; Tue/Thu/Fri/Sat 7 AM</span>
-        <span className="sm:hidden">Sun 7:30·9:30 AM · Mon/Wed 6 PM · Daily 7 AM</span>
-        <Link to="/contact" className="hover:text-white transition-colors underline underline-offset-2 decoration-dotted whitespace-nowrap">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs min-w-0" style={{ color: '#5A4E48', fontFamily: "'DM Mono', monospace" }}>
+        <span className="hidden md:inline">Sun 7:30·9:30 AM &nbsp;·&nbsp; Mon/Wed 6 PM &nbsp;·&nbsp; Tue/Thu/Fri/Sat 7 AM</span>
+        <span className="md:hidden leading-snug">Sun 7:30·9:30 AM · Weekday Masses</span>
+        <Link to="/contact" className="hover:text-white transition-colors underline underline-offset-2 decoration-dotted whitespace-nowrap min-h-[44px] inline-flex items-center">
           Mass schedule →
         </Link>
       </div>
@@ -149,10 +148,10 @@ function EventsStrip() {
             <h2 className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>Upcoming Events</h2>
           </div>
           <div className="flex gap-2 shrink-0">
-            <button onClick={() => scroll('left')} className="w-9 h-9 flex items-center justify-center transition-all hover:scale-105" style={{ backgroundColor: '#F0E8D8', color: '#6B1A2A', border: '1px solid #D0C4B0' }} aria-label="Scroll left">
+            <button onClick={() => scroll('left')} className="w-11 h-11 flex items-center justify-center transition-all hover:scale-105" style={{ backgroundColor: '#F0E8D8', color: '#6B1A2A', border: '1px solid #D0C4B0' }} aria-label="Scroll left">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
             </button>
-            <button onClick={() => scroll('right')} className="w-9 h-9 flex items-center justify-center transition-all hover:scale-105" style={{ backgroundColor: '#6B1A2A', color: '#E8B84B' }} aria-label="Scroll right">
+            <button onClick={() => scroll('right')} className="w-11 h-11 flex items-center justify-center transition-all hover:scale-105" style={{ backgroundColor: '#6B1A2A', color: '#E8B84B' }} aria-label="Scroll right">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
             </button>
           </div>
@@ -338,12 +337,112 @@ function MinistriesSlider() {
   )
 }
 
+const VOICE_FIELD = {
+  backgroundColor: 'rgba(250,246,240,0.08)',
+  border: '1px solid rgba(200,146,42,0.28)',
+  color: '#F0E8D8',
+  fontFamily: "'Inter', sans-serif",
+  outline: 'none',
+  fontSize: 16,
+  width: '100%',
+  maxWidth: '100%',
+} as const
+
+function VoiceShareForm({
+  name,
+  role,
+  quote,
+  website,
+  busy,
+  submitted,
+  formError,
+  dense,
+  onName,
+  onRole,
+  onQuote,
+  onWebsite,
+  onSubmit,
+}: {
+  name: string
+  role: string
+  quote: string
+  website: string
+  busy: boolean
+  submitted: boolean
+  formError: string | null
+  dense?: boolean
+  onName: (v: string) => void
+  onRole: (v: string) => void
+  onQuote: (v: string) => void
+  onWebsite: (v: string) => void
+  onSubmit: (e: FormEvent) => void
+}) {
+  if (submitted) {
+    return (
+      <div className={`text-center ${dense ? 'py-6' : 'py-4'}`}>
+        <div className="text-2xl mb-2" style={{ color: '#C8922A' }} aria-hidden>✦</div>
+        <p className="text-sm font-semibold text-white mb-1" style={{ fontFamily: "'Lora', serif" }}>Thank you</p>
+        <p className="text-xs leading-relaxed" style={{ color: '#F0E8D8AA' }}>
+          Your words will appear after the parish office reviews them.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="relative flex flex-col gap-3">
+      <input
+        required
+        value={name}
+        onChange={e => onName(e.target.value)}
+        placeholder="Your name (as it may appear)"
+        maxLength={80}
+        autoComplete="name"
+        className="w-full px-4 py-3 text-sm min-h-[48px]"
+        style={VOICE_FIELD}
+      />
+      <input
+        value={role}
+        onChange={e => onRole(e.target.value)}
+        placeholder="Role or connection (optional)"
+        maxLength={120}
+        className="w-full px-4 py-3 text-sm min-h-[48px]"
+        style={VOICE_FIELD}
+      />
+      <textarea
+        required
+        value={quote}
+        onChange={e => onQuote(e.target.value)}
+        placeholder="Share a short reflection…"
+        rows={dense ? 3 : 4}
+        maxLength={800}
+        className="w-full px-4 py-3 text-sm resize-none"
+        style={VOICE_FIELD}
+      />
+      <div aria-hidden="true" className="absolute -left-[9999px] h-0 overflow-hidden">
+        <input tabIndex={-1} autoComplete="off" value={website} onChange={e => onWebsite(e.target.value)} />
+      </div>
+      {formError ? <p className="text-sm" style={{ color: '#E8B84B' }}>{formError}</p> : null}
+      <button
+        type="submit"
+        disabled={busy}
+        className="py-3.5 font-bold text-sm tracking-wide transition-all hover:brightness-110 min-h-[48px] disabled:opacity-70"
+        style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
+      >
+        {busy ? 'Sending…' : 'Submit for review'}
+      </button>
+    </form>
+  )
+}
+
 function VoicesOfTheParish() {
   const [items, setItems] = useState<Testimonial[]>([])
   const [loaded, setLoaded] = useState(false)
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
   const touchStartX = useRef<number | null>(null)
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null)
 
   const [name, setName] = useState('')
   const [role, setRole] = useState('')
@@ -365,17 +464,43 @@ function VoicesOfTheParish() {
   }, [])
 
   useEffect(() => {
-    if (paused || items.length < 2) return
+    if (paused || items.length < 2 || shareOpen) return
     const id = setInterval(() => setActive(i => (i + 1) % items.length), 5000)
     return () => clearInterval(id)
-  }, [paused, items.length])
+  }, [paused, items.length, shareOpen])
 
   useEffect(() => {
     if (active >= items.length) setActive(0)
   }, [items.length, active])
 
+  useEffect(() => {
+    if (!shareOpen) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShareOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    const t = window.setTimeout(() => closeBtnRef.current?.focus(), 40)
+    return () => {
+      document.body.style.overflow = prevOverflow
+      window.removeEventListener('keydown', onKey)
+      window.clearTimeout(t)
+    }
+  }, [shareOpen])
+
+  useEffect(() => {
+    if (!submitted || !shareOpen) return
+    const t = window.setTimeout(() => {
+      setShareOpen(false)
+      setSubmitted(false)
+    }, 2800)
+    return () => window.clearTimeout(t)
+  }, [submitted, shareOpen])
+
   if (!siteFeatures.testimonials) return null
 
+  const hasVoices = items.length > 0
   const prev = () => setActive(i => (i - 1 + items.length) % items.length)
   const next = () => setActive(i => (i + 1) % items.length)
 
@@ -385,6 +510,17 @@ function VoicesOfTheParish() {
     const dx = e.changedTouches[0].clientX - touchStartX.current
     if (dx < -40) next(); else if (dx > 40) prev()
     touchStartX.current = null
+  }
+
+  const openShare = () => {
+    setFormError(null)
+    setSubmitted(false)
+    setShareOpen(true)
+  }
+
+  const closeShare = () => {
+    setShareOpen(false)
+    setFormError(null)
   }
 
   const onSubmit = async (e: FormEvent) => {
@@ -408,13 +544,20 @@ function VoicesOfTheParish() {
     setQuote('')
   }
 
-  const fieldStyle = {
-    backgroundColor: 'rgba(250,246,240,0.08)',
-    border: '1px solid rgba(200,146,42,0.28)',
-    color: '#F0E8D8',
-    fontFamily: "'Inter', sans-serif",
-    outline: 'none',
-  } as const
+  const formProps = {
+    name,
+    role,
+    quote,
+    website,
+    busy,
+    submitted,
+    formError,
+    onName: setName,
+    onRole: setRole,
+    onQuote: setQuote,
+    onWebsite: setWebsite,
+    onSubmit: (e: FormEvent) => { void onSubmit(e) },
+  }
 
   return (
     <section
@@ -424,50 +567,67 @@ function VoicesOfTheParish() {
       onMouseLeave={() => setPaused(false)}
     >
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-      <div className="absolute top-0 right-0 opacity-[0.05]" style={{ fontSize: 'clamp(120px, 25vw, 320px)', color: '#E8B84B', fontFamily: 'Georgia, serif', lineHeight: 1, userSelect: 'none', transform: 'translate(10%, -30%)' }}>"</div>
-      <div className="relative max-w-4xl mx-auto">
-        <div className="text-xs tracking-[0.25em] uppercase mb-3 text-center" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>Voices of the Parish</div>
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-4" style={{ fontFamily: "'Lora', serif" }}>
-          {items.length > 0 ? 'What Our Community Says' : 'Share Your Story'}
-        </h2>
-        {items.length === 0 && loaded ? (
-          <p className="text-center text-sm sm:text-base mb-10 max-w-xl mx-auto leading-relaxed" style={{ color: '#F0E8D8BB' }}>
-            Parishioners and friends of Kalimoni are invited to share a word of faith, gratitude, or hope. Stories appear here after the parish office reviews them.
-          </p>
-        ) : (
-          <div className="mb-10 sm:mb-12" />
-        )}
+      <div
+        className="absolute top-0 right-0 opacity-[0.05] pointer-events-none select-none"
+        style={{ fontSize: 'clamp(120px, 25vw, 320px)', color: '#E8B84B', fontFamily: 'Georgia, serif', lineHeight: 1, transform: 'translate(10%, -30%)' }}
+        aria-hidden
+      >
+        "
+      </div>
 
-        {items.length > 0 ? (
+      <div className="relative max-w-3xl mx-auto">
+        <div className="text-xs tracking-[0.25em] uppercase mb-3 text-center" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
+          Voices of the Parish
+        </div>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-8 sm:mb-10" style={{ fontFamily: "'Lora', serif" }}>
+          {hasVoices ? 'What Our Community Says' : 'Share Your Story'}
+        </h2>
+
+        {!loaded ? (
+          <div className="h-24 flex items-center justify-center" aria-hidden>
+            <div className="w-8 h-px" style={{ backgroundColor: 'rgba(200,146,42,0.35)' }} />
+          </div>
+        ) : null}
+
+        {hasVoices ? (
           <>
-            <div className="relative mb-10" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+            <div className="relative min-h-[9.5rem] sm:min-h-[11rem]" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
               {items.map((t, i) => {
                 const initial = (t.display_name.trim().charAt(0) || '?').toUpperCase()
                 const roleLine = [t.role, t.location].filter(Boolean).join(' · ')
+                const isActive = active === i
                 return (
                   <div
                     key={t.id}
-                    className="transition-all duration-700"
+                    className="transition-all duration-700 px-0.5"
                     style={{
-                      opacity: active === i ? 1 : 0,
-                      position: active === i ? 'relative' : 'absolute',
+                      opacity: isActive ? 1 : 0,
+                      position: isActive ? 'relative' : 'absolute',
                       top: 0,
                       left: 0,
                       right: 0,
-                      pointerEvents: active === i ? 'auto' : 'none',
+                      pointerEvents: isActive ? 'auto' : 'none',
+                      transform: isActive ? 'translateY(0)' : 'translateY(6px)',
                     }}
+                    aria-hidden={!isActive}
                   >
-                    <blockquote className="text-lg sm:text-xl md:text-2xl italic text-center leading-relaxed mb-8" style={{ fontFamily: "'Lora', serif", color: '#F0E8D8', lineHeight: 1.7 }}>
+                    <blockquote
+                      className="text-base sm:text-xl md:text-[1.65rem] italic text-center leading-relaxed mb-7 break-words"
+                      style={{ fontFamily: "'Lora', serif", color: '#F0E8D8', lineHeight: 1.7, overflowWrap: 'anywhere' }}
+                    >
                       "{t.quote}"
                     </blockquote>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-full">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
+                      >
                         {initial}
                       </div>
-                      <div className="text-center sm:text-left">
-                        <div className="text-sm font-semibold text-white" style={{ fontFamily: "'Inter', sans-serif" }}>{t.display_name}</div>
+                      <div className="text-center sm:text-left min-w-0 max-w-full">
+                        <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Inter', sans-serif" }}>{t.display_name}</div>
                         {roleLine ? (
-                          <div className="text-xs" style={{ color: '#E8B84B99', fontFamily: "'DM Mono', monospace" }}>{roleLine}</div>
+                          <div className="text-xs break-words" style={{ color: '#E8B84B99', fontFamily: "'DM Mono', monospace" }}>{roleLine}</div>
                         ) : null}
                       </div>
                     </div>
@@ -475,88 +635,151 @@ function VoicesOfTheParish() {
                 )
               })}
             </div>
+
             {items.length > 1 ? (
-              <div className="flex items-center justify-center gap-5 mb-12">
-                <button onClick={prev} className="w-10 h-10 flex items-center justify-center transition-all hover:scale-110 active:scale-95" style={{ backgroundColor: 'rgba(240,232,216,0.1)', color: '#E8B84B', border: '1px solid rgba(200,146,42,0.3)' }} aria-label="Previous testimonial">
+              <div className="flex items-center justify-center gap-3 sm:gap-5 mt-9 mb-10">
+                <button
+                  type="button"
+                  onClick={prev}
+                  className="w-11 h-11 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0"
+                  style={{ backgroundColor: 'rgba(240,232,216,0.1)', color: '#E8B84B', border: '1px solid rgba(200,146,42,0.3)' }}
+                  aria-label="Previous testimonial"
+                >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
                 </button>
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-0.5 sm:gap-1 items-center max-w-[min(100%,14rem)] overflow-x-auto" role="tablist" aria-label="Testimonials">
                   {items.map((_, i) => (
-                    <button key={i} onClick={() => setActive(i)} className="transition-all duration-300" style={{ width: active === i ? 28 : 8, height: 8, backgroundColor: active === i ? '#C8922A' : 'rgba(200,146,42,0.3)', border: 'none', borderRadius: active === i ? 4 : '50%' }} aria-label={`Go to testimonial ${i + 1}`} />
+                    <button
+                      key={i}
+                      type="button"
+                      role="tab"
+                      aria-selected={active === i}
+                      onClick={() => setActive(i)}
+                      className="flex items-center justify-center shrink-0 min-w-11 min-h-11"
+                      aria-label={`Go to testimonial ${i + 1}`}
+                    >
+                      <span
+                        className="block transition-all duration-300"
+                        style={{
+                          width: active === i ? 28 : 8,
+                          height: 8,
+                          backgroundColor: active === i ? '#C8922A' : 'rgba(200,146,42,0.3)',
+                          borderRadius: active === i ? 4 : '50%',
+                        }}
+                      />
+                    </button>
                   ))}
                 </div>
-                <button onClick={next} className="w-10 h-10 flex items-center justify-center transition-all hover:scale-110 active:scale-95" style={{ backgroundColor: 'rgba(240,232,216,0.1)', color: '#E8B84B', border: '1px solid rgba(200,146,42,0.3)' }} aria-label="Next testimonial">
+                <button
+                  type="button"
+                  onClick={next}
+                  className="w-11 h-11 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0"
+                  style={{ backgroundColor: 'rgba(240,232,216,0.1)', color: '#E8B84B', border: '1px solid rgba(200,146,42,0.3)' }}
+                  aria-label="Next testimonial"
+                >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
                 </button>
               </div>
-            ) : null}
-          </>
-        ) : null}
+            ) : (
+              <div className="mb-10" />
+            )}
 
-        <div
-          className="max-w-xl mx-auto p-5 sm:p-7"
-          style={{ backgroundColor: 'rgba(250,246,240,0.06)', border: '1px solid rgba(200,146,42,0.22)' }}
-        >
-          <div className="text-xs tracking-[0.2em] uppercase mb-2 text-center" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
-            Share your story
-          </div>
-          <p className="text-sm text-center mb-5 leading-relaxed" style={{ color: '#F0E8D8AA' }}>
-            A few words from your journey with St. Theresa Kalimoni Parish.
-          </p>
-
-          {submitted ? (
-            <div className="text-center py-4">
-              <div className="text-2xl mb-2" style={{ color: '#C8922A' }}>✦</div>
-              <p className="text-sm font-semibold text-white mb-1" style={{ fontFamily: "'Lora', serif" }}>Thank you</p>
-              <p className="text-xs leading-relaxed" style={{ color: '#F0E8D8AA' }}>
-                Your words will appear after the parish office reviews them.
+            {/* Compact invite — form lives in overlay so quotes keep the stage */}
+            <div
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-5 pt-4 sm:pt-2 w-full"
+              style={{ borderTop: '1px solid rgba(200,146,42,0.18)' }}
+            >
+              <p className="text-sm text-center sm:text-left px-1" style={{ color: '#F0E8D899', fontFamily: "'Inter', sans-serif" }}>
+                Walk this journey with us?
               </p>
-            </div>
-          ) : (
-            <form onSubmit={e => { void onSubmit(e) }} className="relative flex flex-col gap-3">
-              <input
-                required
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="Your name (as it may appear)"
-                maxLength={80}
-                className="w-full px-4 py-3 text-sm min-h-[48px]"
-                style={fieldStyle}
-              />
-              <input
-                value={role}
-                onChange={e => setRole(e.target.value)}
-                placeholder="Role or connection (optional)"
-                maxLength={120}
-                className="w-full px-4 py-3 text-sm min-h-[48px]"
-                style={fieldStyle}
-              />
-              <textarea
-                required
-                value={quote}
-                onChange={e => setQuote(e.target.value)}
-                placeholder="Share a short reflection…"
-                rows={4}
-                maxLength={800}
-                className="w-full px-4 py-3 text-sm resize-none"
-                style={fieldStyle}
-              />
-              <div aria-hidden="true" className="absolute -left-[9999px] h-0 overflow-hidden">
-                <input tabIndex={-1} autoComplete="off" value={website} onChange={e => setWebsite(e.target.value)} />
-              </div>
-              {formError ? <p className="text-sm" style={{ color: '#E8B84B' }}>{formError}</p> : null}
               <button
-                type="submit"
-                disabled={busy}
-                className="py-3.5 font-bold text-sm tracking-wide transition-all hover:brightness-110 min-h-[48px]"
-                style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
+                type="button"
+                onClick={openShare}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs tracking-[0.14em] uppercase font-semibold transition-all hover:brightness-110 active:scale-[0.98] min-h-[48px] w-full sm:w-auto"
+                style={{
+                  color: '#FAF6F0',
+                  backgroundColor: 'transparent',
+                  border: '1px solid rgba(200,146,42,0.55)',
+                  fontFamily: "'DM Mono', monospace",
+                }}
               >
-                {busy ? 'Sending…' : 'Submit for review'}
+                Share your story
+                <span aria-hidden style={{ color: '#C8922A' }}>→</span>
               </button>
-            </form>
-          )}
-        </div>
+            </div>
+          </>
+        ) : loaded ? (
+          <div className="max-w-xl mx-auto">
+            <p className="text-center text-sm sm:text-base mb-8 max-w-lg mx-auto leading-relaxed" style={{ color: '#F0E8D8BB' }}>
+              Parishioners and friends of Kalimoni are invited to share a word of faith, gratitude, or hope. Stories appear here after the parish office reviews them.
+            </p>
+            <div
+              className="p-5 sm:p-7"
+              style={{ backgroundColor: 'rgba(250,246,240,0.06)', border: '1px solid rgba(200,146,42,0.22)' }}
+            >
+              <div className="text-xs tracking-[0.2em] uppercase mb-2 text-center" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
+                Share your story
+              </div>
+              <p className="text-sm text-center mb-5 leading-relaxed" style={{ color: '#F0E8D8AA' }}>
+                A few words from your journey with St. Theresa Kalimoni Parish.
+              </p>
+              <VoiceShareForm {...formProps} />
+            </div>
+          </div>
+        ) : null}
       </div>
+
+      {shareOpen ? (
+        <div
+          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="voice-share-title"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 border-0 cursor-default"
+            style={{ backgroundColor: 'rgba(12, 4, 8, 0.72)', backdropFilter: 'blur(4px)' }}
+            aria-label="Close share form"
+            onClick={closeShare}
+          />
+          <div
+            className="relative w-full sm:max-w-md max-h-[min(92dvh,920px)] overflow-y-auto overscroll-contain shadow-2xl rounded-t-2xl sm:rounded-sm"
+            style={{
+              backgroundColor: '#3A0C14',
+              border: '1px solid rgba(200,146,42,0.28)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div
+              className="sticky top-0 flex items-center justify-between gap-3 px-4 sm:px-5 py-4 z-10"
+              style={{ backgroundColor: '#3A0C14', borderBottom: '1px solid rgba(200,146,42,0.18)' }}
+            >
+              <div className="min-w-0">
+                <div id="voice-share-title" className="text-xs tracking-[0.2em] uppercase" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
+                  Share your story
+                </div>
+                <p className="text-sm mt-1 truncate" style={{ color: '#F0E8D8AA', fontFamily: "'Lora', serif" }}>
+                  A few words from Kalimoni
+                </p>
+              </div>
+              <button
+                ref={closeBtnRef}
+                type="button"
+                onClick={closeShare}
+                className="w-11 h-11 flex items-center justify-center shrink-0 transition-colors hover:bg-white/5"
+                style={{ color: '#E8B84B', border: '1px solid rgba(200,146,42,0.25)' }}
+                aria-label="Close"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" /></svg>
+              </button>
+            </div>
+            <div className="px-4 sm:px-5 pt-4 pb-safe" style={{ paddingBottom: 'max(1.5rem, var(--safe-bottom))' }}>
+              <VoiceShareForm {...formProps} dense />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }
@@ -771,7 +994,7 @@ export default function Home() {
       <section
         id="media-slot-home__hero__background"
         data-media-slot="home.hero.background"
-        className="hero-section relative overflow-hidden rounded-2xl min-h-[90vh]"
+        className="hero-section relative overflow-hidden rounded-2xl min-h-[min(90dvh,920px)]"
         style={{ background: 'linear-gradient(155deg, #0D0408 0%, #2A0810 38%, #1C0A06 72%, #0E0305 100%)' }}
       >
         {/* Background: candle photo, very subtle texture */}
@@ -825,12 +1048,12 @@ export default function Home() {
               className="font-bold text-white"
               style={{
                 fontFamily: "'Lora', serif",
-                fontSize: 'clamp(2.8rem, 8.5vw, 6.2rem)',
+                fontSize: 'clamp(2.35rem, 8.5vw, 6.2rem)',
                 lineHeight: 0.94,
                 letterSpacing: '-0.032em',
               }}
             >
-              <span className="block">St. Theresa</span>
+              <span className="block break-words">St. Theresa</span>
               <em
                 className="block not-italic font-normal"
                 style={{ color: '#E8B84B', fontSize: '0.72em', lineHeight: 1.05 }}
@@ -847,10 +1070,10 @@ export default function Home() {
           </div>
 
           {/* RIGHT: body + CTAs + stats */}
-          <div className="lg:w-[350px] xl:w-[390px] shrink-0">
+          <div className="w-full lg:w-[350px] xl:w-[390px] lg:shrink-0 min-w-0">
             <p
               className="text-sm sm:text-base leading-loose mb-7 sm:mb-8"
-              style={{ color: 'rgba(240,232,216,0.5)', fontFamily: "'Inter', sans-serif", marginLeft: '-3px' }}
+              style={{ color: 'rgba(240,232,216,0.5)', fontFamily: "'Inter', sans-serif" }}
             >
               Over a century of faith, charity, and community in the heart of Juja —
               serving God through service to all of humanity.

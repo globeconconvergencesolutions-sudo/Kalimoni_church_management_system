@@ -40,8 +40,8 @@ export default function PoweredByGlobecon({
         onBlur={() => setHovered(false)}
         className="fixed z-30 group flex items-center gap-1.5 pl-1.5 pr-2.5 py-1 max-sm:pr-1.5"
         style={{
-          bottom: '1.35rem',
-          right: '5.1rem',
+          bottom: 'calc(1.35rem + var(--safe-bottom))',
+          right: 'calc(5.1rem + var(--safe-right))',
           backgroundColor: hovered ? 'rgba(15,13,12,0.94)' : 'rgba(15,13,12,0.55)',
           border: `1px solid ${hovered ? 'rgba(200,146,42,0.45)' : 'rgba(200,146,42,0.18)'}`,
           boxShadow: hovered ? '0 6px 20px rgba(0,0,0,0.28)' : '0 2px 10px rgba(0,0,0,0.12)',
