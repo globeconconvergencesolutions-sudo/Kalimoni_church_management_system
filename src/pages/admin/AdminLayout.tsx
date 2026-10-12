@@ -17,6 +17,7 @@ import {
   IconImage,
   IconImport,
   IconNews,
+  IconQuote,
 } from '../../components/office/officeTheme'
 
 const GROUPS: { label: string; items: { to: string; label: string; icon: ReactNode; end?: boolean }[] }[] = [
@@ -32,6 +33,7 @@ const GROUPS: { label: string; items: { to: string; label: string; icon: ReactNo
     items: [
       { to: '/admin/notices', label: 'Notices', icon: <IconBell /> },
       { to: '/admin/posts', label: 'News', icon: <IconNews /> },
+      { to: '/admin/testimonials', label: 'Voices', icon: <IconQuote /> },
     ],
   },
   {

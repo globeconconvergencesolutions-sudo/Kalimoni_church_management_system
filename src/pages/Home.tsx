@@ -10,6 +10,9 @@ import { submitInbox } from '../lib/inbox'
 import { parishImage } from '../lib/media'
 import { useSiteMedia } from '../hooks/useSiteMedia'
 import FeaturedStorySpotlight from '../components/FeaturedStorySpotlight'
+import { siteFeatures } from '../lib/siteFeatures'
+import { fetchPublishedTestimonials, submitTestimonial } from '../lib/testimonials'
+import type { Testimonial } from '../lib/testimonialTypes'
 
 const HERO_STATS = [
   { value: '1927', label: 'Year Established' },
@@ -22,7 +25,9 @@ const QUICK_LINKS = [
   { to: '/about', title: 'About Us', desc: 'Our vision, mission, and identity as a Catholic community in Juja.', icon: '✦', bg: '#6B1A2A' },
   { to: '/ministries', title: 'Ministries', desc: 'CWA, CMA, YCA, YSC, PMC — find your place in the parish family.', icon: '◈', bg: '#4A3A10' },
   { to: '/events', title: 'Events', desc: 'Upcoming feast days, holy days, and parish celebrations.', icon: '⊞', bg: '#1A3A4A' },
-  { to: '/donate', title: 'Support Us', desc: 'Partner with our mission — every gift transforms a life in Kalimoni.', icon: '♡', bg: '#2A1A4A' },
+  siteFeatures.publicDonate
+    ? { to: '/donate', title: 'Support Us', desc: 'Partner with our mission — every gift transforms a life in Kalimoni.', icon: '♡', bg: '#2A1A4A' }
+    : { to: '/contact', title: 'Get in Touch', desc: 'Reach the parish office — we welcome visitors, diaspora, and friends of Kalimoni.', icon: '✉', bg: '#2A1A4A' },
 ]
 
 const NEWS = [
@@ -69,13 +74,6 @@ const MINISTRIES = [
   { to: '/ministries', label: 'Catholic Men Association', desc: 'CMA — men united in prayer, charity, and building up the physical and spiritual parish.', img: 'photo-1622598453695-4fbaf151aadc', accent: '#6B1A2A', tag: 'CMA' },
   { to: '/ministries', label: 'Young Catholic Adults', desc: 'YCA — faith-filled young adults growing in discipleship, fellowship, and apostolic service.', img: 'photo-1781263378223-1e09658a7567', accent: '#4A3A10', tag: 'YCA' },
   { to: '/ministries', label: 'Youths Serving Christ', desc: 'YSC — the vibrant youth ministry of St. Theresa Kalimoni Parish, alive in worship, outreach, and joy.', img: 'photo-1547496613-4e19af6736dc', accent: '#1A3A4A', tag: 'YSC' },
-]
-
-const TESTIMONIALS = [
-  { quote: "St. Theresa Kalimoni Parish has been the anchor of our family for over twenty years. The Vincentian Fathers do not merely preach — they live the Gospel with us, side by side.", name: 'Wambui N.', role: 'Parish Council Member, Kalimoni', initial: 'W' },
-  { quote: "Even from thousands of miles away in the UK, I keep faith with my home parish. Knowing the Sisters are caring for the sick and the school is nurturing our children gives me deep peace.", name: 'Joseph M.', role: 'Kenyan Diaspora, United Kingdom', initial: 'J' },
-  { quote: "The 72 Jumuiyas are the heartbeat of this parish. Our small community prays together, supports each other in need, and walks together with Christ.", name: 'Mercy A.', role: 'Jumuiya Leader, Ruiru Deanery', initial: 'M' },
-  { quote: "The Grotto built by our men's association has become the most visited corner of the parish grounds. It reminds us that prayer is the foundation of every good work.", name: 'Peter K.', role: 'Catholic Men Association, Kalimoni', initial: 'P' },
 ]
 
 const AFFILIATIONS = [
@@ -340,61 +338,223 @@ function MinistriesSlider() {
   )
 }
 
-function TestimonialsSlider() {
+function VoicesOfTheParish() {
+  const [items, setItems] = useState<Testimonial[]>([])
+  const [loaded, setLoaded] = useState(false)
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
   const touchStartX = useRef<number | null>(null)
 
-  useEffect(() => {
-    if (paused) return
-    const id = setInterval(() => setActive(i => (i + 1) % TESTIMONIALS.length), 5000)
-    return () => clearInterval(id)
-  }, [paused])
+  const [name, setName] = useState('')
+  const [role, setRole] = useState('')
+  const [quote, setQuote] = useState('')
+  const [website, setWebsite] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
 
-  const prev = () => setActive(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)
-  const next = () => setActive(i => (i + 1) % TESTIMONIALS.length)
+  useEffect(() => {
+    if (!siteFeatures.testimonials) {
+      setLoaded(true)
+      return
+    }
+    void fetchPublishedTestimonials().then(rows => {
+      setItems(rows)
+      setLoaded(true)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (paused || items.length < 2) return
+    const id = setInterval(() => setActive(i => (i + 1) % items.length), 5000)
+    return () => clearInterval(id)
+  }, [paused, items.length])
+
+  useEffect(() => {
+    if (active >= items.length) setActive(0)
+  }, [items.length, active])
+
+  if (!siteFeatures.testimonials) return null
+
+  const prev = () => setActive(i => (i - 1 + items.length) % items.length)
+  const next = () => setActive(i => (i + 1) % items.length)
 
   const onTouchStart = (e: RTouchEvent) => { touchStartX.current = e.touches[0].clientX }
   const onTouchEnd = (e: RTouchEvent) => {
-    if (touchStartX.current === null) return
+    if (touchStartX.current === null || items.length < 2) return
     const dx = e.changedTouches[0].clientX - touchStartX.current
     if (dx < -40) next(); else if (dx > 40) prev()
     touchStartX.current = null
   }
 
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setBusy(true)
+    setFormError(null)
+    const result = await submitTestimonial({
+      display_name: name,
+      role,
+      quote,
+      website,
+    })
+    setBusy(false)
+    if (!result.ok) {
+      setFormError(result.error)
+      return
+    }
+    setSubmitted(true)
+    setName('')
+    setRole('')
+    setQuote('')
+  }
+
+  const fieldStyle = {
+    backgroundColor: 'rgba(250,246,240,0.08)',
+    border: '1px solid rgba(200,146,42,0.28)',
+    color: '#F0E8D8',
+    fontFamily: "'Inter', sans-serif",
+    outline: 'none',
+  } as const
+
   return (
-    <section className="py-14 sm:py-16 md:py-20 px-4 sm:px-6 md:px-10 lg:px-16 relative overflow-hidden" style={{ backgroundColor: '#4A1019' }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <section
+      className="py-14 sm:py-16 md:py-20 px-4 sm:px-6 md:px-10 lg:px-16 relative overflow-hidden"
+      style={{ backgroundColor: '#4A1019' }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
       <div className="absolute top-0 right-0 opacity-[0.05]" style={{ fontSize: 'clamp(120px, 25vw, 320px)', color: '#E8B84B', fontFamily: 'Georgia, serif', lineHeight: 1, userSelect: 'none', transform: 'translate(10%, -30%)' }}>"</div>
       <div className="relative max-w-4xl mx-auto">
         <div className="text-xs tracking-[0.25em] uppercase mb-3 text-center" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>Voices of the Parish</div>
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-10 sm:mb-12" style={{ fontFamily: "'Lora', serif" }}>What Our Community Says</h2>
-        <div className="relative" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-          {TESTIMONIALS.map((t, i) => (
-            <div key={i} className="transition-all duration-700" style={{ opacity: active === i ? 1 : 0, position: active === i ? 'relative' : 'absolute', top: 0, left: 0, right: 0, pointerEvents: active === i ? 'auto' : 'none' }}>
-              <blockquote className="text-lg sm:text-xl md:text-2xl italic text-center leading-relaxed mb-8" style={{ fontFamily: "'Lora', serif", color: '#F0E8D8', lineHeight: 1.7 }}>"{t.quote}"</blockquote>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}>{t.initial}</div>
-                <div className="text-center sm:text-left">
-                  <div className="text-sm font-semibold text-white" style={{ fontFamily: "'Inter', sans-serif" }}>{t.name}</div>
-                  <div className="text-xs" style={{ color: '#E8B84B99', fontFamily: "'DM Mono', monospace" }}>{t.role}</div>
-                </div>
-              </div>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-4" style={{ fontFamily: "'Lora', serif" }}>
+          {items.length > 0 ? 'What Our Community Says' : 'Share Your Story'}
+        </h2>
+        {items.length === 0 && loaded ? (
+          <p className="text-center text-sm sm:text-base mb-10 max-w-xl mx-auto leading-relaxed" style={{ color: '#F0E8D8BB' }}>
+            Parishioners and friends of Kalimoni are invited to share a word of faith, gratitude, or hope. Stories appear here after the parish office reviews them.
+          </p>
+        ) : (
+          <div className="mb-10 sm:mb-12" />
+        )}
+
+        {items.length > 0 ? (
+          <>
+            <div className="relative mb-10" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+              {items.map((t, i) => {
+                const initial = (t.display_name.trim().charAt(0) || '?').toUpperCase()
+                const roleLine = [t.role, t.location].filter(Boolean).join(' · ')
+                return (
+                  <div
+                    key={t.id}
+                    className="transition-all duration-700"
+                    style={{
+                      opacity: active === i ? 1 : 0,
+                      position: active === i ? 'relative' : 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      pointerEvents: active === i ? 'auto' : 'none',
+                    }}
+                  >
+                    <blockquote className="text-lg sm:text-xl md:text-2xl italic text-center leading-relaxed mb-8" style={{ fontFamily: "'Lora', serif", color: '#F0E8D8', lineHeight: 1.7 }}>
+                      "{t.quote}"
+                    </blockquote>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}>
+                        {initial}
+                      </div>
+                      <div className="text-center sm:text-left">
+                        <div className="text-sm font-semibold text-white" style={{ fontFamily: "'Inter', sans-serif" }}>{t.display_name}</div>
+                        {roleLine ? (
+                          <div className="text-xs" style={{ color: '#E8B84B99', fontFamily: "'DM Mono', monospace" }}>{roleLine}</div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-          ))}
-        </div>
-        <div className="flex items-center justify-center gap-5 mt-10">
-          <button onClick={prev} className="w-10 h-10 flex items-center justify-center transition-all hover:scale-110 active:scale-95" style={{ backgroundColor: 'rgba(240,232,216,0.1)', color: '#E8B84B', border: '1px solid rgba(200,146,42,0.3)' }} aria-label="Previous testimonial">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
-          </button>
-          <div className="flex gap-2 items-center">
-            {TESTIMONIALS.map((_, i) => (
-              <button key={i} onClick={() => setActive(i)} className="transition-all duration-300" style={{ width: active === i ? 28 : 8, height: 8, backgroundColor: active === i ? '#C8922A' : 'rgba(200,146,42,0.3)', border: 'none', borderRadius: active === i ? 4 : '50%' }} aria-label={`Go to testimonial ${i + 1}`} />
-            ))}
+            {items.length > 1 ? (
+              <div className="flex items-center justify-center gap-5 mb-12">
+                <button onClick={prev} className="w-10 h-10 flex items-center justify-center transition-all hover:scale-110 active:scale-95" style={{ backgroundColor: 'rgba(240,232,216,0.1)', color: '#E8B84B', border: '1px solid rgba(200,146,42,0.3)' }} aria-label="Previous testimonial">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
+                </button>
+                <div className="flex gap-2 items-center">
+                  {items.map((_, i) => (
+                    <button key={i} onClick={() => setActive(i)} className="transition-all duration-300" style={{ width: active === i ? 28 : 8, height: 8, backgroundColor: active === i ? '#C8922A' : 'rgba(200,146,42,0.3)', border: 'none', borderRadius: active === i ? 4 : '50%' }} aria-label={`Go to testimonial ${i + 1}`} />
+                  ))}
+                </div>
+                <button onClick={next} className="w-10 h-10 flex items-center justify-center transition-all hover:scale-110 active:scale-95" style={{ backgroundColor: 'rgba(240,232,216,0.1)', color: '#E8B84B', border: '1px solid rgba(200,146,42,0.3)' }} aria-label="Next testimonial">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
+                </button>
+              </div>
+            ) : null}
+          </>
+        ) : null}
+
+        <div
+          className="max-w-xl mx-auto p-5 sm:p-7"
+          style={{ backgroundColor: 'rgba(250,246,240,0.06)', border: '1px solid rgba(200,146,42,0.22)' }}
+        >
+          <div className="text-xs tracking-[0.2em] uppercase mb-2 text-center" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
+            Share your story
           </div>
-          <button onClick={next} className="w-10 h-10 flex items-center justify-center transition-all hover:scale-110 active:scale-95" style={{ backgroundColor: 'rgba(240,232,216,0.1)', color: '#E8B84B', border: '1px solid rgba(200,146,42,0.3)' }} aria-label="Next testimonial">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
-          </button>
+          <p className="text-sm text-center mb-5 leading-relaxed" style={{ color: '#F0E8D8AA' }}>
+            A few words from your journey with St. Theresa Kalimoni Parish.
+          </p>
+
+          {submitted ? (
+            <div className="text-center py-4">
+              <div className="text-2xl mb-2" style={{ color: '#C8922A' }}>✦</div>
+              <p className="text-sm font-semibold text-white mb-1" style={{ fontFamily: "'Lora', serif" }}>Thank you</p>
+              <p className="text-xs leading-relaxed" style={{ color: '#F0E8D8AA' }}>
+                Your words will appear after the parish office reviews them.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={e => { void onSubmit(e) }} className="relative flex flex-col gap-3">
+              <input
+                required
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Your name (as it may appear)"
+                maxLength={80}
+                className="w-full px-4 py-3 text-sm min-h-[48px]"
+                style={fieldStyle}
+              />
+              <input
+                value={role}
+                onChange={e => setRole(e.target.value)}
+                placeholder="Role or connection (optional)"
+                maxLength={120}
+                className="w-full px-4 py-3 text-sm min-h-[48px]"
+                style={fieldStyle}
+              />
+              <textarea
+                required
+                value={quote}
+                onChange={e => setQuote(e.target.value)}
+                placeholder="Share a short reflection…"
+                rows={4}
+                maxLength={800}
+                className="w-full px-4 py-3 text-sm resize-none"
+                style={fieldStyle}
+              />
+              <div aria-hidden="true" className="absolute -left-[9999px] h-0 overflow-hidden">
+                <input tabIndex={-1} autoComplete="off" value={website} onChange={e => setWebsite(e.target.value)} />
+              </div>
+              {formError ? <p className="text-sm" style={{ color: '#E8B84B' }}>{formError}</p> : null}
+              <button
+                type="submit"
+                disabled={busy}
+                className="py-3.5 font-bold text-sm tracking-wide transition-all hover:brightness-110 min-h-[48px]"
+                style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
+              >
+                {busy ? 'Sending…' : 'Submit for review'}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </section>
@@ -461,25 +621,52 @@ function NewsletterCTA() {
   return (
     <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-10 lg:px-16" style={{ backgroundColor: '#F0E8D8' }}>
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:gap-12 lg:gap-16 items-start">
-        {/* Donate block */}
+        {/* Connect / donate block */}
         <div className="w-full md:w-1/2 mb-10 md:mb-0">
-          <div className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Support Our Mission</div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
-            Your Gift Changes Lives<br />in Kalimoni
-          </h2>
-          <p className="text-sm sm:text-base leading-relaxed mb-6" style={{ color: '#4A3A30' }}>
-            From funding the Kalimoni Mission Hospital to supporting the education of children
-            in our schools, every donation — wherever you are in the world — brings light to
-            someone in our community.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Link to="/donate" className="text-center py-4 px-8 font-bold text-base tracking-wide transition-all hover:brightness-110 min-h-[52px] flex items-center justify-center" style={{ backgroundColor: '#6B1A2A', color: '#F0E8D8', fontFamily: "'Lora', serif" }}>
-              Make a Donation
-            </Link>
-            <Link to="/contact" className="text-center py-4 px-6 font-medium text-sm tracking-wide border transition-all min-h-[52px] flex items-center justify-center" style={{ border: '1px solid #C8922A', color: '#6B1A2A', fontFamily: "'Inter', sans-serif" }}>
-              Get in Touch
-            </Link>
-          </div>
+          {siteFeatures.publicDonate ? (
+            <>
+              <div className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Support Our Mission</div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
+                Your Gift Changes Lives<br />in Kalimoni
+              </h2>
+              <p className="text-sm sm:text-base leading-relaxed mb-6" style={{ color: '#4A3A30' }}>
+                From funding the Kalimoni Mission Hospital to supporting the education of children
+                in our schools, every donation — wherever you are in the world — brings light to
+                someone in our community.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link to="/donate" className="text-center py-4 px-8 font-bold text-base tracking-wide transition-all hover:brightness-110 min-h-[52px] flex items-center justify-center" style={{ backgroundColor: '#6B1A2A', color: '#F0E8D8', fontFamily: "'Lora', serif" }}>
+                  Make a Donation
+                </Link>
+                <Link to="/contact" className="text-center py-4 px-6 font-medium text-sm tracking-wide border transition-all min-h-[52px] flex items-center justify-center" style={{ border: '1px solid #C8922A', color: '#6B1A2A', fontFamily: "'Inter', sans-serif" }}>
+                  Get in Touch
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Connect with the Parish</div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
+                We Welcome You<br />in Kalimoni
+              </h2>
+              <p className="text-sm sm:text-base leading-relaxed mb-6" style={{ color: '#4A3A30' }}>
+                Whether you live nearby, visit on Sunday, or keep faith with Kalimoni from afar —
+                write to the parish office. We are glad to hear from you.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link to="/contact" className="text-center py-4 px-8 font-bold text-base tracking-wide transition-all hover:brightness-110 min-h-[52px] flex items-center justify-center" style={{ backgroundColor: '#6B1A2A', color: '#F0E8D8', fontFamily: "'Lora', serif" }}>
+                  Contact the Parish
+                </Link>
+                <a
+                  href="mailto:sttheresakalimoniparish@gmail.com"
+                  className="text-center py-4 px-6 font-medium text-sm tracking-wide border transition-all min-h-[52px] flex items-center justify-center"
+                  style={{ border: '1px solid #C8922A', color: '#6B1A2A', fontFamily: "'Inter', sans-serif" }}
+                >
+                  Email Us
+                </a>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Newsletter / Prayer block */}
@@ -684,13 +871,15 @@ export default function Home() {
               >
                 Visit Us
               </Link>
-              <Link
-                to="/donate"
-                className="px-6 py-3 text-sm font-medium tracking-wide transition-all duration-200 hover:bg-white/10 hover:-translate-y-0.5 min-h-[46px] flex items-center"
-                style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,232,216,0.35)', fontFamily: "'Inter', sans-serif" }}
-              >
-                Donate
-              </Link>
+              {siteFeatures.publicDonate ? (
+                <Link
+                  to="/donate"
+                  className="px-6 py-3 text-sm font-medium tracking-wide transition-all duration-200 hover:bg-white/10 hover:-translate-y-0.5 min-h-[46px] flex items-center"
+                  style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,232,216,0.35)', fontFamily: "'Inter', sans-serif" }}
+                >
+                  Donate
+                </Link>
+              ) : null}
             </div>
 
             <div
@@ -894,8 +1083,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TESTIMONIALS SLIDER */}
-      <TestimonialsSlider />
+      {/* VOICES OF THE PARISH */}
+      <VoicesOfTheParish />
 
       {/* TRUST BAND */}
       <TrustBand />

@@ -1,31 +1,35 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import OfficePage from '../../components/office/OfficePage'
-import { office, IconBell, IconChalice, IconEnvelope, IconHeart } from '../../components/office/officeTheme'
+import { office, IconBell, IconChalice, IconEnvelope, IconHeart, IconQuote } from '../../components/office/officeTheme'
 import { fetchAllNotices } from '../../lib/notices'
 import { fetchInbox } from '../../lib/inbox'
 import { fetchStaffDonations } from '../../lib/donations'
 import { fetchEucharistSlots } from '../../lib/cms'
 import { computeNextMass } from '../../data/massSchedule'
+import { countPendingTestimonials } from '../../lib/testimonials'
 
 export default function AdminDashboard() {
   const [notices, setNotices] = useState(0)
   const [unread, setUnread] = useState(0)
   const [gifts, setGifts] = useState(0)
+  const [pendingVoices, setPendingVoices] = useState(0)
   const [mass, setMass] = useState(computeNextMass())
 
   useEffect(() => {
     void fetchAllNotices().then(r => setNotices(r.notices.filter(n => n.published).length))
     void fetchInbox().then(r => setUnread(r.messages.filter(m => m.status === 'unread').length))
     void fetchStaffDonations().then(r => setGifts(r.rows.length))
+    void countPendingTestimonials().then(setPendingVoices)
     void fetchEucharistSlots().then(slots => setMass(computeNextMass(slots)))
   }, [])
 
   const cards = [
     { to: '/admin/inbox', kicker: 'Today', title: unread ? `${unread} unread` : 'Inbox clear', lede: 'Messages, prayer, and newsletter signups.', gold: unread > 0, icon: <IconEnvelope /> },
+    { to: '/admin/testimonials', kicker: 'Voices', title: pendingVoices ? `${pendingVoices} pending` : 'No pending voices', lede: 'Parish testimonies waiting for review before they appear on the homepage.', gold: pendingVoices > 0, icon: <IconQuote /> },
     { to: '/admin/notices', kicker: 'Proclaim', title: notices ? `${notices} live notices` : 'No live notices', lede: 'The notice bar parishioners see at the top of the website.', gold: false, icon: <IconBell /> },
     { to: '/admin/mass', kicker: 'Eucharist', title: `${mass.displayDay} · ${mass.time}`, lede: mass.isImminent ? 'Starting soon in Kalimoni.' : 'The next Mass countdown on the homepage.', gold: false, icon: <IconChalice /> },
-    { to: '/admin/giving', kicker: 'Gifts', title: gifts ? `${gifts} gifts recorded` : 'No gifts yet', lede: 'Gifts received through the Donate page.', gold: false, icon: <IconHeart /> },
+    { to: '/admin/giving', kicker: 'Gifts', title: gifts ? `${gifts} gifts recorded` : 'No gifts yet', lede: 'Internal gift records for the parish office.', gold: false, icon: <IconHeart /> },
   ]
 
   const shortcuts = [

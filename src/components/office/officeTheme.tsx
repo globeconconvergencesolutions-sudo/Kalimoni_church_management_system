@@ -110,3 +110,11 @@ export function IconImport({ className }: { className?: string }) {
     </svg>
   )
 }
+
+export function IconQuote({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M7.2 18c-1.8 0-3.2-1.4-3.2-3.2 0-2.4 1.8-5.2 5.2-8.2L11 8.4C8.8 10.4 7.6 12.2 7.6 13.8c.4-.2.8-.2 1.2-.2 1.6 0 2.8 1.2 2.8 2.8S10.4 18 8.8 18H7.2zm9.6 0c-1.8 0-3.2-1.4-3.2-3.2 0-2.4 1.8-5.2 5.2-8.2L20.6 8.4c-2.2 2-3.4 3.8-3.4 5.4.4-.2.8-.2 1.2-.2 1.6 0 2.8 1.2 2.8 2.8s-1.2 2.6-2.8 2.6h-1.6z" />
+    </svg>
+  )
+}

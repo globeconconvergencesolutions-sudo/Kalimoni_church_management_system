@@ -1,3 +1,5 @@
+import { siteFeatures } from '../lib/siteFeatures'
+
 /** Canonical parish location — used on Contact, footer, and map embeds. */
 export const PARISH_LOCATION = {
   name: 'St. Theresa Kalimoni Parish',
@@ -5,6 +7,7 @@ export const PARISH_LOCATION = {
   lines: ['P.O. BOX 141, Kalimoni 01001', 'Juja, Kiambu County, Kenya'],
   deanery: 'Ruiru Deanery',
   diocese: 'Catholic Archdiocese of Nairobi',
+  /** Kept for restore — public UI uses parishPhoneDisplay() / parishTelHref() */
   phone: '+254 704 358594',
   phoneTel: '+254704358594',
   email: 'sttheresakalimoniparish@gmail.com',
@@ -14,6 +17,26 @@ export const PARISH_LOCATION = {
   placeId: '0x182f478004ba089d:0x1e8ecd1d9f5d3e4c',
   mapsShortUrl: 'https://maps.app.goo.gl/YsuSCqxiaqpSj78L8',
 } as const
+
+/** Display phone when contactPhoneWhatsApp is on; otherwise null (omit from UI). */
+export function parishPhoneDisplay(): string | null {
+  if (!siteFeatures.contactPhoneWhatsApp) return null
+  return PARISH_LOCATION.phone
+}
+
+/** tel: href when contactPhoneWhatsApp is on; otherwise null. */
+export function parishTelHref(): string | null {
+  if (!siteFeatures.contactPhoneWhatsApp) return null
+  return `tel:${PARISH_LOCATION.phoneTel}`
+}
+
+/** WhatsApp chat URL when contactPhoneWhatsApp is on; otherwise null. */
+export function parishWhatsAppUrl(prefill?: string): string | null {
+  if (!siteFeatures.contactPhoneWhatsApp) return null
+  const digits = PARISH_LOCATION.phoneTel.replace(/\D/g, '')
+  const text = prefill ? `?text=${encodeURIComponent(prefill)}` : ''
+  return `https://wa.me/${digits}${text}`
+}
 
 export function parishGoogleMapsEmbedUrl(): string {
   const { lat, lng, name } = PARISH_LOCATION

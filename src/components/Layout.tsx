@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Outlet, NavLink, useLocation, Link } from 'react-router'
 import officialLogo from '../imports/St._Theresa_Catholic_Church__Kalimoni_-_Logo.png'
 import NoticeRail from './NoticeRail'
@@ -7,6 +7,8 @@ import PoweredByGlobecon from './PoweredByGlobecon'
 import { useLiveNotices } from '../hooks/useLiveNotices'
 import { NOTICE_RAIL_HEIGHT } from '../lib/noticeTypes'
 import { readMediaSlotFromLocation, scrollToMediaSlot } from '../lib/mediaPreview'
+import { siteFeatures } from '../lib/siteFeatures'
+import { parishPhoneDisplay, parishTelHref, parishWhatsAppUrl } from '../data/parishLocation'
 
 const NAV = [
   { to: '/', en: 'Home', sw: 'Nyumbani' },
@@ -18,7 +20,7 @@ const NAV = [
   { to: '/contact', en: 'Contact', sw: 'Wasiliana' },
 ]
 
-const FOOTER_LINKS = [
+const FOOTER_LINKS_BASE = [
   {
     en: 'The Parish',
     sw: 'Parokia',
@@ -45,7 +47,9 @@ const FOOTER_LINKS = [
     links: [
       { to: '/blog', en: 'Parish News', sw: 'Habari' },
       { to: '/contact', en: 'Contact Us', sw: 'Wasiliana nasi' },
-      { to: '/donate', en: 'Donate', sw: 'Changia' },
+      ...(siteFeatures.publicDonate
+        ? [{ to: '/donate', en: 'Donate', sw: 'Changia' }]
+        : []),
     ],
   },
 ]
@@ -112,6 +116,23 @@ export default function Layout() {
 
   const t = (en: string, sw: string) => (lang === 'sw' ? sw : en)
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+  const phoneDisplay = parishPhoneDisplay()
+  const phoneHref = parishTelHref()
+  const whatsappUrl = parishWhatsAppUrl(
+    'Hello St. Theresa Kalimoni Parish. I would like to get in touch.',
+  )
+  const footerLinks = useMemo(() => FOOTER_LINKS_BASE, [])
+  const bottomLinks = useMemo(
+    () => [
+      { en: 'News', sw: 'Habari', to: '/blog' },
+      { en: 'Gallery', sw: 'Picha', to: '/gallery' },
+      ...(siteFeatures.publicDonate
+        ? [{ en: 'Donate', sw: 'Changia', to: '/donate' }]
+        : []),
+      { en: 'Privacy', sw: 'Faragha', to: '/contact' },
+    ],
+    [],
+  )
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#FAF6F0' }}>
@@ -175,14 +196,18 @@ export default function Layout() {
                 {t(en, sw)}
               </NavLink>
             ))}
-            <span className="w-px h-3.5 mx-2 shrink-0" style={{ backgroundColor: 'rgba(200,146,42,0.2)' }} />
-            <Link
-              to="/donate"
-              className="px-4 py-1.5 text-[10px] font-bold tracking-[0.14em] uppercase transition-all duration-200 hover:brightness-110 active:scale-95 whitespace-nowrap rounded-full"
-              style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
-            >
-              {t('Donate', 'Changia')}
-            </Link>
+            {siteFeatures.publicDonate ? (
+              <>
+                <span className="w-px h-3.5 mx-2 shrink-0" style={{ backgroundColor: 'rgba(200,146,42,0.2)' }} />
+                <Link
+                  to="/donate"
+                  className="px-4 py-1.5 text-[10px] font-bold tracking-[0.14em] uppercase transition-all duration-200 hover:brightness-110 active:scale-95 whitespace-nowrap rounded-full"
+                  style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
+                >
+                  {t('Donate', 'Changia')}
+                </Link>
+              </>
+            ) : null}
           </div>
 
           {/* Right: mobile burger */}
@@ -224,13 +249,23 @@ export default function Layout() {
                 {t(en, sw)}
               </NavLink>
             ))}
-            <Link
-              to="/donate"
-              className="col-span-2 mt-2 py-3.5 text-center text-sm font-bold tracking-widest uppercase min-h-[44px] flex items-center justify-center"
-              style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
-            >
-              {t('Donate Now', 'Changia sasa')}
-            </Link>
+            {siteFeatures.publicDonate ? (
+              <Link
+                to="/donate"
+                className="col-span-2 mt-2 py-3.5 text-center text-sm font-bold tracking-widest uppercase min-h-[44px] flex items-center justify-center"
+                style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
+              >
+                {t('Donate Now', 'Changia sasa')}
+              </Link>
+            ) : (
+              <Link
+                to="/contact"
+                className="col-span-2 mt-2 py-3.5 text-center text-sm font-bold tracking-widest uppercase min-h-[44px] flex items-center justify-center"
+                style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
+              >
+                {t('Get in Touch', 'Wasiliana nasi')}
+              </Link>
+            )}
           </div>
           <div className="h-safe-bottom" />
         </div>
@@ -244,7 +279,7 @@ export default function Layout() {
 
       {/* ── FOOTER ──────────────────────────────────────────── */}
       <footer style={{ backgroundColor: '#0F0D0C' }}>
-        {/* Top band — donate CTA */}
+        {/* Top band — connect / donate CTA */}
         <div
           className="px-4 sm:px-6 md:px-10 lg:px-16 py-10 sm:py-12"
           style={{ backgroundColor: '#6B1A2A' }}
@@ -252,26 +287,48 @@ export default function Layout() {
           <div className="max-w-6xl mx-auto flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
             <div>
               <div className="text-xs tracking-[0.25em] uppercase mb-2" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
-                {t('Partner With Us', 'Shirikiana nasi')}
+                {siteFeatures.publicDonate
+                  ? t('Partner With Us', 'Shirikiana nasi')
+                  : t('Stay Connected', 'Tuwasiliane')}
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight" style={{ fontFamily: "'Lora', serif" }}>
-                {t('Support the Mission', 'Saidia utume')}
-                <br className="hidden sm:block" />
-                {t(' of St. Theresa Kalimoni Parish', ' wa Parokia ya St. Theresa Kalimoni')}
+                {siteFeatures.publicDonate ? (
+                  <>
+                    {t('Support the Mission', 'Saidia utume')}
+                    <br className="hidden sm:block" />
+                    {t(' of St. Theresa Kalimoni Parish', ' wa Parokia ya St. Theresa Kalimoni')}
+                  </>
+                ) : (
+                  <>
+                    {t('Walk with St. Theresa', 'Tembea na St. Theresa')}
+                    <br className="hidden sm:block" />
+                    {t(' Kalimoni Parish', ' Parokia ya Kalimoni')}
+                  </>
+                )}
               </h2>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Link
-                to="/donate"
-                className="px-7 py-3.5 font-bold text-sm tracking-wide transition-all hover:brightness-110 active:scale-95 text-center min-h-[48px] flex items-center justify-center"
-                style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
-              >
-                {t('Donate Now', 'Changia sasa')}
-              </Link>
+              {siteFeatures.publicDonate ? (
+                <Link
+                  to="/donate"
+                  className="px-7 py-3.5 font-bold text-sm tracking-wide transition-all hover:brightness-110 active:scale-95 text-center min-h-[48px] flex items-center justify-center"
+                  style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'Lora', serif" }}
+                >
+                  {t('Donate Now', 'Changia sasa')}
+                </Link>
+              ) : null}
               <Link
                 to="/contact"
                 className="px-7 py-3.5 font-medium text-sm tracking-wide border transition-all hover:bg-white/10 text-center min-h-[48px] flex items-center justify-center"
-                style={{ border: '1px solid rgba(240,232,216,0.35)', color: '#F0E8D8', fontFamily: "'Inter', sans-serif" }}
+                style={{
+                  border: siteFeatures.publicDonate
+                    ? '1px solid rgba(240,232,216,0.35)'
+                    : 'none',
+                  backgroundColor: siteFeatures.publicDonate ? 'transparent' : '#C8922A',
+                  color: siteFeatures.publicDonate ? '#F0E8D8' : '#FAF6F0',
+                  fontFamily: siteFeatures.publicDonate ? "'Inter', sans-serif" : "'Lora', serif",
+                  fontWeight: siteFeatures.publicDonate ? 500 : 700,
+                }}
               >
                 {t('Get in Touch', 'Wasiliana nasi')}
               </Link>
@@ -312,12 +369,14 @@ export default function Layout() {
                     </svg>
                     <span>P.O. BOX 141, Kalimoni, Kenya 01001</span>
                   </div>
-                  <a href="tel:+254704358594" className="flex items-start gap-2.5 hover:text-white transition-colors">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8922A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0">
-                      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.25 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z" />
-                    </svg>
-                    <span>+254 704 358594</span>
-                  </a>
+                  {phoneHref && phoneDisplay ? (
+                    <a href={phoneHref} className="flex items-start gap-2.5 hover:text-white transition-colors">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8922A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0">
+                        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.25 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z" />
+                      </svg>
+                      <span>{phoneDisplay}</span>
+                    </a>
+                  ) : null}
                   <a href="mailto:sttheresakalimoniparish@gmail.com" className="flex items-start gap-2.5 hover:text-white transition-colors">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8922A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -335,7 +394,7 @@ export default function Layout() {
               </div>
 
               {/* Link columns */}
-              {FOOTER_LINKS.map(group => (
+              {footerLinks.map(group => (
                 <div key={group.en}>
                   <div
                     className="text-xs tracking-[0.2em] uppercase mb-5 pb-2 border-b"
@@ -369,12 +428,7 @@ export default function Layout() {
                 © 2026 St. Theresa Kalimoni Parish. All rights reserved. Est. 1927.
               </div>
               <div className="flex flex-wrap gap-4 sm:gap-6 text-xs items-center" style={{ fontFamily: "'DM Mono', monospace" }}>
-                {[
-                  { en: 'News', sw: 'Habari', to: '/blog' },
-                  { en: 'Gallery', sw: 'Picha', to: '/gallery' },
-                  { en: 'Donate', sw: 'Changia', to: '/donate' },
-                  { en: 'Privacy', sw: 'Faragha', to: '/contact' },
-                ].map(({ en, sw, to }) => (
+                {bottomLinks.map(({ en, sw, to }) => (
                   <Link
                     key={en}
                     to={to}
@@ -405,29 +459,30 @@ export default function Layout() {
 
       <PoweredByGlobecon variant="fixed" />
 
-      {/* WhatsApp FAB */}
-      <a
-        href="https://wa.me/254704358594?text=Hello%20St.%20Theresa%20Kalimoni%20Parish.%20I%20would%20like%20to%20get%20in%20touch."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed z-40 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
-        style={{
-          bottom: showBackTop ? '5.5rem' : '1.5rem',
-          right: '1.25rem',
-          width: 52,
-          height: 52,
-          backgroundColor: '#25D366',
-          borderRadius: '50%',
-          boxShadow: '0 4px 20px rgba(37,211,102,0.5)',
-          transition: 'bottom 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease',
-        }}
-        aria-label="Chat on WhatsApp"
-        title="Chat on WhatsApp"
-      >
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-        </svg>
-      </a>
+      {whatsappUrl ? (
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed z-40 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
+          style={{
+            bottom: showBackTop ? '5.5rem' : '1.5rem',
+            right: '1.25rem',
+            width: 52,
+            height: 52,
+            backgroundColor: '#25D366',
+            borderRadius: '50%',
+            boxShadow: '0 4px 20px rgba(37,211,102,0.5)',
+            transition: 'bottom 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease',
+          }}
+          aria-label="Chat on WhatsApp"
+          title="Chat on WhatsApp"
+        >
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+          </svg>
+        </a>
+      ) : null}
 
       {/* Back to top */}
       <button

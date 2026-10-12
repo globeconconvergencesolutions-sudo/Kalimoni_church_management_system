@@ -4,6 +4,7 @@ import { type Section, type BlogPost } from '../data/blog'
 import { useSEO } from '../hooks/useSEO'
 import { fetchPublishedPost, fetchPublishedPosts } from '../lib/cms'
 import { parishImage } from '../lib/media'
+import { siteFeatures } from '../lib/siteFeatures'
 
 function renderSection(section: Section, i: number) {
   switch (section.type) {
@@ -199,13 +200,23 @@ export default function BlogPost() {
               >
                 ← All Posts
               </Link>
-              <Link
-                to="/donate"
-                className="flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all hover:brightness-110 min-h-[48px]"
-                style={{ backgroundColor: '#6B1A2A', color: '#F0E8D8', fontFamily: "'Inter', sans-serif" }}
-              >
-                Support the Parish ♡
-              </Link>
+              {siteFeatures.publicDonate ? (
+                <Link
+                  to="/donate"
+                  className="flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all hover:brightness-110 min-h-[48px]"
+                  style={{ backgroundColor: '#6B1A2A', color: '#F0E8D8', fontFamily: "'Inter', sans-serif" }}
+                >
+                  Support the Parish ♡
+                </Link>
+              ) : (
+                <Link
+                  to="/contact"
+                  className="flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all hover:brightness-110 min-h-[48px]"
+                  style={{ backgroundColor: '#6B1A2A', color: '#F0E8D8', fontFamily: "'Inter', sans-serif" }}
+                >
+                  Contact the Parish
+                </Link>
+              )}
             </div>
           </article>
 
@@ -257,23 +268,41 @@ export default function BlogPost() {
               </div>
             )}
 
-            {/* Donate CTA */}
-            <div
-              className="p-5 sm:p-6"
-              style={{ backgroundColor: '#4A3A10' }}
-            >
-              <div className="text-xs tracking-widest uppercase mb-3" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>Support the Mission</div>
-              <p className="text-xs leading-relaxed mb-4" style={{ color: '#F0E8D8AA' }}>
-                Every story shared here is made possible by a community that gives. Support our health, education, and charity work.
-              </p>
-              <Link
-                to="/donate"
-                className="block text-center py-3 text-xs font-bold tracking-widest uppercase min-h-[44px] flex items-center justify-center"
-                style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
+            {siteFeatures.publicDonate ? (
+              <div
+                className="p-5 sm:p-6"
+                style={{ backgroundColor: '#4A3A10' }}
               >
-                Give Today
-              </Link>
-            </div>
+                <div className="text-xs tracking-widest uppercase mb-3" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>Support the Mission</div>
+                <p className="text-xs leading-relaxed mb-4" style={{ color: '#F0E8D8AA' }}>
+                  Every story shared here is made possible by a community that gives. Support our health, education, and charity work.
+                </p>
+                <Link
+                  to="/donate"
+                  className="block text-center py-3 text-xs font-bold tracking-widest uppercase min-h-[44px] flex items-center justify-center"
+                  style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
+                >
+                  Give Today
+                </Link>
+              </div>
+            ) : (
+              <div
+                className="p-5 sm:p-6"
+                style={{ backgroundColor: '#4A3A10' }}
+              >
+                <div className="text-xs tracking-widest uppercase mb-3" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>Walk with Us</div>
+                <p className="text-xs leading-relaxed mb-4" style={{ color: '#F0E8D8AA' }}>
+                  Questions about parish life, Mass, or visiting Kalimoni? The parish office is glad to hear from you.
+                </p>
+                <Link
+                  to="/contact"
+                  className="block text-center py-3 text-xs font-bold tracking-widest uppercase min-h-[44px] flex items-center justify-center"
+                  style={{ backgroundColor: '#C8922A', color: '#FAF6F0', fontFamily: "'DM Mono', monospace" }}
+                >
+                  Get in Touch
+                </Link>
+              </div>
+            )}
           </aside>
         </div>
       </div>

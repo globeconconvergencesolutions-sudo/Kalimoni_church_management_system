@@ -18,7 +18,7 @@ export default function AdminGiving() {
     <OfficePage
       kicker="Gifts"
       title="Giving"
-      lede="Gifts received through M-Pesa and giving notes from the Donate page."
+      lede="Internal gift records — M-Pesa and giving notes kept for the parish office."
     >
       {error ? <OfficeAlert>{error}</OfficeAlert> : null}
       {rows.length === 0 && !error ? (

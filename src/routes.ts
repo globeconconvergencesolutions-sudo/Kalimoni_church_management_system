@@ -1,5 +1,5 @@
 import { createElement } from 'react'
-import { createBrowserRouter } from 'react-router'
+import { createBrowserRouter, Navigate } from 'react-router'
 import RouteErrorPage from './components/RouteErrorPage'
 import Layout from './components/Layout'
 import Home from './pages/Home'
@@ -17,6 +17,7 @@ import StoryAlbum from './pages/StoryAlbum'
 import Donation from './pages/Donation'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
+import { siteFeatures } from './lib/siteFeatures'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -31,6 +32,11 @@ import AdminMass from './pages/admin/AdminMass'
 import AdminInbox from './pages/admin/AdminInbox'
 import AdminMedia from './pages/admin/AdminMedia'
 import AdminGiving from './pages/admin/AdminGiving'
+import AdminTestimonials from './pages/admin/AdminTestimonials'
+
+function DonateParkedRedirect() {
+  return createElement(Navigate, { to: '/', replace: true })
+}
 
 export const router = createBrowserRouter([
   {
@@ -59,6 +65,7 @@ export const router = createBrowserRouter([
       { path: 'media', Component: AdminMedia },
       { path: 'photos', Component: AdminMedia },
       { path: 'giving', Component: AdminGiving },
+      { path: 'testimonials', Component: AdminTestimonials },
     ],
   },
   {
@@ -78,7 +85,7 @@ export const router = createBrowserRouter([
       { path: 'stories/:slug', Component: StoryAlbum },
       { path: 'blog', Component: Blog },
       { path: 'blog/:slug', Component: BlogPost },
-      { path: 'donate', Component: Donation },
+      { path: 'donate', Component: siteFeatures.publicDonate ? Donation : DonateParkedRedirect },
       { path: 'contact', Component: Contact },
       { path: '*', Component: NotFound },
     ],

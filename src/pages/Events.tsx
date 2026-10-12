@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { useSEO } from '../hooks/useSEO'
 import { usePublishedEvents } from '../hooks/usePublishedEvents'
 import { useMassSchedule } from '../hooks/useMassSchedule'
+import { parishPhoneDisplay, parishTelHref, PARISH_LOCATION } from '../data/parishLocation'
 
 export default function Events() {
   useSEO({
@@ -136,13 +137,15 @@ export default function Events() {
             <div className="p-5 sm:p-6" style={{ backgroundColor: '#F0E8D8' }}>
               <div className="text-xs tracking-widest uppercase mb-4" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>Parish Contact</div>
               <div className="flex flex-col gap-3 text-sm" style={{ color: '#4A3A30' }}>
-                <a href="tel:+254704358594" className="flex items-center gap-2 hover:underline" style={{ color: '#6B1A2A' }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.25 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z" /></svg>
-                  +254 704 358594
-                </a>
-                <a href="mailto:sttheresakalimoniparish@gmail.com" className="flex items-center gap-2 hover:underline" style={{ color: '#6B1A2A' }}>
+                {parishTelHref() && parishPhoneDisplay() ? (
+                  <a href={parishTelHref()!} className="flex items-center gap-2 hover:underline" style={{ color: '#6B1A2A' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.25 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z" /></svg>
+                    {parishPhoneDisplay()}
+                  </a>
+                ) : null}
+                <a href={`mailto:${PARISH_LOCATION.email}`} className="flex items-center gap-2 hover:underline" style={{ color: '#6B1A2A' }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
-                  sttheresakalimoniparish@gmail.com
+                  {PARISH_LOCATION.email}
                 </a>
                 <a href="https://maps.app.goo.gl/YsuSCqxiaqpSj78L8" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:underline" style={{ color: '#6B1A2A' }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 2C8.686 2 6 4.686 6 8c0 5.25 6 13 6 13s6-7.75 6-13c0-3.314-2.686-6-6-6z" /><circle cx="12" cy="8" r="2.5" /></svg>

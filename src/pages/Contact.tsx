@@ -3,7 +3,13 @@ import { useSEO } from '../hooks/useSEO'
 import { useMassSchedule } from '../hooks/useMassSchedule'
 import { submitInbox } from '../lib/inbox'
 import ParishLocationMap from '../components/ParishLocationMap'
-import { PARISH_LOCATION, parishOpenInMapsUrl, formatCoordinates } from '../data/parishLocation'
+import {
+  PARISH_LOCATION,
+  parishOpenInMapsUrl,
+  formatCoordinates,
+  parishPhoneDisplay,
+  parishTelHref,
+} from '../data/parishLocation'
 
 const OFFICE_HOURS = [
   { day: 'Monday – Friday', hours: '8:00 AM – 5:00 PM EAT' },
@@ -134,7 +140,6 @@ export default function Contact() {
                     >
                       <option value="">Select a subject</option>
                       <option>General Inquiry</option>
-                      <option>Donations & Giving</option>
                       <option>Pastoral Support</option>
                       <option>Hospital (HHCJ)</option>
                       <option>School Admissions</option>
@@ -174,10 +179,12 @@ export default function Contact() {
                   {formatCoordinates()}
                 </div>
                 <div className="pt-2 flex flex-col gap-1.5">
-                  <a href={`tel:${PARISH_LOCATION.phoneTel}`} className="flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style={{ color: '#6B1A2A' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.25 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z" /></svg>
-                    {PARISH_LOCATION.phone}
-                  </a>
+                  {parishTelHref() && parishPhoneDisplay() ? (
+                    <a href={parishTelHref()!} className="flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style={{ color: '#6B1A2A' }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.25 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z" /></svg>
+                      {parishPhoneDisplay()}
+                    </a>
+                  ) : null}
                   <a href={`mailto:${PARISH_LOCATION.email}`} className="flex items-center gap-2 text-sm font-medium transition-colors hover:underline" style={{ color: '#6B1A2A' }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
                     {PARISH_LOCATION.email}
