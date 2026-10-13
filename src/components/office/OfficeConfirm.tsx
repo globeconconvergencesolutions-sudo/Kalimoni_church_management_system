@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { office } from './officeTheme'
 import { OfficeButton } from './OfficePage'
+import { Spinner } from './OfficeLoaders'
 
 export type OfficeConfirmTone = 'danger' | 'default'
 
@@ -108,10 +109,12 @@ export default function OfficeConfirm({
             ref={confirmRef}
             type="button"
             disabled={busy}
+            aria-busy={busy || undefined}
             onClick={onConfirm}
-            className="inline-flex items-center justify-center px-5 py-3 text-sm font-semibold min-h-[44px] transition-all hover:brightness-110 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold min-h-[44px] transition-all hover:brightness-110 disabled:opacity-60"
             style={{ ...confirmStyle, fontFamily: "'Lora', serif", border: 'none' }}
           >
+            {busy ? <Spinner size={15} /> : null}
             {busy ? 'Working…' : confirmLabel}
           </button>
         </div>

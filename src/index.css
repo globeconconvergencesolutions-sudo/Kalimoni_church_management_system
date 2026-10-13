@@ -95,6 +95,44 @@ img { max-width: 100%; display: block; }
   }
 }
 
+/* Office loaders — skeletons, indeterminate progress, activity pill */
+@keyframes office-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.office-skeleton {
+  background: linear-gradient(90deg, #EDE4D5 0%, #F7F1E7 45%, #EDE4D5 90%);
+  background-size: 200% 100%;
+  animation: office-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes office-progress-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.office-progress-pulse {
+  animation: office-progress-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes office-activity-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.office-activity-in {
+  animation: office-activity-in 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .office-skeleton,
+  .office-progress-pulse,
+  .office-activity-in {
+    animation: none;
+  }
+}
+
 @media (pointer: coarse) {
   button, a[href], select, input[type="submit"] {
     min-height: 44px;

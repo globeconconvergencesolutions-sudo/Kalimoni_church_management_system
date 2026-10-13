@@ -272,7 +272,10 @@ export async function processMediaUpload(body, token, env) {
     folderName = isVideo ? `stories/${albumSlug}/videos` : `stories/${albumSlug}`
   } else {
     const category = (body.category || 'Church Life').trim()
-    const slug = GALLERY_FOLDER_SLUGS[category] || 'church-life'
+    const slug =
+      GALLERY_FOLDER_SLUGS[category] ||
+      category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) ||
+      'church-life'
     folderName = `gallery/${slug}`
   }
 

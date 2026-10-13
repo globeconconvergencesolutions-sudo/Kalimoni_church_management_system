@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { fetchPublishedMedia } from '../lib/mediaAdmin'
 import { fetchPublishedAlbums, type MediaAlbum } from '../lib/mediaAlbums'
+import { fetchGalleryCategories, type GalleryCategory } from '../lib/galleryCategories'
 import { parishImage, parishVideo, parishVideoPoster, type ParishMedia } from '../lib/media'
 import { useSEO } from '../hooks/useSEO'
 
@@ -51,6 +52,7 @@ export default function Gallery() {
   const [photos, setPhotos] = useState<GalleryItem[]>(FALLBACK.map(p => ({ ...p, src: p.id, desc: p.desc })))
   const [live, setLive] = useState(false)
   const [stories, setStories] = useState<MediaAlbum[]>([])
+  const [categoryMeta, setCategoryMeta] = useState<GalleryCategory[]>([])
 
   useEffect(() => {
     void fetchPublishedMedia().then(rows => {
@@ -59,10 +61,20 @@ export default function Gallery() {
       setLive(true)
     })
     void fetchPublishedAlbums().then(setStories)
+    void fetchGalleryCategories().then(r => {
+      if (!r.missingTable && !r.error) setCategoryMeta(r.categories)
+    })
   }, [])
 
-  const categories = ['All', ...Array.from(new Set(photos.map(p => p.category)))]
-  const filtered = activeCategory === 'All' ? photos : photos.filter(p => p.category === activeCategory)
+  // Office-managed order and visibility; unknown categories keep upload order at the end
+  const hidden = new Set(categoryMeta.filter(c => !c.visible).map(c => c.name))
+  const visiblePhotos = live ? photos.filter(p => !hidden.has(p.category)) : photos
+  const order = new Map(categoryMeta.map((c, i) => [c.name, i]))
+  const used = Array.from(new Set(visiblePhotos.map(p => p.category)))
+  used.sort((a, b) => (order.get(a) ?? Number.MAX_SAFE_INTEGER) - (order.get(b) ?? Number.MAX_SAFE_INTEGER))
+  const categories = ['All', ...used]
+  const filtered = activeCategory === 'All' ? visiblePhotos : visiblePhotos.filter(p => p.category === activeCategory)
+  const activeDescription = categoryMeta.find(c => c.name === activeCategory)?.description
 
   return (
     <div>
@@ -135,11 +147,17 @@ export default function Gallery() {
               >
                 {cat}
                 <span className="ml-1.5 opacity-50">
-                  ({cat === 'All' ? photos.length : photos.filter(p => p.category === cat).length})
+                  ({cat === 'All' ? visiblePhotos.length : visiblePhotos.filter(p => p.category === cat).length})
                 </span>
               </button>
             ))}
           </div>
+
+          {activeDescription ? (
+            <p className="-mt-4 sm:-mt-6 mb-6 sm:mb-8 text-sm max-w-2xl leading-relaxed" style={{ color: '#6B6259' }}>
+              {activeDescription}
+            </p>
+          ) : null}
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
             {filtered.map(photo => (

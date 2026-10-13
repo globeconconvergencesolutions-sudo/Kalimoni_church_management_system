@@ -9,6 +9,7 @@ import type { Testimonial, TestimonialStatus } from '../../lib/testimonialTypes'
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 import { useOfficeConfirm } from '../../components/office/useOfficeConfirm'
 import { office } from '../../components/office/officeTheme'
+import { AsyncActionButton, SkeletonRows } from '../../components/office/OfficeLoaders'
 import { getSupabase } from '../../lib/supabase'
 
 const FILTERS: Array<{ id: TestimonialStatus | 'all'; label: string }> = [
@@ -37,6 +38,8 @@ export default function AdminTestimonials() {
   const [editRole, setEditRole] = useState('')
   const [editSort, setEditSort] = useState(0)
 
+  const [loaded, setLoaded] = useState(false)
+
   const load = async () => {
     const result = await fetchStaffTestimonials(filter)
     setRows(result.rows)
@@ -44,7 +47,7 @@ export default function AdminTestimonials() {
   }
 
   useEffect(() => {
-    void load()
+    void load().finally(() => setLoaded(true))
   }, [filter])
 
   const reviewerId = async (): Promise<string | null> => {
@@ -161,7 +164,9 @@ export default function AdminTestimonials() {
         {filter === 'pending' || filter === 'all' ? ` · ${pendingCount} pending in this list` : ''}
       </p>
 
-      {rows.length === 0 && !error ? (
+      {!loaded ? (
+        <SkeletonRows />
+      ) : rows.length === 0 && !error ? (
         <p className="text-sm" style={{ color: office.mute }}>
           {filter === 'pending'
             ? 'No pending testimonies. New submissions from the homepage will appear here.'
@@ -221,7 +226,7 @@ export default function AdminTestimonials() {
                     />
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    <OfficeButton type="button" disabled={busyId === row.id} onClick={() => { void saveEdit(row.id) }}>
+                    <OfficeButton type="button" loading={busyId === row.id} onClick={() => { void saveEdit(row.id) }}>
                       Save
                     </OfficeButton>
                     <button
@@ -255,37 +260,34 @@ export default function AdminTestimonials() {
               {editingId !== row.id ? (
                 <div className="flex flex-wrap gap-2">
                   {row.status !== 'published' ? (
-                    <button
-                      type="button"
+                    <AsyncActionButton
                       disabled={busyId === row.id}
-                      onClick={() => { void onStatus(row, 'published') }}
+                      onClick={() => onStatus(row, 'published')}
                       className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]"
                       style={{ backgroundColor: office.wine, color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}
                     >
                       Approve
-                    </button>
+                    </AsyncActionButton>
                   ) : null}
                   {row.status !== 'rejected' ? (
-                    <button
-                      type="button"
+                    <AsyncActionButton
                       disabled={busyId === row.id}
-                      onClick={() => { void onStatus(row, 'rejected') }}
+                      onClick={() => onStatus(row, 'rejected')}
                       className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]"
                       style={{ border: `1px solid ${office.line}`, color: office.wine, fontFamily: "'DM Mono', monospace" }}
                     >
                       Reject
-                    </button>
+                    </AsyncActionButton>
                   ) : null}
                   {row.status === 'rejected' || row.status === 'published' ? (
-                    <button
-                      type="button"
+                    <AsyncActionButton
                       disabled={busyId === row.id}
-                      onClick={() => { void onStatus(row, 'pending') }}
+                      onClick={() => onStatus(row, 'pending')}
                       className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]"
                       style={{ fontFamily: "'DM Mono', monospace", color: office.mute }}
                     >
                       Back to pending
-                    </button>
+                    </AsyncActionButton>
                   ) : null}
                   <button
                     type="button"
@@ -296,15 +298,14 @@ export default function AdminTestimonials() {
                   >
                     Edit
                   </button>
-                  <button
-                    type="button"
+                  <AsyncActionButton
                     disabled={busyId === row.id}
-                    onClick={() => { void onDelete(row) }}
+                    onClick={() => onDelete(row)}
                     className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]"
                     style={{ fontFamily: "'DM Mono', monospace", color: office.wine }}
                   >
                     Remove
-                  </button>
+                  </AsyncActionButton>
                 </div>
               ) : null}
             </div>

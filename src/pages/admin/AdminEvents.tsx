@@ -4,6 +4,7 @@ import { deleteStaffEvent, fetchStaffEvents, saveStaffEvent, type StaffEvent } f
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 import { useOfficeConfirm } from '../../components/office/useOfficeConfirm'
 import { office } from '../../components/office/officeTheme'
+import { AsyncActionButton, SkeletonRows } from '../../components/office/OfficeLoaders'
 
 export default function AdminEvents() {
   const { confirm, dialog: confirmDialog } = useOfficeConfirm()
@@ -13,6 +14,8 @@ export default function AdminEvents() {
   const [busyId, setBusyId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
 
+  const [loaded, setLoaded] = useState(false)
+
   const load = async () => {
     const result = await fetchStaffEvents()
     setEvents(result.events)
@@ -20,7 +23,7 @@ export default function AdminEvents() {
   }
 
   useEffect(() => {
-    void load()
+    void load().finally(() => setLoaded(true))
   }, [])
 
   const filtered = useMemo(() => {
@@ -103,7 +106,9 @@ export default function AdminEvents() {
         />
       </div>
 
-      {events.length === 0 && !error ? (
+      {!loaded ? (
+        <SkeletonRows />
+      ) : events.length === 0 && !error ? (
         <p className="text-sm" style={{ color: office.mute }}>
           No events yet. Add the next feast day or parish gathering.
         </p>
@@ -146,24 +151,22 @@ export default function AdminEvents() {
                 >
                   Edit
                 </Link>
-                <button
-                  type="button"
+                <AsyncActionButton
                   disabled={busyId === ev.dbId}
-                  onClick={() => { void onTogglePublish(ev) }}
+                  onClick={() => onTogglePublish(ev)}
                   className="px-3 py-2 text-xs uppercase tracking-widest min-h-[44px]"
                   style={{ border: `1px solid ${office.gold}`, color: office.wine, fontFamily: "'DM Mono', monospace", background: '#fff' }}
                 >
                   {ev.published ? 'Unpublish' : 'Publish'}
-                </button>
-                <button
-                  type="button"
+                </AsyncActionButton>
+                <AsyncActionButton
                   disabled={busyId === ev.dbId}
-                  onClick={() => { void onDelete(ev) }}
+                  onClick={() => onDelete(ev)}
                   className="px-3 py-2 text-xs uppercase tracking-widest min-h-[44px]"
                   style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
                 >
                   Remove
-                </button>
+                </AsyncActionButton>
               </div>
             </div>
           ))}

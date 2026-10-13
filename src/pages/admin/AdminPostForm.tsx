@@ -7,6 +7,7 @@ import ArticleBodyEditor, { estimateReadTime, normalizeSections } from '../../co
 import ArticleImagePicker from '../../components/office/ArticleImagePicker'
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 import { office } from '../../components/office/officeTheme'
+import ParishLoader from '../../components/office/ParishLoader'
 
 const CATEGORIES = [
   'Parish News',
@@ -155,7 +156,7 @@ export default function AdminPostForm() {
   }
 
   if (!loaded) {
-    return <p className="text-sm" style={{ color: office.mute }}>Loading article…</p>
+    return <ParishLoader caption="Opening article" tone="light" fullscreen={false} />
   }
 
   const field = office.field
@@ -351,7 +352,7 @@ export default function AdminPostForm() {
                 </span>
               </span>
             </label>
-            <OfficeButton type="submit" disabled={busy}>
+            <OfficeButton type="submit" disabled={busy} loading={busy}>
               {busy ? 'Saving…' : isNew ? 'Create article' : 'Save changes'}
             </OfficeButton>
             <Link

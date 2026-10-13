@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { fetchStaffEvent, saveStaffEvent, slugify } from '../../lib/cms'
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 import { office } from '../../components/office/officeTheme'
+import ParishLoader from '../../components/office/ParishLoader'
 
 const ICONS = ['✦', '✝', '❧', '♦', '◈', '♡']
 const COLOURS = ['#6B1A2A', '#4A3A10', '#1A3A4A', '#2A1A4A', '#C8922A', '#2A6B3A']
@@ -90,7 +91,7 @@ export default function AdminEventForm() {
   }
 
   if (!loaded) {
-    return <p className="text-sm" style={{ color: office.mute }}>Loading event…</p>
+    return <ParishLoader caption="Opening event" tone="light" fullscreen={false} />
   }
 
   const field = office.field
@@ -215,7 +216,7 @@ export default function AdminEventForm() {
                 </span>
               </span>
             </label>
-            <OfficeButton type="submit" disabled={busy}>
+            <OfficeButton type="submit" disabled={busy} loading={busy}>
               {busy ? 'Saving…' : isNew ? 'Create event' : 'Save changes'}
             </OfficeButton>
             <Link to="/admin/events" className="block text-center text-[10px] tracking-widest uppercase py-2" style={{ color: office.mute, fontFamily: "'DM Mono', monospace" }}>

@@ -2,6 +2,7 @@ import { getSupabase } from './supabase'
 import { isMissingTable } from './supabaseErrors'
 import type { ParishMedia } from './media'
 import { getSlotDef, GALLERY_FOLDER_SLUGS } from './mediaSlots'
+import { slugifyCategory } from './galleryCategories'
 import { validateParishMediaFile } from './mediaUploadRules'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
@@ -181,6 +182,56 @@ type UploadSlot = {
   alt?: string
 }
 
+export type UploadProgress = {
+  phase: 'reading' | 'uploading' | 'processing' | 'done'
+  /** 0–100, meaningful while uploading */
+  percent: number
+}
+
+type UploadResponse = {
+  ok?: boolean
+  error?: string
+  media?: ParishMedia
+  stored?: boolean
+  storeError?: string
+}
+
+/** POST JSON with upload progress (fetch cannot report request progress). */
+function postWithProgress(
+  url: string,
+  token: string,
+  payload: string,
+  onProgress?: (p: UploadProgress) => void,
+): Promise<{ status: number; data: UploadResponse }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', url)
+    xhr.setRequestHeader('Content-Type', 'application/json')
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+    xhr.upload.onprogress = e => {
+      if (!e.lengthComputable) return
+      const percent = Math.min(99, Math.round((e.loaded / e.total) * 100))
+      onProgress?.({ phase: 'uploading', percent })
+    }
+    xhr.upload.onload = () => onProgress?.({ phase: 'processing', percent: 100 })
+    xhr.onload = () => {
+      const isJson = (xhr.getResponseHeader('content-type') || '').includes('application/json')
+      let data: UploadResponse = {}
+      if (isJson) {
+        try {
+          data = JSON.parse(xhr.responseText) as UploadResponse
+        } catch {
+          data = {}
+        }
+      }
+      resolve({ status: xhr.status, data })
+    }
+    xhr.onerror = () => reject(new Error('network'))
+    xhr.ontimeout = () => reject(new Error('timeout'))
+    xhr.send(payload)
+  })
+}
+
 async function authToken(): Promise<string | null> {
   const supabase = getSupabase()
   const session = await supabase?.auth.getSession()
@@ -190,6 +241,7 @@ async function authToken(): Promise<string | null> {
 export async function uploadParishMedia(
   file: File,
   meta: UploadGallery | UploadSlot,
+  onProgress?: (p: UploadProgress) => void,
 ): Promise<{ ok: boolean; error: string | null; media?: ParishMedia }> {
   const token = await authToken()
   if (!token) return { ok: false, error: 'Please sign in to upload media.' }
@@ -200,6 +252,7 @@ export async function uploadParishMedia(
   const check = validateParishMediaFile(file, { allowVideo })
   if (!check.ok) return { ok: false, error: check.error }
 
+  onProgress?.({ phase: 'reading', percent: 0 })
   let dataUrl: string
   try {
     dataUrl = await fileToDataUrl(file)
@@ -241,7 +294,7 @@ export async function uploadParishMedia(
       body.albumId = meta.albumId
       body.folder = `stories/${meta.albumId}`
     } else {
-      body.folder = `gallery/${GALLERY_FOLDER_SLUGS[meta.category] || 'church-life'}`
+      body.folder = `gallery/${GALLERY_FOLDER_SLUGS[meta.category] || slugifyCategory(meta.category) || 'church-life'}`
     }
   } else {
     const def = getSlotDef(meta.slotKey)
@@ -253,36 +306,22 @@ export async function uploadParishMedia(
     body.title = def.label
   }
 
-  let res: Response
+  onProgress?.({ phase: 'uploading', percent: 0 })
+  let res: { status: number; data: UploadResponse }
   try {
-    res = await fetch(`${API_BASE}/api/media/upload`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(body),
-    })
+    res = await postWithProgress(`${API_BASE}/api/media/upload`, token, JSON.stringify(body), onProgress)
   } catch {
     return { ok: false, error: 'Could not reach the upload service. Check your connection and try again.' }
   }
-  const contentType = res.headers.get('content-type') || ''
-  const data = contentType.includes('application/json')
-    ? ((await res.json().catch(() => ({}))) as {
-        ok?: boolean
-        error?: string
-        media?: ParishMedia
-        stored?: boolean
-        storeError?: string
-      })
-    : {}
+  const { data } = res
+  const resOk = res.status >= 200 && res.status < 300
   if (res.status === 404) {
     return {
       ok: false,
       error: 'Upload service not found. On production, deploy the /api/media routes. Locally, restart the dev server (pnpm dev).',
     }
   }
-  if (!res.ok || !data.ok || data.stored === false) {
+  if (!resOk || !data.ok || data.stored === false) {
     return {
       ok: false,
       error: data.storeError || data.error || friendlyHttpError(res.status, `Upload failed (${res.status}).`),
@@ -294,6 +333,7 @@ export async function uploadParishMedia(
       error: 'Upload reached Cloudinary but the parish database did not save a record. Nothing is live yet — try again.',
     }
   }
+  onProgress?.({ phase: 'done', percent: 100 })
   return { ok: true, error: null, media: data.media }
 }
 

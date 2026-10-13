@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { parishImage, type ParishMedia } from '../../lib/media'
-import { fetchStaffMedia, uploadParishMedia } from '../../lib/mediaAdmin'
+import { fetchStaffMedia, uploadParishMedia, type UploadProgress } from '../../lib/mediaAdmin'
 import { MEDIA_IMAGE_ACCEPT, mediaUploadHint } from '../../lib/mediaUploadRules'
 import MediaDropZone from './MediaDropZone'
 import { OfficeButton } from './OfficePage'
 import { office } from './officeTheme'
+import { SkeletonGrid, Spinner, uploadPhaseLabel, useLeaveGuard } from './OfficeLoaders'
 
 function mediaSrc(item: ParishMedia): string {
   return item.cloudinary_id || item.url
@@ -31,6 +32,9 @@ export default function ArticleImagePicker({
   const [library, setLibrary] = useState<ParishMedia[]>([])
   const [libraryBusy, setLibraryBusy] = useState(false)
   const [query, setQuery] = useState('')
+  const [progress, setProgress] = useState<UploadProgress | null>(null)
+
+  useLeaveGuard(busy)
 
   const preview = value ? parishImage(value, 960, 600) : ''
 
@@ -55,14 +59,20 @@ export default function ArticleImagePicker({
     if (!file) return
     setBusy(true)
     setError(null)
-    const result = await uploadParishMedia(file, {
-      mode: 'gallery',
-      title: file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim() || 'Article photo',
-      category: 'Church Life',
-      alt: label,
-      caption: label,
-    })
+    setProgress({ phase: 'reading', percent: 0 })
+    const result = await uploadParishMedia(
+      file,
+      {
+        mode: 'gallery',
+        title: file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim() || 'Article photo',
+        category: 'Church Life',
+        alt: label,
+        caption: label,
+      },
+      setProgress,
+    )
     setBusy(false)
+    setProgress(null)
     if (!result.ok || !result.media) {
       setError(result.error || 'Could not upload this photo.')
       return
@@ -99,8 +109,26 @@ export default function ArticleImagePicker({
           </div>
         )}
         {busy ? (
-          <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(28,26,24,0.45)' }}>
-            <p className="text-xs tracking-widest uppercase text-white" style={{ fontFamily: "'DM Mono', monospace" }}>Uploading…</p>
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6"
+            style={{ backgroundColor: 'rgba(28,8,14,0.62)' }}
+            role="status"
+            aria-live="polite"
+          >
+            <Spinner size={26} style={{ color: office.goldLite }} />
+            <p className="text-xs tracking-widest uppercase text-white" style={{ fontFamily: "'DM Mono', monospace" }}>
+              {progress ? uploadPhaseLabel(progress) : 'Uploading'}
+            </p>
+            <div className="w-full max-w-[220px] h-1 overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.18)' }}>
+              <div
+                className={`h-full ${progress?.phase === 'uploading' ? '' : 'office-progress-pulse'}`}
+                style={{
+                  width: `${progress?.phase === 'uploading' ? progress.percent : progress?.phase === 'reading' ? 8 : 100}%`,
+                  backgroundColor: office.gold,
+                  transition: 'width 220ms ease-out',
+                }}
+              />
+            </div>
           </div>
         ) : null}
       </div>
@@ -171,7 +199,7 @@ export default function ArticleImagePicker({
             </div>
             <div className="p-4 sm:p-5 overflow-y-auto flex-1">
               {libraryBusy ? (
-                <p className="text-sm" style={{ color: office.mute }}>Loading photos…</p>
+                <SkeletonGrid count={6} aspect="4/3" className="grid grid-cols-2 sm:grid-cols-3 gap-3" />
               ) : filtered.length === 0 ? (
                 <p className="text-sm" style={{ color: office.mute }}>No photos match. Upload one above instead.</p>
               ) : (

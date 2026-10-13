@@ -3,6 +3,7 @@ import { deleteStaffMassSlot, fetchStaffMassSlots, saveStaffMassSlot, type Staff
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 import { useOfficeConfirm } from '../../components/office/useOfficeConfirm'
 import { office } from '../../components/office/officeTheme'
+import { SkeletonRows } from '../../components/office/OfficeLoaders'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -67,6 +68,8 @@ export default function AdminMass() {
 
   const editing = Boolean(draft.id)
 
+  const [loaded, setLoaded] = useState(false)
+
   const load = async () => {
     const result = await fetchStaffMassSlots()
     setSlots(result.slots)
@@ -74,7 +77,7 @@ export default function AdminMass() {
   }
 
   useEffect(() => {
-    void load()
+    void load().finally(() => setLoaded(true))
   }, [])
 
   const resetForm = () => setDraft(blank)
@@ -295,7 +298,7 @@ export default function AdminMass() {
         </label>
 
         <div className="sm:col-span-2 flex flex-wrap gap-2">
-          <OfficeButton type="submit" disabled={busy}>
+          <OfficeButton type="submit" disabled={busy} loading={busy}>
             {busy ? 'Saving…' : editing ? 'Save changes' : 'Add Mass time'}
           </OfficeButton>
           {editing ? (
@@ -307,7 +310,9 @@ export default function AdminMass() {
       </form>
 
       <div className="flex flex-col gap-3">
-        {slots.length === 0 && !error ? (
+        {!loaded ? (
+        <SkeletonRows />
+      ) : slots.length === 0 && !error ? (
           <p className="text-sm" style={{ color: office.mute }}>No Mass times yet. Add the first Eucharist slot above.</p>
         ) : null}
         {slots.map(slot => {

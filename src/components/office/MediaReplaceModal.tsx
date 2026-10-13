@@ -8,6 +8,8 @@ import {
   mediaUploadHint,
 } from '../../lib/mediaUploadRules'
 import MediaDropZone from './MediaDropZone'
+import { UploadProgressBar } from './OfficeLoaders'
+import type { UploadProgress } from '../../lib/mediaAdmin'
 import { OfficeButton } from './OfficePage'
 import { office } from './officeTheme'
 
@@ -25,6 +27,7 @@ export default function MediaReplaceModal({
   onClose,
   onSubmit,
   onValidationError,
+  progress,
 }: {
   def: MediaSlotDef
   row?: ParishMedia
@@ -39,6 +42,7 @@ export default function MediaReplaceModal({
   onClose: () => void
   onSubmit: (e: FormEvent) => void
   onValidationError?: (message: string | null) => void
+  progress?: UploadProgress | null
 }) {
   const currentSrc = parishImage(
     row?.cloudinary_id || row?.url || def.fallback,
@@ -120,16 +124,7 @@ export default function MediaReplaceModal({
           ) : null}
 
           {busy ? (
-            <div
-              className="px-4 py-3 text-sm flex items-center gap-3"
-              style={{ backgroundColor: 'rgba(200,146,42,0.1)', border: `1px solid ${office.gold}`, color: office.burgundy }}
-            >
-              <span
-                className="inline-block w-4 h-4 rounded-full border-2 border-t-transparent animate-spin shrink-0"
-                style={{ borderColor: office.gold, borderTopColor: 'transparent' }}
-              />
-              Uploading securely — please keep this window open. Large photos can take a moment.
-            </div>
+            <UploadProgressBar progress={progress ?? { phase: 'reading', percent: 0 }} fileName={file?.name} />
           ) : null}
 
           {/* Step indicator */}
@@ -231,8 +226,8 @@ export default function MediaReplaceModal({
             <OfficeButton type="button" variant="ghost" disabled={busy} onClick={onClose}>
               Cancel
             </OfficeButton>
-            <OfficeButton type="submit" disabled={busy || !file}>
-              {busy ? 'Uploading…' : 'Save to website'}
+            <OfficeButton type="submit" loading={busy} disabled={!file}>
+              {busy ? 'Publishing…' : 'Save to website'}
             </OfficeButton>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { office } from './officeTheme'
+import { Spinner } from './OfficeLoaders'
 
 export default function OfficePage({
   kicker,
@@ -60,6 +61,7 @@ export function OfficeButton({
   type = 'button',
   variant = 'primary',
   disabled,
+  loading,
 }: {
   to?: string
   children: ReactNode
@@ -67,6 +69,8 @@ export function OfficeButton({
   type?: 'button' | 'submit'
   variant?: 'primary' | 'gold' | 'ghost'
   disabled?: boolean
+  /** Shows a spinner, disables the button and marks it aria-busy. */
+  loading?: boolean
 }) {
   const style =
     variant === 'gold'
@@ -75,7 +79,8 @@ export function OfficeButton({
         ? { backgroundColor: 'transparent', color: office.wine, border: `1px solid ${office.gold}` }
         : { backgroundColor: office.wine, color: office.ivory }
 
-  const className = 'inline-flex items-center justify-center px-5 py-3 text-sm font-semibold min-h-[44px] transition-all hover:brightness-110'
+  const className =
+    'inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold min-h-[44px] transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:hover:brightness-100'
   if (to) {
     return (
       <Link to={to} className={className} style={{ ...style, fontFamily: "'Lora', serif" }}>
@@ -84,7 +89,15 @@ export function OfficeButton({
     )
   }
   return (
-    <button type={type} disabled={disabled} onClick={onClick} className={className} style={{ ...style, fontFamily: "'Lora', serif" }}>
+    <button
+      type={type}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      onClick={onClick}
+      className={className}
+      style={{ ...style, fontFamily: "'Lora', serif", opacity: disabled && !loading ? 0.55 : 1 }}
+    >
+      {loading ? <Spinner size={15} /> : null}
       {children}
     </button>
   )

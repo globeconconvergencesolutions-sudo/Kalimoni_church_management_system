@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { mediaDeliverySrc, parishVideo, type ParishMedia } from '../../lib/media'
 import type { MediaSlotDef } from '../../lib/mediaSlots'
 import { office } from './officeTheme'
+import { BusyOverlay, Spinner } from './OfficeLoaders'
 
 function isLive(row?: ParishMedia) {
   if (!row) return false
@@ -53,6 +54,7 @@ export default function MediaSlotCard({
       style={{ backgroundColor: '#fff', border: `1px solid ${office.line}` }}
     >
       <div className="relative" style={{ aspectRatio: '16/10', backgroundColor: '#E8DFD0' }}>
+        {busy ? <BusyOverlay label="Updating" /> : null}
         {row?.media_type === 'video' ? (
           <video src={parishVideo(row.cloudinary_id || row.url, 640)} className="absolute inset-0 w-full h-full object-cover" muted playsInline />
         ) : src ? (
@@ -252,14 +254,6 @@ function ExternalIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
       <path d="M18 13v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
-    </svg>
-  )
-}
-
-function Spinner() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin">
-      <path d="M12 3a9 9 0 109 9" />
     </svg>
   )
 }

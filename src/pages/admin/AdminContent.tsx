@@ -49,7 +49,7 @@ export default function AdminContent() {
         </p>
         {ready ? (
           <div className="flex flex-wrap gap-3">
-            <OfficeButton disabled={busy} onClick={() => { void onImport() }}>
+            <OfficeButton loading={busy} onClick={() => { void onImport() }}>
               {busy ? 'Loading…' : 'Load brochure archive'}
             </OfficeButton>
             <OfficeButton to="/admin/posts" variant="ghost">News</OfficeButton>

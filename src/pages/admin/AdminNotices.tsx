@@ -5,6 +5,7 @@ import type { Notice } from '../../lib/noticeTypes'
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 import { useOfficeConfirm } from '../../components/office/useOfficeConfirm'
 import { office } from '../../components/office/officeTheme'
+import { AsyncActionButton, SkeletonRows } from '../../components/office/OfficeLoaders'
 
 export default function AdminNotices() {
   const { confirm, dialog: confirmDialog } = useOfficeConfirm()
@@ -13,6 +14,8 @@ export default function AdminNotices() {
   const [ok, setOk] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
 
+  const [loaded, setLoaded] = useState(false)
+
   const load = async () => {
     const result = await fetchAllNotices()
     setNotices(result.notices)
@@ -20,7 +23,7 @@ export default function AdminNotices() {
   }
 
   useEffect(() => {
-    void load()
+    void load().finally(() => setLoaded(true))
   }, [])
 
   const onTogglePublish = async (n: Notice) => {
@@ -83,7 +86,9 @@ export default function AdminNotices() {
         {notices.length} notice{notices.length === 1 ? '' : 's'} · {liveCount} live on the site
       </p>
 
-      {notices.length === 0 && !error ? (
+      {!loaded ? (
+        <SkeletonRows />
+      ) : notices.length === 0 && !error ? (
         <p className="text-sm" style={{ color: office.mute }}>No notices yet. Write the first one for Sunday.</p>
       ) : (
         <div className="flex flex-col gap-3">
@@ -102,24 +107,22 @@ export default function AdminNotices() {
               </div>
               <div className="flex flex-wrap gap-2 shrink-0">
                 <Link to={`/admin/notices/${n.id}`} className="px-3 py-2 text-[10px] uppercase tracking-widest min-h-[44px] flex items-center" style={{ border: `1px solid ${office.gold}`, color: office.wine, fontFamily: "'DM Mono', monospace" }}>Edit</Link>
-                <button
-                  type="button"
+                <AsyncActionButton
                   disabled={busyId === n.id}
-                  onClick={() => { void onTogglePublish(n) }}
+                  onClick={() => onTogglePublish(n)}
                   className="px-3 py-2 text-[10px] uppercase tracking-widest min-h-[44px]"
                   style={{ border: `1px solid ${office.gold}`, color: office.wine, fontFamily: "'DM Mono', monospace", background: '#fff' }}
                 >
                   {n.published ? 'Unpublish' : 'Publish'}
-                </button>
-                <button
-                  type="button"
+                </AsyncActionButton>
+                <AsyncActionButton
                   disabled={busyId === n.id}
-                  onClick={() => { void onDelete(n) }}
+                  onClick={() => onDelete(n)}
                   className="px-3 py-2 text-[10px] uppercase tracking-widest min-h-[44px]"
                   style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
                 >
                   Remove
-                </button>
+                </AsyncActionButton>
               </div>
             </div>
           ))}

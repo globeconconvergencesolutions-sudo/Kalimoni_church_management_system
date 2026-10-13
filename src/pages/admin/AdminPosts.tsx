@@ -5,6 +5,7 @@ import { parishImage } from '../../lib/media'
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 import { useOfficeConfirm } from '../../components/office/useOfficeConfirm'
 import { office } from '../../components/office/officeTheme'
+import { AsyncActionButton, SkeletonRows } from '../../components/office/OfficeLoaders'
 
 export default function AdminPosts() {
   const { confirm, dialog: confirmDialog } = useOfficeConfirm()
@@ -15,6 +16,8 @@ export default function AdminPosts() {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<'all' | 'published' | 'draft'>('all')
 
+  const [loaded, setLoaded] = useState(false)
+
   const load = async () => {
     const result = await fetchStaffPosts()
     setPosts(result.posts)
@@ -22,7 +25,7 @@ export default function AdminPosts() {
   }
 
   useEffect(() => {
-    void load()
+    void load().finally(() => setLoaded(true))
   }, [])
 
   const filtered = useMemo(() => {
@@ -137,7 +140,9 @@ export default function AdminPosts() {
         </div>
       </div>
 
-      {posts.length === 0 && !error ? (
+      {!loaded ? (
+        <SkeletonRows />
+      ) : posts.length === 0 && !error ? (
         <div className="p-10 text-center" style={{ backgroundColor: '#fff', border: `1px solid ${office.line}` }}>
           <p className="text-sm mb-4" style={{ color: office.mute }}>
             No articles yet. Write the first story for the parish blog.
@@ -206,24 +211,22 @@ export default function AdminPosts() {
                   >
                     View
                   </Link>
-                  <button
-                    type="button"
+                  <AsyncActionButton
                     disabled={busyId === p.id}
-                    onClick={() => { void onTogglePublish(p) }}
+                    onClick={() => onTogglePublish(p)}
                     className="px-3 py-2 text-[10px] uppercase tracking-widest min-h-[40px]"
                     style={{ border: `1px solid ${office.gold}`, color: office.wine, fontFamily: "'DM Mono', monospace", background: '#fff' }}
                   >
                     {p.published ? 'Unpublish' : 'Publish'}
-                  </button>
-                  <button
-                    type="button"
+                  </AsyncActionButton>
+                  <AsyncActionButton
                     disabled={busyId === p.id}
-                    onClick={() => { void onDelete(p) }}
+                    onClick={() => onDelete(p)}
                     className="px-3 py-2 text-[10px] uppercase tracking-widest min-h-[40px]"
                     style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
                   >
                     Remove
-                  </button>
+                  </AsyncActionButton>
                 </div>
               </div>
             </article>

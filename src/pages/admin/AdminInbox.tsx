@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { deleteInboxMessage, fetchInbox, inboxTableReady, updateInboxStatus } from '../../lib/inbox'
 import type { InboxKind, InboxMessage, InboxStatus } from '../../lib/inboxTypes'
 import OfficePage, { OfficeAlert } from '../../components/office/OfficePage'
+import { AsyncActionButton, SkeletonRows } from '../../components/office/OfficeLoaders'
 
 const FILTERS: Array<{ id: InboxKind | 'all'; label: string }> = [
   { id: 'all', label: 'All' },
@@ -26,6 +27,8 @@ export default function AdminInbox() {
   const [error, setError] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
 
+  const [loaded, setLoaded] = useState(false)
+
   const load = async () => {
     const table = await inboxTableReady()
     setReady(table.ready)
@@ -37,7 +40,7 @@ export default function AdminInbox() {
   }
 
   useEffect(() => {
-    void load()
+    void load().finally(() => setLoaded(true))
   }, [filter])
 
   const onStatus = async (id: string, status: InboxStatus) => {
@@ -85,7 +88,9 @@ export default function AdminInbox() {
         ))}
       </div>
 
-      {ready && messages.length === 0 && !error ? (
+      {!loaded ? (
+        <SkeletonRows />
+      ) : ready && messages.length === 0 && !error ? (
         <p className="text-sm" style={{ color: '#6B6259' }}>No messages yet. Contact, prayer, and newsletter messages will appear here.</p>
       ) : null}
 
@@ -120,20 +125,20 @@ export default function AdminInbox() {
                 Reply
               </a>
               {m.status === 'unread' ? (
-                <button type="button" disabled={busyId === m.id} onClick={() => { void onStatus(m.id, 'read') }} className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]" style={{ fontFamily: "'DM Mono', monospace", color: '#6B1A2A' }}>
+                <AsyncActionButton disabled={busyId === m.id} onClick={() => onStatus(m.id, 'read')} className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]" style={{ fontFamily: "'DM Mono', monospace", color: '#6B1A2A' }}>
                   Mark read
-                </button>
+                </AsyncActionButton>
               ) : (
-                <button type="button" disabled={busyId === m.id} onClick={() => { void onStatus(m.id, 'unread') }} className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]" style={{ fontFamily: "'DM Mono', monospace", color: '#6B1A2A' }}>
+                <AsyncActionButton disabled={busyId === m.id} onClick={() => onStatus(m.id, 'unread')} className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]" style={{ fontFamily: "'DM Mono', monospace", color: '#6B1A2A' }}>
                   Mark unread
-                </button>
+                </AsyncActionButton>
               )}
-              <button type="button" disabled={busyId === m.id} onClick={() => { void onStatus(m.id, 'archived') }} className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]" style={{ fontFamily: "'DM Mono', monospace", color: '#6B1A2A' }}>
+              <AsyncActionButton disabled={busyId === m.id} onClick={() => onStatus(m.id, 'archived')} className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]" style={{ fontFamily: "'DM Mono', monospace", color: '#6B1A2A' }}>
                 Archive
-              </button>
-              <button type="button" disabled={busyId === m.id} onClick={() => { void onDelete(m.id) }} className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]" style={{ fontFamily: "'DM Mono', monospace", color: '#6B1A2A' }}>
+              </AsyncActionButton>
+              <AsyncActionButton disabled={busyId === m.id} onClick={() => onDelete(m.id)} className="px-3 py-2 text-xs uppercase tracking-widest min-h-[40px]" style={{ fontFamily: "'DM Mono', monospace", color: '#6B1A2A' }}>
                 Remove
-              </button>
+              </AsyncActionButton>
             </div>
           </div>
         ))}

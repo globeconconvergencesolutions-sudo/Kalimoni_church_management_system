@@ -9,12 +9,14 @@ import {
   STORY_CATEGORIES,
   type MediaAlbum,
 } from '../../lib/mediaAlbums'
-import { deleteStaffMedia, saveStaffMediaMeta, uploadParishMedia } from '../../lib/mediaAdmin'
+import { deleteStaffMedia, saveStaffMediaMeta, uploadParishMedia, type UploadProgress } from '../../lib/mediaAdmin'
+import { fetchGalleryCategories } from '../../lib/galleryCategories'
 import { parishImage, parishVideoPoster, type ParishMedia } from '../../lib/media'
 import MediaDropZone from './MediaDropZone'
 import { OfficeAlert, OfficeButton } from './OfficePage'
 import { useOfficeConfirm } from './useOfficeConfirm'
 import { office } from './officeTheme'
+import { BusyOverlay, SkeletonGrid, Spinner, UploadProgressBar, useLeaveGuard } from './OfficeLoaders'
 import { MEDIA_GALLERY_ACCEPT, mediaUploadHint } from '../../lib/mediaUploadRules'
 
 type View = { mode: 'list' } | { mode: 'edit'; albumId: string | null }
@@ -26,11 +28,17 @@ export default function AdminStoriesPanel() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const loadAlbums = async () => {
-    const result = await fetchStaffAlbums()
-    setAlbums(result.albums)
-    if (result.error) setError(result.error)
+    try {
+      const result = await fetchStaffAlbums()
+      setAlbums(result.albums)
+      if (result.error) setError(result.error)
+    } finally {
+      setLoaded(true)
+    }
   }
 
   useEffect(() => {
@@ -88,7 +96,9 @@ export default function AdminStoriesPanel() {
         </OfficeButton>
       </div>
 
-      {albums.length === 0 ? (
+      {!loaded ? (
+        <SkeletonGrid count={4} aspect="16/7" className="grid grid-cols-1 md:grid-cols-2 gap-4" />
+      ) : albums.length === 0 ? (
         <div className="p-12 text-center" style={{ backgroundColor: '#fff', border: `1px solid ${office.line}` }}>
           <p className="text-sm" style={{ color: office.mute }}>
             No stories yet. Create one for the church construction photos, or any future project.
@@ -99,9 +109,11 @@ export default function AdminStoriesPanel() {
           {albums.map(album => (
             <article
               key={album.id}
-              className="p-5 flex flex-col gap-3"
+              className="relative p-5 flex flex-col gap-3"
               style={{ backgroundColor: '#fff', border: `1px solid ${office.line}` }}
+              aria-busy={deletingId === album.id || undefined}
             >
+              {deletingId === album.id ? <BusyOverlay label="Deleting story" dark={false} /> : null}
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="font-semibold text-base" style={{ fontFamily: "'Lora', serif", color: office.burgundy }}>
@@ -143,6 +155,7 @@ export default function AdminStoriesPanel() {
                   type="button"
                   variant="ghost"
                   disabled={busy}
+                  loading={deletingId === album.id}
                   onClick={() => {
                     void (async () => {
                       const ok = await confirm({
@@ -153,9 +166,11 @@ export default function AdminStoriesPanel() {
                       })
                       if (!ok) return
                       setBusy(true)
+                      setDeletingId(album.id)
                       setError(null)
                       const result = await deleteStaffAlbum(album.id)
                       setBusy(false)
+                      setDeletingId(null)
                       if (!result.ok) {
                         setError(result.error || 'Could not delete this story.')
                         return
@@ -201,9 +216,35 @@ function AlbumEditor({
   const [busy, setBusy] = useState(false)
   const [uploadFiles, setUploadFiles] = useState<File[]>([])
   const [pendingCaption, setPendingCaption] = useState('')
+  const [editorLoaded, setEditorLoaded] = useState(!albumId)
+  const [saving, setSaving] = useState(false)
+  const [upload, setUpload] = useState<{ index: number; total: number; progress: UploadProgress; done: string[] } | null>(null)
+  const [itemBusy, setItemBusy] = useState<Record<string, string>>({})
+
+  useLeaveGuard(Boolean(upload))
+
+  const withItemBusy = async (itemId: string, label: string, task: () => Promise<void>) => {
+    setItemBusy(prev => ({ ...prev, [itemId]: label }))
+    try {
+      await task()
+    } finally {
+      setItemBusy(prev => {
+        const next = { ...prev }
+        delete next[itemId]
+        return next
+      })
+    }
+  }
+  const [categoryNames, setCategoryNames] = useState<string[]>([...STORY_CATEGORIES])
+
+  useEffect(() => {
+    void fetchGalleryCategories().then(r => {
+      if (!r.missingTable && r.categories.length) setCategoryNames(r.categories.map(c => c.name))
+    })
+  }, [])
 
   const load = async (targetId: string) => {
-    const result = await fetchStaffAlbum(targetId)
+    const result = await fetchStaffAlbum(targetId).finally(() => setEditorLoaded(true))
     if (result.error && !result.album) {
       setError(result.error)
       return
@@ -234,6 +275,7 @@ function AlbumEditor({
   const saveMeta = async (e?: FormEvent) => {
     e?.preventDefault()
     setBusy(true)
+    setSaving(true)
     setError(null)
     const result = await saveStaffAlbum(id, {
       title,
@@ -247,6 +289,7 @@ function AlbumEditor({
       cover_media_id: coverId,
     })
     setBusy(false)
+    setSaving(false)
     if (!result.ok || !result.album) {
       setError(result.error)
       return
@@ -270,25 +313,36 @@ function AlbumEditor({
     setError(null)
     let photos = 0
     let videos = 0
-    for (const file of uploadFiles) {
+    const done: string[] = []
+    for (let index = 0; index < uploadFiles.length; index++) {
+      const file = uploadFiles[index]
+      setUpload({ index, total: uploadFiles.length, progress: { phase: 'reading', percent: 0 }, done: [...done] })
       const isVid = file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(file.name)
       const base = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim()
       const itemTitle = base ? base.charAt(0).toUpperCase() + base.slice(1) : title
       const caption = pendingCaption.trim() || itemTitle
-      const result = await uploadParishMedia(file, {
-        mode: 'gallery',
-        title: itemTitle,
-        category,
-        alt: caption,
-        caption,
-        albumId: id,
-      })
+      const result = await uploadParishMedia(
+        file,
+        {
+          mode: 'gallery',
+          title: itemTitle,
+          category,
+          alt: caption,
+          caption,
+          albumId: id,
+        },
+        progress => setUpload(u => (u ? { ...u, progress } : u)),
+      )
       if (!result.ok) {
         setBusy(false)
-        setError(result.error)
+        setUpload(null)
+        // Keep only the files that did not make it, so a retry doesn't duplicate
+        setUploadFiles(prev => prev.slice(index))
+        setError(`${file.name}: ${result.error}${done.length ? ` (${done.length} earlier file${done.length === 1 ? '' : 's'} uploaded fine)` : ''}`)
         await load(id)
         return
       }
+      done.push(file.name)
       if (isVid) videos += 1
       else photos += 1
     }
@@ -296,6 +350,7 @@ function AlbumEditor({
     setUploadFiles([])
     setPendingCaption('')
     setBusy(false)
+    setUpload(null)
     const parts = [
       photos ? `${photos} photo${photos === 1 ? '' : 's'}` : '',
       videos ? `${videos} video${videos === 1 ? '' : 's'}` : '',
@@ -323,7 +378,17 @@ function AlbumEditor({
 
       {error ? <OfficeAlert tone="error">{error}</OfficeAlert> : null}
 
+      {!editorLoaded ? (
+        <div className="p-5 sm:p-6 space-y-4" style={{ backgroundColor: '#fff', border: `1px solid ${office.line}` }} role="status" aria-label="Loading story">
+          <div className="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase" style={{ color: office.gold, fontFamily: "'DM Mono', monospace" }}>
+            <Spinner size={12} /> Opening story…
+          </div>
+          <SkeletonGrid count={4} aspect="16/10" className="grid grid-cols-1 sm:grid-cols-2 gap-4" />
+        </div>
+      ) : null}
+
       <form
+        hidden={!editorLoaded}
         onSubmit={e => { void saveMeta(e) }}
         className="p-5 sm:p-6 space-y-4"
         style={{ backgroundColor: '#fff', border: `1px solid ${office.line}` }}
@@ -389,7 +454,7 @@ function AlbumEditor({
               Category
             </label>
             <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-3 py-3 text-sm min-h-[44px]" style={office.field}>
-              {STORY_CATEGORIES.map(c => (
+              {(categoryNames.includes(category) ? categoryNames : [category, ...categoryNames]).map(c => (
                 <option key={c}>{c}</option>
               ))}
             </select>
@@ -426,13 +491,13 @@ function AlbumEditor({
           Feature on the homepage spotlight
         </label>
         <div className="flex gap-2">
-          <OfficeButton type="submit" disabled={busy}>
-            {busy ? 'Saving…' : id ? 'Save details' : 'Create story'}
+          <OfficeButton type="submit" disabled={busy} loading={saving}>
+            {saving ? (id ? 'Saving…' : 'Creating…') : id ? 'Save details' : 'Create story'}
           </OfficeButton>
         </div>
       </form>
 
-      {id ? (
+      {!editorLoaded ? null : id ? (
         <div className="p-5 sm:p-6 space-y-4" style={{ backgroundColor: '#fff', border: `1px solid ${office.line}` }}>
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
             <div>
@@ -459,20 +524,57 @@ function AlbumEditor({
           />
           {uploadFiles.length > 0 ? (
             <div className="space-y-3">
-              <p className="text-xs" style={{ color: office.mute }}>
-                {uploadFiles.length} file{uploadFiles.length === 1 ? '' : 's'} ready:{' '}
-                {uploadFiles.map(f => f.name).join(', ')}
-              </p>
+              <ul className="text-xs space-y-1" aria-label="Upload queue">
+                {uploadFiles.map((f, i) => {
+                  const state = !upload ? 'ready' : i < upload.index ? 'done' : i === upload.index ? 'active' : 'waiting'
+                  return (
+                    <li key={`${f.name}-${i}`} className="flex items-center gap-2" style={{ color: state === 'waiting' ? office.mute : office.burgundy }}>
+                      <span className="w-4 flex justify-center shrink-0">
+                        {state === 'done' ? (
+                          <span style={{ color: '#2A6B3A' }}>✓</span>
+                        ) : state === 'active' ? (
+                          <Spinner size={12} style={{ color: office.gold }} />
+                        ) : (
+                          <span style={{ color: office.line }}>•</span>
+                        )}
+                      </span>
+                      <span className="truncate">{f.name}</span>
+                      <span className="ml-auto shrink-0 text-[10px]" style={{ color: office.mute, fontFamily: "'DM Mono', monospace" }}>
+                        {(f.size / (1024 * 1024)).toFixed(1)} MB
+                      </span>
+                      {!upload ? (
+                        <button
+                          type="button"
+                          aria-label={`Remove ${f.name} from queue`}
+                          onClick={() => setUploadFiles(prev => prev.filter((_, j) => j !== i))}
+                          className="px-1.5 text-sm leading-none"
+                          style={{ color: office.mute }}
+                        >
+                          ×
+                        </button>
+                      ) : null}
+                    </li>
+                  )
+                })}
+              </ul>
+              {upload ? (
+                <UploadProgressBar
+                  progress={upload.progress}
+                  fileName={uploadFiles[upload.index]?.name}
+                  batch={{ index: upload.index, total: upload.total }}
+                />
+              ) : null}
               <input
                 value={pendingCaption}
+                disabled={Boolean(upload)}
                 onChange={e => setPendingCaption(e.target.value)}
                 placeholder="Optional shared caption for this batch"
                 className="w-full px-3 py-3 text-sm min-h-[44px]"
                 style={office.field}
               />
               <div className="flex gap-2">
-                <OfficeButton type="button" disabled={busy} onClick={() => { void uploadSelected() }}>
-                  {busy ? 'Uploading…' : 'Upload to story'}
+                <OfficeButton type="button" disabled={busy} loading={Boolean(upload)} onClick={() => { void uploadSelected() }}>
+                  {upload ? `Uploading ${upload.index + 1} of ${upload.total}…` : `Upload ${uploadFiles.length} to story`}
                 </OfficeButton>
                 <OfficeButton type="button" variant="ghost" disabled={busy} onClick={() => setUploadFiles([])}>
                   Clear queue
@@ -491,8 +593,9 @@ function AlbumEditor({
                   ? parishVideoPoster(item.cloudinary_id || item.url, 480, 300)
                   : parishImage(item.cloudinary_id || item.url, 480, 300)
                 return (
-                  <div key={item.id} className="overflow-hidden" style={{ border: `1px solid ${office.line}` }}>
+                  <div key={item.id} className="overflow-hidden" style={{ border: `1px solid ${office.line}` }} aria-busy={itemBusy[item.id] ? true : undefined}>
                     <div className="relative" style={{ aspectRatio: '16/10', backgroundColor: '#E8DFD0' }}>
+                      {itemBusy[item.id] ? <BusyOverlay label={itemBusy[item.id]} /> : null}
                       <img
                         src={thumb}
                         alt={item.alt || item.title}
@@ -523,9 +626,10 @@ function AlbumEditor({
                         onBlur={e => {
                           const titleValue = e.target.value.trim()
                           if (!titleValue || titleValue === item.title) return
-                          void saveStaffMediaMeta(item.id, { title: titleValue }).then(r => {
+                          void withItemBusy(item.id, 'Saving', async () => {
+                            const r = await saveStaffMediaMeta(item.id, { title: titleValue })
                             if (!r.ok) setError(r.error)
-                            else void load(id)
+                            else await load(id)
                           })
                         }}
                         className="w-full px-2 py-2 text-sm"
@@ -537,9 +641,10 @@ function AlbumEditor({
                         onBlur={e => {
                           const caption = e.target.value.trim()
                           if (caption === (item.caption || item.alt || '')) return
-                          void saveStaffMediaMeta(item.id, { caption, alt: caption }).then(r => {
+                          void withItemBusy(item.id, 'Saving', async () => {
+                            const r = await saveStaffMediaMeta(item.id, { caption, alt: caption })
                             if (!r.ok) setError(r.error)
-                            else void load(id)
+                            else await load(id)
                           })
                         }}
                         className="w-full px-2 py-2 text-xs"
@@ -551,8 +656,10 @@ function AlbumEditor({
                           type="button"
                           className="text-[10px] tracking-widest uppercase min-h-[32px] px-2"
                           style={{ color: office.wine, fontFamily: "'DM Mono', monospace", background: 'none', border: `1px solid ${office.gold}` }}
+                          disabled={Boolean(itemBusy[item.id])}
                           onClick={() => {
-                            void setAlbumCover(id, item.id).then(r => {
+                            void withItemBusy(item.id, 'Setting cover', async () => {
+                              const r = await setAlbumCover(id, item.id)
                               if (!r.ok) setError(r.error)
                               else {
                                 setCoverId(item.id)
@@ -567,10 +674,12 @@ function AlbumEditor({
                           type="button"
                           className="text-[10px] tracking-widest uppercase min-h-[32px] px-2"
                           style={{ color: office.mute, fontFamily: "'DM Mono', monospace", background: 'none', border: 'none' }}
+                          disabled={Boolean(itemBusy[item.id])}
                           onClick={() => {
-                            void saveStaffMediaMeta(item.id, { published: !item.published }).then(r => {
+                            void withItemBusy(item.id, item.published ? 'Unpublishing' : 'Publishing', async () => {
+                              const r = await saveStaffMediaMeta(item.id, { published: !item.published })
                               if (!r.ok) setError(r.error)
-                              else void load(id)
+                              else await load(id)
                             })
                           }}
                         >
@@ -589,9 +698,11 @@ function AlbumEditor({
                                 tone: 'danger',
                               })
                               if (!ok) return
-                              const r = await deleteStaffMedia(item.id)
-                              if (!r.ok) setError(r.error || 'Could not remove this item.')
-                              else void load(id)
+                              await withItemBusy(item.id, 'Removing', async () => {
+                                const r = await deleteStaffMedia(item.id)
+                                if (!r.ok) setError(r.error || 'Could not remove this item.')
+                                else await load(id)
+                              })
                             })()
                           }}
                         >

@@ -5,6 +5,7 @@ import { getSupabase } from '../../lib/supabase'
 import type { NoticeDraft, NoticeSeverity } from '../../lib/noticeTypes'
 import OfficePage, { OfficeAlert, OfficeButton } from '../../components/office/OfficePage'
 import { office } from '../../components/office/officeTheme'
+import ParishLoader from '../../components/office/ParishLoader'
 
 function toLocalInput(iso: string | null): string {
   if (!iso) return ''
@@ -98,7 +99,7 @@ export default function AdminNoticeForm() {
   }
 
   if (!loaded) {
-    return <div className="text-sm" style={{ color: office.mute }}>Loading notice…</div>
+    return <ParishLoader caption="Opening notice" tone="light" fullscreen={false} />
   }
 
   return (
@@ -166,7 +167,7 @@ export default function AdminNoticeForm() {
             />
           </div>
         </div>
-        <OfficeButton type="submit" disabled={busy}>{busy ? 'Saving…' : isNew ? 'Publish notice' : 'Save changes'}</OfficeButton>
+        <OfficeButton type="submit" disabled={busy} loading={busy}>{busy ? 'Saving…' : isNew ? 'Publish notice' : 'Save changes'}</OfficeButton>
       </form>
     </OfficePage>
   )
