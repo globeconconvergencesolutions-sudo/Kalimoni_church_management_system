@@ -140,6 +140,7 @@ export default function Contact() {
                     >
                       <option value="">Select a subject</option>
                       <option>General Inquiry</option>
+                      <option>Donations & Giving</option>
                       <option>Pastoral Support</option>
                       <option>Hospital (HHCJ)</option>
                       <option>School Admissions</option>

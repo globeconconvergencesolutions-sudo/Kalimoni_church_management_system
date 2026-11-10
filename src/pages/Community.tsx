@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { useSEO } from '../hooks/useSEO'
 import { useSiteMedia } from '../hooks/useSiteMedia'
+import { JUMUIYA_COUNT, JUMUIYA_ZONES } from '../data/jumuiyas'
 
 const GROWTH_DATA = [
   { year: 2002, count: 15 },
   { year: 2008, count: 25 },
   { year: 2016, count: 30 },
   { year: 2019, count: 48 },
-  { year: 2022, count: 72 },
+  { year: 2026, count: JUMUIYA_COUNT },
 ]
 
 const GROUPS = [
@@ -15,6 +16,8 @@ const GROUPS = [
   { name: 'Catholic Women Association (CWA)', desc: 'The CWA led the consecration of the Divine Mercy Chapel in February 2025, a transformative spiritual landmark.', icon: '❧', color: '#6B1A2A' },
   { name: 'Youth Serving Christ (YSC)', desc: 'Young people actively shape parish life. The YSC helped erect the beautiful crucifix at the Way of the Cross on Good Friday 2025.', icon: '✦', color: '#1A3A4A' },
   { name: 'Young Catholic Adults (YCA)', desc: 'The YCA joins the YSC in faith formation and community service, demonstrating the vitality of youth in the parish.', icon: '◈', color: '#2A1A4A' },
+  { name: 'Missionary Youth Movement (MYM)', desc: 'MYM forms young missionaries who carry the Gospel into homes, schools, and Jumuiyas across the parish.', icon: '◎', color: '#2A3A1A' },
+  { name: 'Sacred Heart', desc: 'A devotion apostolate centred on the Heart of Jesus — prayer, reparation, and quiet works of mercy.', icon: '♡', color: '#4A1019' },
 ]
 
 const CELEBRATIONS = [
@@ -30,7 +33,7 @@ const OUTSTATIONS = [
 export default function Community() {
   useSEO({
     title: 'Our Community',
-    description: '72 Jumuiyas, ministries, outstations, and parish celebrations that make St. Theresa Kalimoni Parish a living community of faith.',
+    description: `${JUMUIYA_COUNT} Jumuiyas, ministries, outstations, and parish celebrations that make St. Theresa Kalimoni Parish a living community of faith.`,
     path: '/community',
   })
   const maxCount = Math.max(...GROWTH_DATA.map(d => d.count))
@@ -60,7 +63,7 @@ export default function Community() {
           </h1>
           <p className="text-sm sm:text-base md:text-lg max-w-xl leading-relaxed" style={{ color: '#F0E8D8AA' }}>
             The parish is rooted in Small Christian Communities — <em>Jumuiyas</em> — where faith
-            is lived in homes and neighbourhoods. From 15 in 2002 to 72 in 2022.
+            is lived in homes and neighbourhoods. Today the parish walks with {JUMUIYA_COUNT} active Jumuiyas.
           </p>
         </div>
       </section>
@@ -72,7 +75,7 @@ export default function Community() {
           <div className="flex flex-col lg:flex-row lg:gap-16 items-end">
             <div className="w-full lg:w-1/2 mb-10 lg:mb-0">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-5" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
-                20 Years of<br />Remarkable Growth
+                Decades of<br />Faithful Growth
               </h2>
               <p className="text-sm sm:text-base leading-relaxed mb-6" style={{ color: '#4A3A30' }}>
                 Each Jumuiya is a neighbourhood-level faith community — a family of families who
@@ -80,10 +83,12 @@ export default function Community() {
                 parish's vitality.
               </p>
               <div className="grid grid-cols-2 gap-3">
-                {[{year:2002,n:15},{year:2022,n:72}].map(d => (
-                  <div key={d.year} className="p-4 sm:p-5" style={{ backgroundColor: '#F0E8D8', borderLeft: '3px solid #C8922A' }}>
+                {[{ year: 2002, n: 15 }, { year: 'Today', n: JUMUIYA_COUNT }].map(d => (
+                  <div key={String(d.year)} className="p-4 sm:p-5" style={{ backgroundColor: '#F0E8D8', borderLeft: '3px solid #C8922A' }}>
                     <div className="text-2xl sm:text-3xl font-bold mb-1" style={{ fontFamily: "'Lora', serif", color: '#6B1A2A' }}>{d.n}</div>
-                    <div className="text-xs tracking-widest uppercase" style={{ color: '#6B6259', fontFamily: "'DM Mono', monospace" }}>Jumuiyas in {d.year}</div>
+                    <div className="text-xs tracking-widest uppercase" style={{ color: '#6B6259', fontFamily: "'DM Mono', monospace" }}>
+                      Jumuiyas {typeof d.year === 'number' ? `in ${d.year}` : d.year}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -124,9 +129,41 @@ export default function Community() {
                 ))}
               </div>
               <p className="text-xs text-center tracking-wide" style={{ color: '#8A7A70', fontFamily: "'DM Mono', monospace" }}>
-                Tap bars · Jumuiya count 2002–2022
+                Tap bars · Jumuiya growth to {JUMUIYA_COUNT} today
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* OFFICIAL SCC LIST */}
+      <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-10 lg:px-16" style={{ backgroundColor: '#F0E8D8' }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
+            Small Christian Communities
+          </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>
+            {JUMUIYA_COUNT} Jumuiyas of the Parish
+          </h2>
+          <p className="text-sm sm:text-base leading-relaxed mb-8 max-w-2xl" style={{ color: '#4A3A30' }}>
+            The official list of Small Christian Communities serving Kalimoni and neighbouring areas —
+            neighbourhoods of prayer, scripture, and mutual care.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {JUMUIYA_ZONES.map(zone => (
+              <div key={zone.id} className="p-5 sm:p-6" style={{ backgroundColor: '#FAF6F0', borderTop: '3px solid #C8922A' }}>
+                <div className="text-xs tracking-[0.2em] uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
+                  {zone.label} · {zone.communities.length}
+                </div>
+                <ul className="flex flex-col gap-1.5">
+                  {zone.communities.map(name => (
+                    <li key={name} className="text-sm leading-snug" style={{ color: '#4A1019', fontFamily: "'Lora', serif" }}>
+                      {name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
       </section>

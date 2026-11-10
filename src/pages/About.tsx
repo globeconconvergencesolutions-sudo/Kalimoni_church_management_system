@@ -5,8 +5,8 @@ import { useSiteMedia } from '../hooks/useSiteMedia'
 const PILLARS = [
   { icon: '✦', title: 'Faith', desc: 'Rooted in the Catholic tradition, nurtured through the sacraments, scripture, and the Small Christian Communities known as Jumuiyas.' },
   { icon: '♦', title: 'Service', desc: 'Inspired by the Vincentian spirit of "proclaiming the good news to the poor," we serve God through concrete acts of charity.' },
-  { icon: '◈', title: 'Community', desc: 'Bound together across 72 Jumuiyas, the parish is a living network of neighbours, families, and friends sharing faith.' },
-  { icon: '❧', title: 'Growth', desc: 'From 15 Jumuiyas in 2002 to 72 in 2022, the parish continues to grow in numbers, in depth of faith, and in geographic reach.' },
+  { icon: '◈', title: 'Community', desc: 'Bound together across 40 Jumuiyas, the parish is a living network of neighbours, families, and friends sharing faith.' },
+  { icon: '❧', title: 'Growth', desc: 'From 15 Jumuiyas in 2002 to 40 active Small Christian Communities today, the parish continues to grow in depth of faith and geographic reach.' },
 ]
 
 export default function About() {
@@ -125,7 +125,7 @@ export default function About() {
             </p>
             <p className="text-sm sm:text-base leading-relaxed" style={{ color: '#4A3A30' }}>
               Guided by the Vincentian motto — <em>"He has sent me to proclaim the good news to the poor"</em> (Luke 4:18) —
-              Rev. Fr. Shijo leads the parish community in evangelisation, pastoral care, and service to all 72 Jumuiyas.
+              Rev. Fr. Shijo leads the parish community in evangelisation, pastoral care, and service to all 40 Jumuiyas.
             </p>
           </div>
           <div className="w-full lg:w-7/12">

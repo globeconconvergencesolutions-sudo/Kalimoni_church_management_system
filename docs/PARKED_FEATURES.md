@@ -1,6 +1,6 @@
-# Parked public features
+# Parked / restored public features
 
-Official giving channels and parish phone / WhatsApp numbers are not yet approved for the public site. Code stays in the repo; surfaces are gated by [`src/lib/siteFeatures.ts`](../src/lib/siteFeatures.ts). Flip flags and update this file when restoring.
+Official giving channels and parish phone / WhatsApp numbers are gated by [`src/lib/siteFeatures.ts`](../src/lib/siteFeatures.ts). Flip flags and update this file when parking or restoring.
 
 Do **not** show “coming soon”, “TBD”, or “contact the administrator” placeholders for parked items — omit them silently.
 
@@ -10,79 +10,74 @@ Do **not** show “coming soon”, “TBD”, or “contact the administrator”
 
 | Flag | Default | Meaning |
 |------|---------|---------|
-| `publicDonate` | `false` | Public `/donate`, nav Donate CTAs, home/blog giving pitches |
-| `contactPhoneWhatsApp` | `false` | Tel links, WhatsApp FAB, ministry WhatsApp CTA |
-| `testimonials` | `true` | Home Voices + moderated submit (not parked) |
+| `publicDonate` | `true` | Public `/donate`, nav Donate CTAs, home/blog giving pitches |
+| `contactPhoneWhatsApp` | `true` | Tel links, WhatsApp FAB, ministry WhatsApp CTA |
+| `testimonials` | `true` | Home Voices + moderated submit |
 
 Admin **Giving** (`/admin/giving`) stays live for internal gift records.
 
 ---
 
-## Public donate (`publicDonate`)
+## Public donate (`publicDonate`) — RESTORED 2026-11-10
 
-### Parked surfaces
+### Live channels (official parish sheet)
 
-- [ ] Route `/donate` → silent redirect to `/` while flag is off ([`src/routes.ts`](../src/routes.ts)); page component kept ([`src/pages/Donation.tsx`](../src/pages/Donation.tsx))
-- [ ] Header Donate chip + mobile “Donate Now” ([`src/components/Layout.tsx`](../src/components/Layout.tsx))
-- [ ] Footer top “Support the Mission” band + Connect “Donate” link + bottom Donate link
-- [ ] Home hero Donate button, quick-link Support Us tile, NewsletterCTA left column donate pitch ([`src/pages/Home.tsx`](../src/pages/Home.tsx))
-- [ ] Blog post end CTA + sidebar Give Today ([`src/pages/BlogPost.tsx`](../src/pages/BlogPost.tsx))
-- [ ] Contact subject “Donations & Giving” ([`src/pages/Contact.tsx`](../src/pages/Contact.tsx))
+| Purpose | Method | Details |
+|---------|--------|---------|
+| Tithe / donation / offertory | M-Pesa Paybill | **8622862** · Account: Tithe / Donation / Offertory + name |
+| Tithes / donations / offerings | Family Bank (Thika) | **005000026146** · St. Theresa's Kalimoni Parish |
+| Centenary church project | KCB Juja | **1202431526** · St. Theresa Kalimoni Catholic Parish |
+| Centenary church project | M-Pesa Paybill | **522533** · Account: **8055823#Jumuiya** |
 
-### Still live
+### Hidden for now (not in official sheet)
 
-- Email, address, maps, Facebook
-- Admin Giving + dashboard gifts card (internal)
+PayPal, Stripe / card, Western Union — code removed from the public Donate method list; do not re-add until approved.
 
-### Restore checklist
+### Surfaces
 
-1. Set official M-Pesa / bank / Western Union details in `Donation.tsx` (and related copy).
-2. Set `publicDonate: true` in `siteFeatures.ts`.
-3. Smoke-test: nav, footer, home, blog, `/donate`, Contact subject if re-added.
-4. Update this section: mark items restored and note the date / source of the official channels.
+- [x] Route `/donate` live ([`Donation.tsx`](../src/pages/Donation.tsx))
+- [x] Header / mobile / footer Donate CTAs ([`Layout.tsx`](../src/components/Layout.tsx))
+- [x] Home hero Donate, Support Us tile, NewsletterCTA donate column ([`Home.tsx`](../src/pages/Home.tsx))
+- [x] Blog donate CTAs ([`BlogPost.tsx`](../src/pages/BlogPost.tsx))
+- [x] Contact subject “Donations & Giving” ([`Contact.tsx`](../src/pages/Contact.tsx))
+
+### To park again
+
+1. Set `publicDonate: false`.
+2. Smoke-test redirect of `/donate` and absence of Donate CTAs.
 
 ---
 
-## Phone & WhatsApp (`contactPhoneWhatsApp`)
+## Phone & WhatsApp (`contactPhoneWhatsApp`) — RESTORED 2026-11-10
 
-Canonical numbers live in [`src/data/parishLocation.ts`](../src/data/parishLocation.ts) (`phone` / `phoneTel`). Public UI must use:
+Canonical number in [`parishLocation.ts`](../src/data/parishLocation.ts): **+254 704 358594** (0704358594).
 
-- `parishPhoneDisplay()`
-- `parishTelHref()`
-- `parishWhatsAppUrl(prefill?)`
+Helpers: `parishPhoneDisplay()`, `parishTelHref()`, `parishWhatsAppUrl(prefill?)`.
 
-These return `null` while the flag is off.
+### Surfaces
 
-### Parked surfaces
+- [x] Footer tel + WhatsApp FAB
+- [x] Contact / Events tel
+- [x] Ministries WhatsApp CTA
 
-- [ ] Footer tel row ([`Layout.tsx`](../src/components/Layout.tsx))
-- [ ] WhatsApp floating action button
-- [ ] Contact page tel link ([`Contact.tsx`](../src/pages/Contact.tsx))
-- [ ] Events sidebar tel ([`Events.tsx`](../src/pages/Events.tsx))
-- [ ] Ministries “WhatsApp Us” (replaced by Contact while off) ([`Ministries.tsx`](../src/pages/Ministries.tsx))
-- [ ] Donation page phone lines (also behind `publicDonate`)
+Email remains **sttheresakalimoniparish@gmail.com** (doc typo `bmail` ignored).
 
-### Still live
+### To park again
 
-- `mailto:` parish email
-- Physical address and map links
+1. Set `contactPhoneWhatsApp: false`.
+2. Confirm tel / FAB omit cleanly.
 
-### Restore checklist
+---
 
-1. Replace `phone` / `phoneTel` in `parishLocation.ts` with the **approved** numbers (voice + WhatsApp may differ — adjust helpers if needed).
-2. Set `contactPhoneWhatsApp: true`.
-3. Smoke-test: footer, Contact, Events, Ministries, WhatsApp FAB.
-4. Update this section with the approved numbers and restore date.
+## Jumuiyas (content, not a flag) — UPDATED 2026-11-10
+
+Official count: **40** Small Christian Communities (19 Kalimoni + 11 HAA + 10 St. Dominic). Source of truth: [`src/data/jumuiyas.ts`](../src/data/jumuiyas.ts). Named list on Community page.
 
 ---
 
 ## Testimonials (not parked)
 
-Moderated Voices of the Parish: public submit → `pending` → admin approve → `published` on Home.
-
-- Public: [`src/pages/Home.tsx`](../src/pages/Home.tsx)
-- Admin: `/admin/testimonials`
-- Table: `public.testimonials` (see migrations)
+Moderated Voices of the Parish: public submit → pending → admin approve → published on Home.
 
 ---
 
@@ -91,3 +86,4 @@ Moderated Voices of the Parish: public submit → `pending` → admin approve �
 | Date | Change |
 |------|--------|
 | 2026-10-12 | Initial park: `publicDonate` + `contactPhoneWhatsApp` off; testimonials module live |
+| 2026-11-10 | Restore phone/WhatsApp + Donate with official Paybill/banks; hide PayPal/Stripe/WU; Jumuiyas → 40 |

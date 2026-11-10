@@ -16,14 +16,14 @@ import type { Testimonial } from '../lib/testimonialTypes'
 
 const HERO_STATS = [
   { value: '1927', label: 'Year Established' },
-  { value: '72', label: 'Jumuiyas' },
+  { value: '40', label: 'Jumuiyas' },
   { value: '3+', label: 'Daughter Parishes' },
   { value: '99+', label: 'Years of Faith' },
 ]
 
 const QUICK_LINKS = [
   { to: '/about', title: 'About Us', desc: 'Our vision, mission, and identity as a Catholic community in Juja.', icon: '✦', bg: '#6B1A2A' },
-  { to: '/ministries', title: 'Ministries', desc: 'CWA, CMA, YCA, YSC, PMC — find your place in the parish family.', icon: '◈', bg: '#4A3A10' },
+  { to: '/ministries', title: 'Ministries', desc: 'CWA, CMA, YCA, YSC, PMC, MYM — find your place in the parish family.', icon: '◈', bg: '#4A3A10' },
   { to: '/events', title: 'Events', desc: 'Upcoming feast days, holy days, and parish celebrations.', icon: '⊞', bg: '#1A3A4A' },
   siteFeatures.publicDonate
     ? { to: '/donate', title: 'Support Us', desc: 'Partner with our mission — every gift transforms a life in Kalimoni.', icon: '♡', bg: '#2A1A4A' }
@@ -963,7 +963,7 @@ function NewsletterCTA() {
 export default function Home() {
   useSEO({
     title: 'St. Theresa Kalimoni Parish',
-    description: 'Catholic parish serving Kalimoni, Juja, Kiambu County, Kenya since 1912. 72 Jumuiyas, Vincentian Fathers, HHCJ Sisters, Kalimoni Hospital, and Parish School.',
+    description: 'Catholic parish serving Kalimoni, Juja, Kiambu County, Kenya since 1912. 40 Jumuiyas, Vincentian Fathers, HHCJ Sisters, Kalimoni Hospital, and Parish School.',
     path: '/',
   })
 

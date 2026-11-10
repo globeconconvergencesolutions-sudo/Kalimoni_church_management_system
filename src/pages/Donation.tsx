@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { JUMUIYA_COUNT } from '../data/jumuiyas'
 import { useSEO } from '../hooks/useSEO'
 import { submitInbox } from '../lib/inbox'
 import { confirmDemoStk, estimateKes, sendDemoStk } from '../lib/mpesa'
@@ -7,7 +8,7 @@ const PAYMENT_METHODS = [
   {
     id: 'mpesa',
     label: 'M-Pesa',
-    tag: 'Kenya · Instant',
+    tag: 'Tithe · Donation · Offertory',
     bg: '#009A3D',
     labelColor: '#A8FFCC',
     icon: (
@@ -17,22 +18,21 @@ const PAYMENT_METHODS = [
       </svg>
     ),
     fields: [
-      { label: 'Paybill Number', value: '400200', note: '(Safaricom Paybill)' },
-      { label: 'Account Number', value: 'ST THERESA KALIMONI', note: '' },
-      { label: 'Phone / Till', value: '+254 704 358594', note: '(Send Money)' },
+      { label: 'Paybill Number', value: '8622862', note: '(Lipa na M-Pesa)' },
+      { label: 'Account', value: 'Tithe / Donation / Offertory', note: '+ your name' },
     ],
     steps: [
       'Go to M-Pesa on your phone',
       'Select Lipa na M-Pesa → Paybill',
-      'Enter Business No: 400200',
-      'Enter Account: ST THERESA KALIMONI',
-      'Enter amount and your PIN',
+      'Enter Business No: 8622862',
+      'Enter Account: Tithe, Donation, or Offertory, then your name',
+      'Enter amount and your M-Pesa PIN',
     ],
   },
   {
-    id: 'bank',
-    label: 'Bank Transfer',
-    tag: 'Kenya & International',
+    id: 'family-bank',
+    label: 'Family Bank',
+    tag: 'Tithes · Donations · Offerings',
     bg: '#1A3A4A',
     labelColor: '#A8D4E8',
     icon: (
@@ -42,86 +42,66 @@ const PAYMENT_METHODS = [
       </svg>
     ),
     fields: [
-      { label: 'Bank Name', value: 'Kenya Commercial Bank (KCB)', note: '' },
-      { label: 'Account Name', value: 'St. Theresa Kalimoni Parish', note: '' },
-      { label: 'Account Number', value: 'Request from the parish office', note: '' },
-      { label: 'Branch', value: 'Juja Branch', note: '' },
-      { label: 'Swift Code', value: 'KCBLKENX', note: '(international transfers)' },
+      { label: 'Bank Name', value: 'Family Bank', note: '' },
+      { label: 'Branch', value: 'Thika', note: '' },
+      { label: 'Account Name', value: "St. Theresa's Kalimoni Parish", note: '' },
+      { label: 'Account Number', value: '005000026146', note: '' },
     ],
     steps: [
-      'Email sttheresakalimoniparish@gmail.com for the current account number',
-      'Use your bank app or visit any KCB branch',
-      'Quote the account name and number provided by the parish',
-      'For international transfers: use Swift code KCBLKENX',
-      'Email your receipt to sttheresakalimoniparish@gmail.com',
+      'Use your Family Bank app, agency, or any Family Bank branch',
+      'Deposit or transfer to account 005000026146',
+      'Use the account name: St. Theresa\'s Kalimoni Parish',
+      'Keep your receipt and email it to sttheresakalimoniparish@gmail.com if helpful',
     ],
   },
   {
-    id: 'paypal',
-    label: 'PayPal',
-    tag: 'International',
-    bg: '#003087',
-    labelColor: '#A8C8FF',
+    id: 'kcb',
+    label: 'KCB Bank',
+    tag: 'Centenary Church Project',
+    bg: '#6B1A2A',
+    labelColor: '#E8B84B',
     icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-        <path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 00-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 00-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 00.554.647h3.882c.46 0 .85-.334.922-.788.06-.26.76-4.852.816-5.09a.932.932 0 01.923-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.174-3.388-.777-4.471z" />
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+        <path d="M3 21h18" />
+        <path d="M5 21V10l7-5 7 5v11" />
+        <path d="M9 21v-6h6v6" />
       </svg>
     ),
     fields: [
-      { label: 'PayPal Email', value: 'sttheresakalimoniparish@gmail.com', note: '' },
+      { label: 'Bank Name', value: 'KCB Bank', note: '' },
+      { label: 'Branch', value: 'Juja', note: '' },
+      { label: 'Account Name', value: 'St. Theresa Kalimoni Catholic Parish', note: '' },
+      { label: 'Account Number', value: '1202431526', note: '' },
     ],
     steps: [
-      'Log in to your PayPal account',
-      'Send to: sttheresakalimoniparish@gmail.com',
-      'Select "Friends & Family" where available to avoid fees',
-      'Add the cause name in the note field',
+      'Use your KCB app, agent, or any KCB branch',
+      'Transfer to account 1202431526 (Juja branch)',
+      'This account supports the Centenary Church Project',
+      'Email your receipt to sttheresakalimoniparish@gmail.com if you wish',
     ],
   },
   {
-    id: 'stripe',
-    label: 'Card Payment',
-    tag: 'Credit & Debit Cards',
-    bg: '#635BFF',
-    labelColor: '#C8C4FF',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-        <path d="M13.976 9.15c-2.172-.806-3.361-1.501-3.361-2.494 0-.829.836-1.312 2.248-1.312 2.325 0 4.661.908 6.648 2.143l.894-5.386C18.22.928 15.613 0 12.008 0 8.635 0 5.799 1.299 4.064 3.476c-1.399 1.773-1.963 4.1-1.532 6.54C3.247 13.5 6.092 15.08 8.717 16.18c2.099.875 3.138 1.625 3.138 2.667 0 1.021-.9 1.609-2.498 1.609-2.205 0-5.021-.96-7.21-2.572L1 23.428C3.425 25.03 6.72 26 10.27 26c3.479 0 6.28-1.217 8.01-3.35 1.548-1.898 2.122-4.34 1.697-6.887-.611-3.65-3.376-5.358-6.001-6.613z" />
-      </svg>
-    ),
-    fields: [
-      { label: 'Cards Accepted', value: 'Visa · Mastercard · Amex', note: '' },
-      { label: 'Arranged through', value: 'Parish office', note: '' },
-    ],
-    steps: [
-      'Email sttheresakalimoniparish@gmail.com to arrange a card payment',
-      'Or use M-Pesa, PayPal, or bank transfer above',
-      'Include your name, amount, and the cause you wish to support',
-    ],
-  },
-  {
-    id: 'western-union',
-    label: 'Western Union',
-    tag: 'International Remittance',
-    bg: '#FFAA00',
-    labelColor: '#7A4800',
+    id: 'centenary-mpesa',
+    label: 'Centenary Paybill',
+    tag: 'Church Building · Jumuiya',
+    bg: '#C8922A',
+    labelColor: '#1C1A18',
     icon: (
       <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-        <rect width="40" height="40" rx="4" fill="#FFAA00" />
-        <text x="20" y="26" textAnchor="middle" fontSize="13" fontWeight="900" fill="#1C1A18" fontFamily="Arial,sans-serif">WU</text>
+        <rect width="40" height="40" rx="4" fill="#C8922A" />
+        <text x="20" y="26" textAnchor="middle" fontSize="11" fontWeight="800" fill="#1C1A18" fontFamily="Arial,sans-serif">✝</text>
       </svg>
     ),
     fields: [
-      { label: 'Receiver Name', value: 'Rev. Fr. Joseph Shijo', note: '(parish account)' },
-      { label: 'Country', value: 'Kenya', note: '' },
-      { label: 'City', value: 'Juja / Kalimoni', note: '' },
-      { label: 'Phone', value: '+254 704 358594', note: '(for confirmation)' },
+      { label: 'Paybill Number', value: '522533', note: '(Centenary project)' },
+      { label: 'Account', value: '8055823#Jumuiya', note: 'replace Jumuiya with yours' },
     ],
     steps: [
-      'Visit westernunion.com or your nearest WU agent',
-      'Send to: Rev. Fr. Joseph Shijo, Kenya',
-      'Call +254 704 358594 to confirm transfer details',
-      'Email MTCN reference to sttheresakalimoniparish@gmail.com',
-      'Funds available for collection within minutes',
+      'Go to M-Pesa → Lipa na M-Pesa → Paybill',
+      'Enter Business No: 522533',
+      'Enter Account: 8055823# followed by your Jumuiya name',
+      'Enter amount and your M-Pesa PIN',
+      'Together let us build a legacy of faith for generations to come',
     ],
   },
 ]
@@ -167,7 +147,7 @@ function PaymentMethods() {
 
         {/* Fields */}
         <div className="text-[10px] uppercase tracking-widest mb-3 px-0" style={{ color: '#A8FFCC', fontFamily: "'DM Mono', monospace" }}>
-          {method.id === 'mpesa' ? 'Manual Paybill · live STK comes after Daraja' : 'How to pay'}
+          {method.id === 'mpesa' || method.id === 'centenary-mpesa' ? 'Lipa na M-Pesa · Paybill' : 'Account details'}
         </div>
         <div className="flex flex-col gap-2 mb-4">
           {method.fields.map(f => (
@@ -199,10 +179,38 @@ function PaymentMethods() {
 }
 
 const CAUSES = [
-  { id: 'hospital', icon: '♡', title: 'Kalimoni Mission Hospital', desc: 'Support essential medical care for thousands of patients served by the Level 4 hospital run by the HHCJ Sisters.', target: 50000, raised: 31200, color: '#1A3A4A' },
-  { id: 'education', icon: '◈', title: 'Education & School', desc: 'Fund scholarships, school supplies, and infrastructure at Kalimoni Comprehensive School.', target: 20000, raised: 11800, color: '#4A3A10' },
-  { id: 'church', icon: '✝', title: 'Church & Parish Growth', desc: 'Support construction and maintenance of parish structures, outstations, and new chapels.', target: 35000, raised: 18500, color: '#6B1A2A' },
-  { id: 'charity', icon: '♦', title: 'Charitable Outreach', desc: 'Feed the hungry, shelter the homeless, and support the marginalised through Vincentian works of mercy.', target: 15000, raised: 9300, color: '#2A1A4A' },
+  {
+    id: 'centenary',
+    icon: '✝',
+    title: 'Centenary Church Project',
+    desc: 'Help build a lasting house of worship — a legacy of faith for generations to come.',
+    channel: 'KCB Juja 1202431526 · Paybill 522533',
+    color: '#6B1A2A',
+  },
+  {
+    id: 'offertory',
+    icon: '♡',
+    title: 'Tithe · Donation · Offertory',
+    desc: 'Support the day-to-day mission of the parish through giving and offertory.',
+    channel: 'Paybill 8622862 · Family Bank Thika',
+    color: '#1A3A4A',
+  },
+  {
+    id: 'hospital',
+    icon: '◈',
+    title: 'Kalimoni Mission Hospital',
+    desc: 'Support essential medical care for patients served by the Level 4 hospital run by the HHCJ Sisters.',
+    channel: 'Use offertory Paybill or Family Bank',
+    color: '#4A3A10',
+  },
+  {
+    id: 'education',
+    icon: '♦',
+    title: 'Education & School',
+    desc: 'Fund scholarships, school supplies, and infrastructure at Kalimoni Comprehensive School.',
+    channel: 'Use offertory Paybill or Family Bank',
+    color: '#2A1A4A',
+  },
 ]
 
 const AMOUNTS = [25, 50, 100, 250, 500]
@@ -216,8 +224,13 @@ const CURRENCIES = [
 ]
 
 export default function Donation() {
-  useSEO({ title: 'Donate', description: 'Support the mission of St. Theresa Kalimoni Parish. Fund the hospital, school, church building, and community outreach — donations accepted in KES, USD, GBP, EUR and more.', path: '/donate' })
-  const [selectedCause, setSelectedCause] = useState('hospital')
+  useSEO({
+    title: 'Donate',
+    description:
+      'Support St. Theresa Kalimoni Parish through official M-Pesa Paybill, Family Bank, and KCB channels — tithe, offertory, hospital, school, and the Centenary Church Project.',
+    path: '/donate',
+  })
+  const [selectedCause, setSelectedCause] = useState('centenary')
   const [amount, setAmount] = useState(1000)
   const [customAmount, setCustomAmount] = useState('')
   const [currency, setCurrency] = useState('KES')
@@ -353,7 +366,7 @@ export default function Donation() {
             health, education, charity, and the growth of our faith community in Kalimoni.
           </p>
           <div className="flex flex-wrap gap-2">
-            {['M-Pesa', 'Bank Transfer', 'PayPal', 'Stripe', 'Western Union', 'Visa / Mastercard'].map(p => (
+            {['M-Pesa Paybill', 'Family Bank', 'KCB Centenary', 'Centenary Paybill'].map(p => (
               <span key={p} className="px-3 py-1 text-xs" style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#E8B84B', fontFamily: "'DM Mono', monospace", border: '1px solid rgba(232,184,75,0.25)' }}>{p}</span>
             ))}
           </div>
@@ -368,29 +381,28 @@ export default function Donation() {
           <h2 className="text-2xl sm:text-3xl font-bold mb-7 sm:mb-8" style={{ fontFamily: "'Lora', serif", color: '#4A1019' }}>Choose a Cause</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
             {CAUSES.map(cause => {
-              const pct = Math.round((cause.raised / cause.target) * 100)
+              const selected = selectedCause === cause.id
               return (
                 <button
                   key={cause.id}
                   onClick={() => setSelectedCause(cause.id)}
                   className="text-left p-4 sm:p-5 transition-all duration-200 hover:-translate-y-0.5 min-h-[160px]"
                   style={{
-                    backgroundColor: selectedCause === cause.id ? cause.color : '#F0E8D8',
-                    border: selectedCause === cause.id ? 'none' : '1px solid #D0C4B0',
-                    outline: selectedCause === cause.id ? `2px solid ${cause.color}` : 'none',
+                    backgroundColor: selected ? cause.color : '#F0E8D8',
+                    border: selected ? 'none' : '1px solid #D0C4B0',
+                    outline: selected ? `2px solid ${cause.color}` : 'none',
                   }}
                 >
                   <div className="flex sm:block gap-4 items-start mb-2 sm:mb-0">
-                    <div className="text-xl sm:text-2xl sm:mb-2" style={{ color: selectedCause === cause.id ? '#E8B84B' : '#C8922A' }}>{cause.icon}</div>
+                    <div className="text-xl sm:text-2xl sm:mb-2" style={{ color: selected ? '#E8B84B' : '#C8922A' }}>{cause.icon}</div>
                     <div className="flex-1">
-                      <div className="text-sm font-bold mb-1 sm:mb-2" style={{ fontFamily: "'Lora', serif", color: selectedCause === cause.id ? '#fff' : '#4A1019' }}>{cause.title}</div>
-                      <div className="text-xs leading-relaxed mb-3" style={{ color: selectedCause === cause.id ? '#F0E8D8AA' : '#6B6259' }}>{cause.desc}</div>
+                      <div className="text-sm font-bold mb-1 sm:mb-2" style={{ fontFamily: "'Lora', serif", color: selected ? '#fff' : '#4A1019' }}>{cause.title}</div>
+                      <div className="text-xs leading-relaxed mb-3" style={{ color: selected ? '#F0E8D8AA' : '#6B6259' }}>{cause.desc}</div>
                     </div>
                   </div>
-                  <div className="w-full h-1 mb-1" style={{ backgroundColor: selectedCause === cause.id ? 'rgba(255,255,255,0.2)' : '#D0C4B0' }}>
-                    <div className="h-full" style={{ width: `${pct}%`, backgroundColor: selectedCause === cause.id ? '#E8B84B' : '#C8922A' }} />
+                  <div className="text-[10px] tracking-widest uppercase" style={{ fontFamily: "'DM Mono', monospace", color: selected ? '#E8B84B' : '#6B6259' }}>
+                    {cause.channel}
                   </div>
-                  <div className="text-xs" style={{ fontFamily: "'DM Mono', monospace", color: selectedCause === cause.id ? '#E8B84B' : '#6B6259' }}>{pct}% of goal</div>
                 </button>
               )
             })}
@@ -552,7 +564,8 @@ export default function Donation() {
                 <input tabIndex={-1} autoComplete="off" value={website} onChange={e => setWebsite(e.target.value)} className="hidden" aria-hidden="true" />
                 {error ? <p className="text-sm" style={{ color: '#E8B84B' }}>{error}</p> : null}
                 <p className="text-xs leading-relaxed" style={{ color: '#F0E8D8AA' }}>
-                  You may also give through Paybill or bank transfer using the instructions on the right.
+                  Official giving is via Lipa na M-Pesa Paybill or bank transfer (details on the right).
+                  Optional: send a giving note so the parish office can follow up, or try an M-Pesa phone prompt when available.
                   {currency !== 'KES' ? ` Estimated M-Pesa amount: KSh ${kesAmount.toLocaleString()}.` : ''}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -563,7 +576,7 @@ export default function Donation() {
                     className="flex-1 py-4 font-bold text-base tracking-wide min-h-[52px]"
                     style={{ backgroundColor: '#009A3D', color: '#fff', fontFamily: "'Lora', serif" }}
                   >
-                    {busy && !stkRef ? 'Sending to your phone…' : `Give via M-Pesa · KSh ${kesAmount.toLocaleString()}`}
+                    {busy && !stkRef ? 'Sending to your phone…' : `M-Pesa prompt · KSh ${kesAmount.toLocaleString()}`}
                   </button>
                   <button
                     type="submit"
@@ -581,18 +594,16 @@ export default function Donation() {
           <div className="w-full lg:w-5/12 flex flex-col gap-4">
             {(() => {
               const cause = CAUSES.find(c => c.id === selectedCause)!
-              const pct = Math.round((cause.raised / cause.target) * 100)
               return (
                 <div className="p-5 sm:p-6" style={{ backgroundColor: cause.color }}>
                   <div className="text-2xl sm:text-3xl mb-3" style={{ color: '#E8B84B' }}>{cause.icon}</div>
                   <h3 className="text-base sm:text-lg font-bold text-white mb-2" style={{ fontFamily: "'Lora', serif" }}>{cause.title}</h3>
-                  <p className="text-xs leading-relaxed mb-5" style={{ color: '#F0E8D8AA' }}>{cause.desc}</p>
-                  <div className="w-full h-1.5 mb-2" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-                    <div className="h-full" style={{ width: `${pct}%`, backgroundColor: '#E8B84B' }} />
+                  <p className="text-xs leading-relaxed mb-4" style={{ color: '#F0E8D8AA' }}>{cause.desc}</p>
+                  <div className="text-[10px] tracking-widest uppercase mb-1" style={{ color: '#E8B84B88', fontFamily: "'DM Mono', monospace" }}>
+                    Preferred channel
                   </div>
-                  <div className="flex justify-between text-xs" style={{ fontFamily: "'DM Mono', monospace", color: '#E8B84BCC' }}>
-                    <span>${cause.raised.toLocaleString()} raised</span>
-                    <span>Goal: ${cause.target.toLocaleString()}</span>
+                  <div className="text-xs font-medium" style={{ color: '#E8B84B', fontFamily: "'DM Mono', monospace" }}>
+                    {cause.channel}
                   </div>
                 </div>
               )
@@ -605,7 +616,7 @@ export default function Donation() {
                 'Support education for children at Kalimoni Comprehensive School',
                 'Enable Vincentian works of charity for the poor',
                 'Help build and maintain parish structures and outstations',
-                'Partner with 72 Jumuiyas living the Gospel together',
+                `Partner with ${JUMUIYA_COUNT} Jumuiyas living the Gospel together`,
               ].map(reason => (
                 <div key={reason} className="flex items-start gap-3 py-2 text-xs border-b" style={{ color: '#F0E8D8AA', borderColor: 'rgba(200,146,42,0.12)' }}>
                   <span style={{ color: '#C8922A', marginTop: 2 }}>✦</span>

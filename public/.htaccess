@@ -1,6 +1,10 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+  # api.* is served from public_html/api (Node app via Passenger) and inherits
+  # this file — never apply the SPA fallback there or it loops into a 500.
+  RewriteCond %{HTTP_HOST} ^api\. [NC]
+  RewriteRule ^ - [L]
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d

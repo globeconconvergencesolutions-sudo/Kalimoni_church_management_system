@@ -47,6 +47,8 @@ const ministryDefaults: Array<{ id: string; label: string; fallback: string }> =
   { id: 'yca', label: 'Young Catholic Adults', fallback: 'photo-1781263378223-1e09658a7567' },
   { id: 'ysc', label: 'Youths Serving Christ', fallback: 'photo-1547496613-4e19af6736dc' },
   { id: 'pmc', label: 'Pontifical Missionary Childhood', fallback: 'photo-1632932693914-89b90ae3d16d' },
+  { id: 'mym', label: 'Missionary Youth Movement', fallback: 'photo-1547496613-4e19af6736dc' },
+  { id: 'sacred-heart', label: 'Sacred Heart', fallback: 'photo-1609234656388-0ff363383899' },
 ]
 
 const sistersTiles: Array<{ key: string; label: string; fallback: string; sort: number }> = [

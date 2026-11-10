@@ -54,7 +54,7 @@ const MINISTRIES = [
       'Weekly Rosary groups and Marian devotion',
       'Charity drives for widows, orphans, and the sick',
       'Catering and hospitality for all major parish events',
-      'Active in all 72 Jumuiyas across the parish',
+      'Active in all 40 Jumuiyas across the parish',
     ],
     meetDay: 'Every Saturday after 7:00 AM Mass',
   },
@@ -130,12 +130,48 @@ const MINISTRIES = [
     ],
     meetDay: 'Every Sunday after 7:30 AM Mass (children)',
   },
+  {
+    id: 'mym',
+    short: 'MYM',
+    name: 'Missionary Youth Movement',
+    tagline: 'Young Missionaries of the Parish',
+    color: '#2A3A1A',
+    accent: '#E8B84B',
+    img: 'photo-1547496613-4e19af6736dc',
+    desc: 'The Missionary Youth Movement forms young people as missionaries in their homes, schools, and Jumuiyas — carrying the Gospel with courage and joy across St. Theresa Kalimoni Parish.',
+    highlights: [
+      'Mission awareness and outreach among youth',
+      'Support for parish evangelisation programmes',
+      'Partnership with YSC and YCA in community service',
+      'Prayer for the missions of the Church',
+      'Leadership formation for young missionaries',
+    ],
+    meetDay: 'As announced by the parish youth office',
+  },
+  {
+    id: 'sacred-heart',
+    short: 'SH',
+    name: 'Sacred Heart',
+    tagline: 'Devotion to the Heart of Jesus',
+    color: '#4A1019',
+    accent: '#E8B84B',
+    img: 'photo-1609234656388-0ff363383899',
+    desc: 'The Sacred Heart apostolate nurtures devotion to the Heart of Jesus through prayer, reparation, and works of mercy — a quiet strength in the spiritual life of the parish.',
+    highlights: [
+      'First Friday devotion and Sacred Heart prayer',
+      'Acts of reparation and Eucharistic adoration',
+      'Visits and prayer for the sick',
+      'Formation in the spirituality of the Sacred Heart',
+      'Witness of charity in Jumuiya life',
+    ],
+    meetDay: 'First Fridays and as scheduled by the group',
+  },
 ]
 
 export default function Ministries() {
   useSEO({
     title: 'Parish Ministries',
-    description: 'Discover the ministries of St. Theresa Kalimoni Parish — CWA, CMA, YCA, YSC, and PMC. Serving God through service to each other since 1927.',
+    description: 'Discover the ministries of St. Theresa Kalimoni Parish — CWA, CMA, YCA, YSC, PMC, MYM, and Sacred Heart. Serving God through service to each other since 1927.',
     path: '/ministries',
   })
   const [active, setActive] = useState('cwa')

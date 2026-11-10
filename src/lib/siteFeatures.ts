@@ -6,9 +6,9 @@
  */
 export const siteFeatures = {
   /** Public /donate page, nav Donate CTAs, home/blog giving pitches */
-  publicDonate: false,
+  publicDonate: true,
   /** Footer/Contact/Events tel links + WhatsApp FAB / ministry WhatsApp CTA */
-  contactPhoneWhatsApp: false,
+  contactPhoneWhatsApp: true,
   /** Home Voices of the Parish + moderated submit form */
   testimonials: true,
 } as const

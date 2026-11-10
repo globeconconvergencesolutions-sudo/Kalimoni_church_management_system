@@ -29,11 +29,12 @@ const ERAS = [
     events: [
       { year: 2016, text: 'Jumuiyas rise to 30 Small Christian Communities.' },
       { year: 2019, text: 'Remarkable growth — 48 Jumuiyas active in the parish.' },
-      { year: 2022, text: 'Jumuiyas surge to 72, demonstrating extraordinary grassroots growth in faith.' },
+      { year: 2022, text: 'Jumuiyas continue to deepen across Kalimoni and neighbouring areas.' },
       { year: 2024, text: 'St. Dominic Outstation (August) and Holy Archangels Outstation (September) established. Grotto consecrated by CMA in December.' },
       { year: 2025, text: 'Divine Mercy Chapel consecrated by CWA (February). Crucifix erected by youth at Way of the Cross on Good Friday.' },
+      { year: 2026, text: 'Official parish records list 40 active Small Christian Communities (Jumuiyas).' },
     ],
-    context: 'This era marks extraordinary grassroots expansion — from 30 Jumuiyas in 2016 to 72 in 2022. Youth, men, and women\'s associations undertook major spiritual landmark projects, deepening the identity of the parish and its community.',
+    context: 'This era marks grassroots expansion and spiritual landmarks — from 30 Jumuiyas in 2016 to 40 active Small Christian Communities today. Youth, men, and women\'s associations undertook major projects that deepened the identity of the parish.',
   },
 ]
 
@@ -46,7 +47,7 @@ const DAUGHTERS = [
 export default function History() {
   useSEO({
     title: 'Our History',
-    description: 'From a 1912 Holy Ghost Fathers mission to a thriving parish of 72 Jumuiyas — the story of St. Theresa Kalimoni Parish.',
+    description: 'From a 1912 Holy Ghost Fathers mission to a thriving parish of 40 Jumuiyas — the story of St. Theresa Kalimoni Parish.',
     path: '/history',
   })
   const [activeEra, setActiveEra] = useState('founding')
@@ -79,7 +80,7 @@ export default function History() {
             <em className="not-italic" style={{ color: '#E8B84B' }}>of Faithful Service</em>
           </h1>
           <p className="text-sm sm:text-base md:text-lg max-w-xl leading-relaxed" style={{ color: '#F0E8D8AA' }}>
-            From a pioneering mission in 1912 to a thriving community of 72 Jumuiyas —
+            From a pioneering mission in 1912 to a thriving community of 40 Jumuiyas —
             Kalimoni's story is one of courage, growth, and unwavering faith.
           </p>
         </div>
@@ -152,13 +153,13 @@ export default function History() {
               {activeEra === 'growth' && (
                 <div className="p-5 sm:p-6" style={{ backgroundColor: '#F0E8D8' }}>
                   <div className="text-xs tracking-widest uppercase mb-3" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
-                    Jumuiya Growth 2016–2022
+                    Jumuiya Growth · Active Today
                   </div>
                   <div className="flex items-end gap-3 h-28">
-                    {[{y:2016,n:30},{y:2019,n:48},{y:2022,n:72}].map(d => (
+                    {[{ y: '2016', n: 30 }, { y: '2019', n: 48 }, { y: 'Today', n: 40 }].map(d => (
                       <div key={d.y} className="flex-1 flex flex-col items-center gap-1">
                         <span className="text-xs font-bold" style={{ color: '#6B1A2A', fontFamily: "'DM Mono', monospace" }}>{d.n}</span>
-                        <div style={{ height: `${(d.n / 72) * 88}px`, backgroundColor: '#6B1A2A', width: '100%' }} />
+                        <div style={{ height: `${(d.n / 48) * 88}px`, backgroundColor: '#6B1A2A', width: '100%' }} />
                         <span className="text-xs" style={{ color: '#6B6259', fontFamily: "'DM Mono', monospace" }}>{d.y}</span>
                       </div>
                     ))}
