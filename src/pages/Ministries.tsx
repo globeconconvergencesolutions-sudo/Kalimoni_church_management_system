@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { useSEO } from '../hooks/useSEO'
 import { useSiteMedia } from '../hooks/useSiteMedia'
@@ -168,6 +168,176 @@ const MINISTRIES = [
   },
 ]
 
+function MinistryRail({
+  active,
+  onSelect,
+}: {
+  active: string
+  onSelect: (id: string) => void
+}) {
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const [canLeft, setCanLeft] = useState(false)
+  const [canRight, setCanRight] = useState(false)
+
+  const syncOverflow = () => {
+    const el = scrollerRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    setCanLeft(el.scrollLeft > 4)
+    setCanRight(max > 4 && el.scrollLeft < max - 4)
+  }
+
+  useEffect(() => {
+    const el = scrollerRef.current
+    if (!el) return
+    syncOverflow()
+    const onScroll = () => syncOverflow()
+    el.addEventListener('scroll', onScroll, { passive: true })
+    const ro = new ResizeObserver(() => syncOverflow())
+    ro.observe(el)
+    window.addEventListener('resize', syncOverflow)
+    return () => {
+      el.removeEventListener('scroll', onScroll)
+      ro.disconnect()
+      window.removeEventListener('resize', syncOverflow)
+    }
+  }, [])
+
+  useEffect(() => {
+    const el = scrollerRef.current
+    if (!el) return
+    const btn = el.querySelector<HTMLElement>(`[data-ministry-id="${active}"]`)
+    if (!btn) return
+    const left = btn.offsetLeft - (el.clientWidth - btn.offsetWidth) / 2
+    el.scrollTo({ left: Math.max(0, left), behavior: 'smooth' })
+  }, [active])
+
+  const scrollByDir = (dir: -1 | 1) => {
+    const el = scrollerRef.current
+    if (!el) return
+    el.scrollBy({ left: dir * Math.max(180, el.clientWidth * 0.55), behavior: 'smooth' })
+  }
+
+  const needsScroll = canLeft || canRight
+
+  return (
+    <div className="mb-8 sm:mb-10">
+      <div className="flex items-end justify-between gap-4 mb-4">
+        <div>
+          <div className="text-xs tracking-[0.25em] uppercase mb-1" style={{ color: '#C8922A', fontFamily: "'DM Mono', monospace" }}>
+            Choose a ministry
+          </div>
+          <p className="text-xs sm:text-sm" style={{ color: '#6B6259' }}>
+            {MINISTRIES.length} lay groups{needsScroll ? ' · use arrows or swipe' : ' of the parish'}
+          </p>
+        </div>
+        {needsScroll ? (
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              aria-label="Scroll ministries left"
+              disabled={!canLeft}
+              onClick={() => scrollByDir(-1)}
+              className="w-10 h-10 flex items-center justify-center transition-all duration-200 disabled:opacity-35 hover:brightness-110"
+              style={{
+                backgroundColor: canLeft ? '#6B1A2A' : '#EDE4D4',
+                color: canLeft ? '#E8B84B' : '#8A7A70',
+                border: '1px solid rgba(200,146,42,0.35)',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
+            <button
+              type="button"
+              aria-label="Scroll ministries right"
+              disabled={!canRight}
+              onClick={() => scrollByDir(1)}
+              className="w-10 h-10 flex items-center justify-center transition-all duration-200 disabled:opacity-35 hover:brightness-110"
+              style={{
+                backgroundColor: canRight ? '#6B1A2A' : '#EDE4D4',
+                color: canRight ? '#E8B84B' : '#8A7A70',
+                border: '1px solid rgba(200,146,42,0.35)',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        className="relative p-2 sm:p-2.5"
+        style={{
+          backgroundColor: '#F0E8D8',
+          border: '1px solid #D0C4B0',
+        }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-2 left-2 w-8 sm:w-10 z-10 transition-opacity duration-200"
+          style={{
+            opacity: canLeft ? 1 : 0,
+            background: 'linear-gradient(to right, #F0E8D8 15%, transparent)',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-2 right-2 w-8 sm:w-10 z-10 transition-opacity duration-200"
+          style={{
+            opacity: canRight ? 1 : 0,
+            background: 'linear-gradient(to left, #F0E8D8 15%, transparent)',
+          }}
+        />
+
+        <div
+          ref={scrollerRef}
+          role="tablist"
+          aria-label="Parish ministries"
+          className="flex gap-2 overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {MINISTRIES.map(m => {
+            const selected = active === m.id
+            return (
+              <button
+                key={m.id}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                data-ministry-id={m.id}
+                onClick={() => onSelect(m.id)}
+                className="snap-start flex-1 basis-[8.5rem] min-w-[8.5rem] sm:min-w-[9.25rem] text-left px-3.5 py-3.5 transition-all duration-200 min-h-[72px] hover:-translate-y-0.5"
+                style={{
+                  backgroundColor: selected ? m.color : '#FAF6F0',
+                  color: selected ? '#fff' : '#4A3A30',
+                  border: selected ? `1px solid ${m.color}` : '1px solid #D8CCB8',
+                  boxShadow: selected ? `inset 0 -3px 0 ${m.accent}` : 'none',
+                }}
+              >
+                <div
+                  className="text-[11px] tracking-[0.18em] uppercase mb-1.5"
+                  style={{
+                    fontFamily: "'DM Mono', monospace",
+                    color: selected ? m.accent : '#C8922A',
+                  }}
+                >
+                  {m.short}
+                </div>
+                <div
+                  className="text-xs leading-snug font-medium line-clamp-2"
+                  style={{ fontFamily: "'Lora', serif", color: selected ? '#F0E8D8' : '#4A1019' }}
+                >
+                  {m.name}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Ministries() {
   useSEO({
     title: 'Parish Ministries',
@@ -178,12 +348,22 @@ export default function Ministries() {
   const site = useSiteMedia()
   const location = useLocation()
   const ministry = MINISTRIES.find(m => m.id === active)!
+  const detailRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const slot = new URLSearchParams(location.search).get('mediaSlot') || ''
     const match = /^ministries\.(.+)$/.exec(slot)
     if (match && MINISTRIES.some(m => m.id === match[1])) setActive(match[1])
   }, [location.search])
+
+  const selectMinistry = (id: string, scrollToDetail = false) => {
+    setActive(id)
+    if (scrollToDetail) {
+      requestAnimationFrame(() => {
+        detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
+  }
 
   return (
     <div>
@@ -214,28 +394,10 @@ export default function Ministries() {
       {/* MINISTRY SELECTOR */}
       <section className="py-10 sm:py-14 md:py-16 px-4 sm:px-6 md:px-10 lg:px-16" style={{ backgroundColor: '#FAF6F0' }}>
         <div className="max-w-6xl mx-auto">
-          {/* Tab buttons — horizontal scroll, never wrap */}
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 mb-8 sm:mb-10" style={{ scrollbarWidth: 'none' }}>
-            {MINISTRIES.map(m => (
-              <button
-                key={m.id}
-                onClick={() => setActive(m.id)}
-                className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 text-xs tracking-wide transition-all duration-200 min-h-[44px]"
-                style={{
-                  fontFamily: "'DM Mono', monospace",
-                  backgroundColor: active === m.id ? m.color : '#F0E8D8',
-                  color: active === m.id ? '#E8B84B' : '#6B6259',
-                  border: active === m.id ? 'none' : '1px solid #D0C4B0',
-                }}
-              >
-                <span className="font-bold">{m.short}</span>
-                <span className="hidden sm:inline opacity-70">{m.name}</span>
-              </button>
-            ))}
-          </div>
+          <MinistryRail active={active} onSelect={selectMinistry} />
 
-          {/* Active ministry card */}
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
+          {/* Active ministry detail */}
+          <div ref={detailRef} className="flex flex-col lg:flex-row gap-6 lg:gap-10">
             <div
               id={`media-slot-ministries__${ministry.id}`}
               data-media-slot={`ministries.${ministry.id}`}
@@ -243,6 +405,7 @@ export default function Ministries() {
               style={{ minHeight: 280 }}
             >
               <img
+                key={ministry.id}
                 src={site.src(`ministries.${ministry.id}`, ministry.img, 800, 560)}
                 alt={ministry.name}
                 className="w-full h-full object-cover"
@@ -290,7 +453,7 @@ export default function Ministries() {
             {MINISTRIES.map(m => (
               <button
                 key={m.id}
-                onClick={() => { setActive(m.id); window.scrollTo({ top: 300, behavior: 'smooth' }) }}
+                onClick={() => selectMinistry(m.id, true)}
                 className="text-left p-5 sm:p-6 transition-all hover:-translate-y-0.5 duration-200"
                 style={{ backgroundColor: m.color }}
               >
